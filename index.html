@@ -11,447 +11,143 @@
 --card-hover:#223050;--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden}
-a{color:var(--amber);text-decoration:none}
+a{color:inherit;text-decoration:none}
 
 /* Header */
 .header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
 display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
 .logo span{color:var(--amber)}
-.nav{display:flex;gap:4px}
-.nav button{background:none;border:1px solid transparent;color:var(--text-muted);
-padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
-.nav button:hover{color:white;background:rgba(255,255,255,0.05)}
-.nav button.active{color:var(--amber);border-color:var(--amber);background:rgba(232,160,32,0.08)}
-.nav button.locked{opacity:0.3;cursor:not-allowed;pointer-events:none}
 
-/* Views */
-.view{display:none;padding:32px;max-width:1100px;margin:0 auto}
-.view.active{display:block}
-
-/* DASHBOARD VIEW */
-.hero{text-align:center;margin:40px 0}
+/* Hero */
+.hero{text-align:center;margin:48px 32px 12px}
 .hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
-.hero p{color:var(--text-muted);font-size:16px}
+.hero p{color:var(--text-muted);font-size:16px;max-width:560px;margin:0 auto}
+
+/* Projects Grid */
+.projects{max-width:1000px;margin:32px auto;padding:0 32px;display:grid;
+grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:24px}
+
+/* Project Card */
 .project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
-padding:32px;margin:32px 0}
-.project-card h2{font-size:20px;margin-bottom:16px;color:var(--amber)}
-.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.meta-item{padding:12px;background:rgba(255,255,255,0.03);border-radius:8px}
-.meta-item .label{font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px}
-.meta-item .value{font-size:18px;font-weight:700;margin-top:4px}
-.disciplines-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.disc-tag{background:var(--navy);padding:4px 12px;border-radius:16px;font-size:12px;
-border:1px solid var(--border)}
-.disc-tag .count{color:var(--amber);font-weight:700;margin-left:4px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:8px;
-font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
-.btn-primary{background:var(--amber);color:var(--navy-dark)}
-.btn-primary:hover{background:var(--amber-light);transform:translateY(-1px)}
-.btn-outline{background:transparent;color:var(--amber);border:2px solid var(--amber)}
-.btn-outline:hover{background:rgba(232,160,32,0.1)}
-.center-btn{text-align:center;margin:32px 0}
+padding:28px 28px 24px;transition:all .25s ease;cursor:pointer;position:relative;overflow:hidden}
+.project-card:hover{border-color:var(--amber);transform:translateY(-3px);
+box-shadow:0 8px 32px rgba(232,160,32,0.12)}
+.project-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+background:var(--amber);transform:scaleX(0);transition:transform .25s ease}
+.project-card:hover::after{transform:scaleX(1)}
 
-/* PROGRESS VIEW */
-.progress-container{max-width:700px;margin:60px auto;text-align:center}
-.progress-container h2{font-size:24px;margin-bottom:32px}
-.progress-bar-wrap{background:var(--navy);border-radius:12px;height:20px;overflow:hidden;margin:20px 0}
-.progress-bar{background:linear-gradient(90deg,var(--amber),var(--amber-light));height:100%;
-border-radius:12px;transition:width .3s ease;width:0%}
-.progress-pct{font-size:48px;font-weight:800;color:var(--amber);margin:16px 0}
-.progress-stage{color:var(--text-muted);font-size:14px;margin:8px 0}
-.activity-log{background:var(--card);border:1px solid var(--border);border-radius:8px;
-padding:16px;margin-top:32px;text-align:left;max-height:250px;overflow-y:auto;font-family:monospace;font-size:12px}
-.log-line{padding:3px 0;color:var(--text-muted)}
-.log-line .time{color:var(--amber);margin-right:8px}
-.log-line.highlight{color:var(--text)}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.card-header h2{font-size:18px;font-weight:700;color:var(--amber);line-height:1.3}
+.card-type{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+color:var(--text-muted);background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:4px;
+white-space:nowrap;margin-left:12px;flex-shrink:0}
 
-/* RESULTS VIEW */
-.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
-.stat-box{padding:20px;border-radius:10px;text-align:center}
-.stat-box .num{font-size:32px;font-weight:800}
-.stat-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.85}
-.stat-total{background:var(--navy)}
-.stat-critical{background:var(--critical)}
-.stat-major{background:var(--major)}
-.stat-minor{background:var(--minor)}
-.summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:24px}
-.stat-cost{background:var(--navy);padding:16px 20px;border-radius:10px;text-align:center}
-.stat-cost .num{font-size:22px;font-weight:700}
-.stat-pairs{background:var(--amber);color:var(--navy-dark);padding:16px 20px;border-radius:10px;text-align:center}
-.stat-pairs .num{font-size:22px;font-weight:700}
+.card-address{font-size:13px;color:var(--text-muted);margin-bottom:20px}
 
-/* Filters */
-.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--text-muted);
-padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
-.filter-btn:hover,.filter-btn.active{background:var(--amber);color:var(--navy-dark);border-color:var(--amber)}
+.card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.card-stat{text-align:center;padding:10px 6px;background:rgba(255,255,255,0.03);border-radius:8px}
+.card-stat .num{font-size:20px;font-weight:800}
+.card-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:2px}
 
-/* Conflict Cards */
-.conflict-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
-margin-bottom:16px;overflow:hidden;transition:all .2s}
-.conflict-card:hover{border-color:var(--amber);transform:translateY(-1px)}
-.cc-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer}
-.sev-badge{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;color:white;min-width:70px;text-align:center}
-.sev-Critical{background:var(--critical)}
-.sev-Major{background:var(--major)}
-.sev-Minor{background:var(--minor)}
-.cc-title{font-size:14px;font-weight:700;flex:1}
-.cc-id{font-size:11px;color:var(--text-muted)}
-.cc-chevron{color:var(--text-muted);transition:transform .2s;font-size:18px}
-.conflict-card.expanded .cc-chevron{transform:rotate(180deg)}
-.cc-body{display:none;padding:0 20px 20px}
-.conflict-card.expanded .cc-body{display:block}
-.cc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.03);
-padding:12px;border-radius:8px;margin-bottom:12px}
-.cc-meta-item{font-size:12px}
-.cc-meta-item .k{color:var(--text-muted);font-weight:600}
-.cc-desc{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6}
-.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
-.score-dim{text-align:center}
-.score-dim .dim-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
-.score-bar-bg{height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
-.score-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
-.score-dim .dim-val{font-size:11px;font-weight:700;margin-top:2px}
-.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.impact-box{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:6px;
-border-left:3px solid var(--amber);font-size:12px}
-.impact-box .ib-label{font-weight:700;color:var(--text)}
-.cc-action{background:rgba(232,160,32,0.06);border:1px solid rgba(232,160,32,0.2);
-border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6}
-.cc-action strong{color:var(--amber)}
+.severity-row{display:flex;gap:8px;margin-bottom:16px}
+.sev-pill{padding:4px 12px;border-radius:16px;font-size:11px;font-weight:700;color:white}
+.sev-critical{background:var(--critical)}
+.sev-major{background:var(--major)}
+.sev-minor{background:var(--minor)}
 
-/* REPORT VIEW */
-.report-preview{text-align:center;margin:40px 0}
-.report-preview h2{margin-bottom:16px}
-.report-mockup{background:white;border-radius:8px;max-width:500px;margin:0 auto;
-padding:40px;color:#333;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
-.rm-header{background:var(--navy);color:white;padding:30px;border-radius:6px;margin-bottom:20px}
-.rm-header h3{font-size:24px;letter-spacing:1px}
-.rm-header p{opacity:.7;font-size:12px;margin-top:4px}
-.rm-title{font-size:18px;font-weight:700;color:var(--navy);text-align:center;margin:16px 0}
-.rm-bar{height:4px;background:var(--amber);border-radius:2px;margin:12px 0}
-.rm-meta{font-size:12px;color:#666;margin:8px 0}
+.disciplines-list{display:flex;flex-wrap:wrap;gap:6px}
+.disc-tag{background:var(--navy);padding:3px 10px;border-radius:14px;font-size:11px;
+border:1px solid var(--border);color:var(--text-muted)}
 
-/* Mobile Bottom Tab Bar */
-.mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy-dark);
-border-top:2px solid var(--amber);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
-.mobile-tabs-inner{display:flex;justify-content:space-around;align-items:center}
-.mobile-tab{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;
-color:var(--text-muted);font-size:10px;font-weight:600;padding:6px 12px;cursor:pointer;transition:color .2s;
--webkit-tap-highlight-color:transparent}
-.mobile-tab svg{width:20px;height:20px}
-.mobile-tab.active{color:var(--amber)}
-.mobile-tab.locked{opacity:0.3;pointer-events:none}
+.card-arrow{position:absolute;right:20px;bottom:20px;color:var(--text-muted);font-size:20px;
+transition:all .25s ease}
+.project-card:hover .card-arrow{color:var(--amber);transform:translateX(4px)}
+
+/* Footer */
+.footer{text-align:center;padding:48px 32px 32px;color:var(--text-muted);font-size:12px}
 
 /* Responsive */
-@media(max-width:768px){
-.summary-row{grid-template-columns:repeat(2,1fr)}
-.summary-row2{grid-template-columns:1fr}
-.meta-grid{grid-template-columns:1fr 1fr}
-.scores-grid{grid-template-columns:repeat(3,1fr)}
-.cc-impact{grid-template-columns:1fr}
-.cc-meta{grid-template-columns:1fr}
-.nav{display:none}
-.mobile-tabs{display:block}
-body{padding-bottom:72px}
+@media(max-width:480px){
+.projects{grid-template-columns:1fr;padding:0 16px}
+.hero{margin:32px 16px 8px}
+.hero h1{font-size:24px}
+.card-stats{grid-template-columns:repeat(3,1fr);gap:6px}
 }
 </style>
 </head>
 <body>
 <div class="header">
   <div class="logo">FLIKT<span>.AI</span></div>
-  <div class="nav">
-    <button class="active" onclick="showView('dashboard')">Dashboard</button>
-    <button onclick="showView('progress')">Analysis</button>
-    <button onclick="showView('results')">Results</button>
-    <button onclick="showView('report')">Report</button>
-  </div>
 </div>
 
-<!-- DASHBOARD VIEW -->
-<div id="dashboard" class="view active">
-  <div class="hero">
-    <h1>AI-Powered Plan Coordination</h1>
-    <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework.</p>
-  </div>
-  <div class="project-card">
-    <h2 id="proj-name"></h2>
-    <div class="meta-grid">
-      <div class="meta-item"><div class="label">Address</div><div class="value" id="proj-addr"></div></div>
-      <div class="meta-item"><div class="label">Project Type</div><div class="value" id="proj-type"></div></div>
-      <div class="meta-item"><div class="label">Construction Value</div><div class="value" id="proj-value"></div></div>
-      <div class="meta-item"><div class="label">Total Sheets</div><div class="value" id="proj-sheets"></div></div>
+<div class="hero">
+  <h1>AI-Powered Plan Coordination</h1>
+  <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework.</p>
+</div>
+
+<div class="projects">
+
+  <!-- Oceanview Residence -->
+  <a href="oceanview.html" class="project-card">
+    <div class="card-header">
+      <h2>Oceanview Residence</h2>
+      <span class="card-type">New Construction</span>
     </div>
-    <div style="margin-top:20px">
-      <div class="label" style="font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">Disciplines Detected</div>
-      <div class="disciplines-list" id="disc-list"></div>
+    <div class="card-address">123 Oceanview Drive, Surfside, FL 33154</div>
+    <div class="card-stats">
+      <div class="card-stat"><div class="num">$2.8M</div><div class="lbl">Construction Value</div></div>
+      <div class="card-stat"><div class="num">48</div><div class="lbl">Sheets Analyzed</div></div>
+      <div class="card-stat"><div class="num">9</div><div class="lbl">Conflicts Found</div></div>
     </div>
-  </div>
-  <div class="center-btn">
-    <button class="btn btn-primary" onclick="startAnalysis()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      Run Conflict Analysis
-    </button>
-  </div>
-</div>
-
-<!-- PROGRESS VIEW -->
-<div id="progress" class="view">
-  <div class="progress-container">
-    <h2>Analyzing Plan Set</h2>
-    <div class="progress-pct" id="pct">0%</div>
-    <div class="progress-bar-wrap"><div class="progress-bar" id="pbar"></div></div>
-    <div class="progress-stage" id="stage">Initializing...</div>
-    <div class="activity-log" id="log"></div>
-  </div>
-</div>
-
-<!-- RESULTS VIEW -->
-<div id="results" class="view">
-  <h2 style="margin-bottom:20px">Conflict Analysis Results</h2>
-  <div class="summary-row" id="summary-row"></div>
-  <div class="summary-row2" id="summary-row2"></div>
-  <div class="filters" id="filters"></div>
-  <div id="conflict-list"></div>
-  <div class="center-btn" style="margin-top:24px">
-    <button class="btn btn-primary" onclick="showView('report')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      View Full Report
-    </button>
-  </div>
-</div>
-
-<!-- REPORT VIEW -->
-<div id="report" class="view">
-  <div class="report-preview">
-    <h2>Plan Conflict & Coordination Report</h2>
-    <p style="color:var(--text-muted);margin-bottom:24px">Professional PDF report ready for download</p>
-    <div class="report-mockup">
-      <div class="rm-header">
-        <h3>FLIKT.AI</h3>
-        <p>AI-Powered Plan Coordination</p>
-      </div>
-      <div class="rm-bar"></div>
-      <div class="rm-title">Plan Conflict & Coordination Report</div>
-      <div class="rm-bar"></div>
-      <div class="rm-meta"><strong>Project:</strong> <span id="rm-proj"></span></div>
-      <div class="rm-meta"><strong>Report Date:</strong> March 1, 2026</div>
-      <div class="rm-meta"><strong>Conflicts Found:</strong> <span id="rm-count"></span></div>
-      <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
+    <div class="severity-row">
+      <span class="sev-pill sev-critical">1 Critical</span>
+      <span class="sev-pill sev-major">6 Major</span>
+      <span class="sev-pill sev-minor">2 Minor</span>
     </div>
-    <div style="margin-top:32px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-      <a href="9516_Bay_Dr_Conflict_Report.pdf" download class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download PDF Report
-      </a>
-      <button class="btn btn-outline" onclick="showView('results')">
-        Back to Results
-      </button>
+    <div class="disciplines-list">
+      <span class="disc-tag">Architectural</span>
+      <span class="disc-tag">Structural</span>
+      <span class="disc-tag">Electrical</span>
+      <span class="disc-tag">Mechanical</span>
+      <span class="disc-tag">Plumbing</span>
+      <span class="disc-tag">Civil</span>
+      <span class="disc-tag">Landscape</span>
     </div>
-  </div>
+    <span class="card-arrow">&rarr;</span>
+  </a>
+
+  <!-- Harbor Club -->
+  <a href="harbor-club.html" class="project-card">
+    <div class="card-header">
+      <h2>Harbor Club</h2>
+      <span class="card-type">Community Renovation</span>
+    </div>
+    <div class="card-address">100 Harbor Club Blvd, Miami Beach, FL 33139</div>
+    <div class="card-stats">
+      <div class="card-stat"><div class="num">$1.5M</div><div class="lbl">Construction Value</div></div>
+      <div class="card-stat"><div class="num">42</div><div class="lbl">Sheets Analyzed</div></div>
+      <div class="card-stat"><div class="num">11</div><div class="lbl">Conflicts Found</div></div>
+    </div>
+    <div class="severity-row">
+      <span class="sev-pill sev-major">5 Major</span>
+      <span class="sev-pill sev-minor">6 Minor</span>
+    </div>
+    <div class="disciplines-list">
+      <span class="disc-tag">Architectural</span>
+      <span class="disc-tag">Structural</span>
+      <span class="disc-tag">Electrical</span>
+      <span class="disc-tag">Landscape</span>
+      <span class="disc-tag">Civil</span>
+    </div>
+    <span class="card-arrow">&rarr;</span>
+  </a>
+
 </div>
 
-<!-- Mobile Bottom Tab Bar -->
-<div class="mobile-tabs">
-  <div class="mobile-tabs-inner">
-    <button class="mobile-tab active" onclick="showView('dashboard')" data-view="dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Dashboard
-    </button>
-    <button class="mobile-tab" onclick="showView('progress')" data-view="progress">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Analysis
-    </button>
-    <button class="mobile-tab" onclick="showView('results')" data-view="results">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      Results
-    </button>
-    <button class="mobile-tab" onclick="showView('report')" data-view="report">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Report
-    </button>
-  </div>
+<div class="footer">
+  Flikt.AI &mdash; Automated Plan Conflict Detection for Construction
 </div>
 
-<script>
-// Demo data embedded directly (no fetch needed — works offline)
-let DATA = {"project":{"id":"demo-9516-bay-dr","name":"9516 Bay Drive \u2014 New Construction","address":"9516 Bay Dr, Surfside, FL 33154","type":"Single Family Residential","construction_value":2800000,"total_sheets":48,"disciplines":{"Architectural":["A1","A2","A3","A4"],"Structural":["S1","S2","S4","S5","S6","S7","S8","S9"],"Electrical":["E1","E2","E3","E4"],"Mechanical":["M1","M2","M3"],"Plumbing":["P1","P2","P3","P4"],"Civil":["CV1"],"Landscape":["L-1"]},"correction_rounds":5,"analysis_completed_at":"2026-03-01T15:30:00Z"},"conflicts":[{"id":"C001","title":"Structural Beam Conflicts with HVAC Supply Duct Run","disc_a":"Architectural","disc_b":"Mechanical","type":"Spatial Clash","severity":"Critical","confidence":0.93,"location":"Second Floor, Above Living Area","sheets":["S2","M1","A2"],"description":"The main HVAC supply trunk duct shown on M1 at the second floor runs directly through the path of a W10x22 structural steel beam shown on S2. The beam spans the living area at elevation 9'-6\" and the duct requires 14\" of vertical clearance at the same location. This conflict was identified across the May and July submittals with no resolution noted. The 5 correction rounds suggest this was flagged but the coordination remains unresolved.","recommended_action":"Schedule coordination meeting between structural engineer and mechanical contractor. Options: (1) Lower duct to run beneath beam with a bulkhead soffit, reducing ceiling height to 8'-2\" locally, or (2) Reroute duct through adjacent hallway. Option 2 preferred to maintain open ceiling in living area.","scores":{"constructability":9,"cost":6,"safety":10,"schedule":5,"downstream":10},"cost_low":8500,"cost_high":22000,"schedule_impact":"12 days (2\u20132 weeks)"},{"id":"C002","title":"Electrical Panel Clearance Violation at Garage Wall","disc_a":"Architectural","disc_b":"Electrical","type":"Code Violation","severity":"Major","confidence":0.91,"location":"Garage, West Wall","sheets":["E1","A1","S1"],"description":"The main electrical panel (200A) shown on E1 is located on the west garage wall at a position that places it 28 inches from the adjacent water heater shown on P1. NEC 110.26 requires a minimum 36-inch clear workspace in front of the panel. The water heater encroaches into this clearance zone. Additionally, structural bracing shown on S1 further restricts the available workspace.","recommended_action":"Relocate electrical panel 4 feet north along the garage west wall to achieve required 36-inch clearance. Verify new location does not conflict with garage door framing shown on A1. Coordinate with plumbing contractor to confirm water heater remains accessible.","scores":{"constructability":7,"cost":5,"safety":8,"schedule":4,"downstream":6},"cost_low":4500,"cost_high":12000,"schedule_impact":"7 days (1\u20132 weeks)"},{"id":"C003","title":"Plumbing Vent Stack Routing Through Roof Truss","disc_a":"Plumbing","disc_b":"Structural","type":"Spatial Clash","severity":"Major","confidence":0.89,"location":"Master Bathroom, Roof Level","sheets":["P2","S5","S7"],"description":"The 3-inch plumbing vent stack serving the master bathroom fixtures on P2 is routed vertically through the roof at a location that intersects with a roof truss web member shown on S5 and S7. The truss cannot be field-modified without engineering review. Two versions of S7 exist in the submittal set ([239062] and [239154]), suggesting this area was revised but the plumbing routing was not updated to match.","recommended_action":"Offset plumbing vent stack 18 inches east to pass between truss web members. Requires re-routing the horizontal vent connection under the floor. Structural engineer must confirm clear zone. Do not field-cut any truss members.","scores":{"constructability":8,"cost":5,"safety":10,"schedule":5,"downstream":10},"cost_low":5000,"cost_high":15000,"schedule_impact":"10 days (1\u20132 weeks)"},{"id":"C004","title":"AC Condensate Drain Conflicts with Foundation Footing","disc_a":"Architectural","disc_b":"Mechanical","type":"Spatial Clash","severity":"Major","confidence":0.86,"location":"Mechanical Closet, Ground Floor","sheets":["M2","S4","A1"],"description":"The AC condensate drain line shown on M2 exits the mechanical closet at grade level and routes through an area where the continuous foundation footing shown on S4 is located. The drain line cannot penetrate the footing without structural approval. The AC calculations document specifies a 3-ton unit requiring a 3/4\" condensate line with proper slope, but the current routing lacks adequate fall due to the footing obstruction.","recommended_action":"Route condensate drain above the footing using a condensate pump, or redirect the drain line 6 feet south to exit through the exterior wall above the footing line. Condensate pump option is simpler but adds a maintenance item. Coordinate with structural.","scores":{"constructability":7,"cost":4,"safety":7,"schedule":3,"downstream":6},"cost_low":2000,"cost_high":6000,"schedule_impact":"5 days"},{"id":"C005","title":"Landscape Irrigation Line Crosses Underground Electrical Feed","disc_a":"Civil","disc_b":"Electrical","type":"Missing Coordination","severity":"Major","confidence":0.84,"location":"Front Yard, East Side","sheets":["L-1","E1","CV1"],"description":"The landscape irrigation main line shown on L-1 crosses the underground electrical service lateral shown on E1 at the front yard east side. The civil site plan on CV1 does not show either utility, indicating a coordination gap between landscape, electrical, and civil disciplines. NEC requires minimum 12-inch vertical separation between irrigation and electrical conduits.","recommended_action":"Add irrigation line and electrical lateral to civil utility plan (CV1). Ensure minimum 12-inch vertical separation at crossing point. If separation cannot be achieved, sleeve the irrigation line with Schedule 40 PVC at the crossing. Landscape contractor to coordinate with electrician before trenching.","scores":{"constructability":8,"cost":3,"safety":8,"schedule":2,"downstream":8},"cost_low":1500,"cost_high":4500,"schedule_impact":"3 days"},{"id":"C006","title":"Window Header Size Mismatch Between Architectural and Structural","disc_a":"Architectural","disc_b":"Structural","type":"Specification Mismatch","severity":"Major","confidence":0.9,"location":"East Elevation, Second Floor Windows","sheets":["A3","S6"],"description":"Architectural elevations on A3 show (3) 6'-0\" wide impact windows on the east second-floor elevation, but the structural plan on S6 specifies headers sized for 4'-0\" openings at those locations. The signed and sealed structural set (S6[239067]) does not match the architectural window schedule. In Surfside FL, impact-rated windows require properly sized headers to meet Miami-Dade wind load requirements.","recommended_action":"Structural engineer to recheck header sizing for 6'-0\" openings per Miami-Dade wind load requirements (HVHZ). Likely requires upgrading from (2) 2x10 to (2) 2x12 or LVL beam. Window supplier to confirm frame dimensions match structural opening. This must be resolved before framing begins.","scores":{"constructability":7,"cost":4,"safety":10,"schedule":4,"downstream":6},"cost_low":3000,"cost_high":8500,"schedule_impact":"7 days (1\u20132 weeks)"},{"id":"C007","title":"Bathroom Exhaust Fan Ducting Lacks Exterior Termination Point","disc_a":"Architectural","disc_b":"Mechanical","type":"Missing Coordination","severity":"Minor","confidence":0.82,"location":"Second Floor Bathrooms (2 locations)","sheets":["M3","A4"],"description":"Mechanical plan M3 shows bathroom exhaust fans in both second-floor bathrooms but does not show duct routing to an exterior termination point. Architectural roof plan A4 does not show any roof caps or wall vents for bathroom exhaust. IRC M1501.1 requires all exhaust fans to terminate to the exterior. Without a defined path, the installer will need to improvise routing, risking conflicts with roof trusses.","recommended_action":"Add exhaust duct routing to M3 showing path from each fan to a roof cap or soffit vent. Coordinate with structural to confirm duct path clears roof trusses (reference S5, S7). Add roof caps to A4 roof plan. Preferred termination: through roof with proper flashing.","scores":{"constructability":7,"cost":2,"safety":8,"schedule":2,"downstream":4},"cost_low":800,"cost_high":2500,"schedule_impact":"2 days"},{"id":"C008","title":"Recessed Light Fixtures Conflict with Ceiling Joist Locations","disc_a":"Electrical","disc_b":"Structural","type":"Spatial Clash","severity":"Minor","confidence":0.78,"location":"Kitchen and Dining Area, First Floor","sheets":["E3","S2"],"description":"The electrical reflected ceiling plan on E3 shows 6 recessed LED downlights in the kitchen and dining area at locations that coincide with ceiling joist positions shown on S2. IC-rated recessed fixtures require a minimum 3\" clearance from framing members. At least 3 of the 6 fixtures appear to be directly beneath joists based on the structural framing layout.","recommended_action":"Shift affected recessed fixtures 6-8 inches to fall between ceiling joists. Electrician to verify final positions against structural framing before rough-in. Minor adjustment \u2014 can be resolved during electrical rough-in coordination with framing contractor.","scores":{"constructability":2,"cost":2,"safety":8,"schedule":1,"downstream":4},"cost_low":600,"cost_high":1800,"schedule_impact":"1 days"},{"id":"C009","title":"Stormwater Drainage Grade Conflicts with Driveway Elevation","disc_a":"Architectural","disc_b":"Civil","type":"Missing Coordination","severity":"Major","confidence":0.85,"location":"Front of Property, Driveway to Street","sheets":["CV1","A1"],"description":"The civil site plan CV1 shows finished grade elevations that create a negative slope from the property toward the driveway, potentially directing stormwater toward the garage entry rather than to the street swale. The architectural site plan on A1 shows a different finished floor elevation than CV1, creating a 4-inch discrepancy that affects the drainage design. The survey with trees document shows existing grade conditions that differ from both plans.","recommended_action":"Civil engineer to reconcile finished floor elevation between CV1 and A1. Verify positive drainage slope from building to street at minimum 2% grade. May require adjusting driveway approach elevation or adding a trench drain at garage entry. Reference survey for existing conditions.","scores":{"constructability":7,"cost":4,"safety":7,"schedule":3,"downstream":6},"cost_low":3500,"cost_high":9000,"schedule_impact":"5 days"}],"summary":{"total_conflicts":9,"critical":1,"major":6,"minor":2,"cost_low":29400,"cost_high":81300,"discipline_pairs":7}};
-let analysisComplete = false;
-init();
-
-function updateNavLocks(){
-  document.querySelectorAll('.nav button').forEach(b=>{
-    const label = b.textContent.toLowerCase();
-    if(!analysisComplete && (label.includes('results') || label.includes('report'))){
-      b.classList.add('locked');
-    } else {
-      b.classList.remove('locked');
-    }
-  });
-  document.querySelectorAll('.mobile-tab').forEach(b=>{
-    const view = b.dataset.view;
-    if(!analysisComplete && (view==='results' || view==='report')){
-      b.classList.add('locked');
-    } else {
-      b.classList.remove('locked');
-    }
-  });
-}
-
-function init(){
-  const p=DATA.project, s=DATA.summary;
-  // Dashboard
-  document.getElementById('proj-name').textContent=p.name;
-  document.getElementById('proj-addr').textContent=p.address;
-  document.getElementById('proj-type').textContent=p.type;
-  document.getElementById('proj-value').textContent='$'+p.construction_value.toLocaleString();
-  document.getElementById('proj-sheets').textContent=p.total_sheets+' sheets';
-  const dl=document.getElementById('disc-list');
-  Object.entries(p.disciplines).forEach(([name,sheets])=>{
-    dl.innerHTML+=`<span class="disc-tag">${name}<span class="count">${sheets.length}</span></span>`;
-  });
-  // Report preview
-  document.getElementById('rm-proj').textContent=p.name;
-  document.getElementById('rm-count').textContent=s.total_conflicts;
-  document.getElementById('rm-cost').textContent='$'+s.cost_low.toLocaleString()+' \u2013 $'+s.cost_high.toLocaleString();
-  updateNavLocks();
-}
-
-function showView(id){
-  // Block locked views
-  if(!analysisComplete && (id==='results'||id==='report')) return;
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.nav button').forEach(b=>{
-    if(b.textContent.toLowerCase().includes(id==='dashboard'?'dashboard':id==='progress'?'analysis':id))
-      b.classList.add('active');
-  });
-  document.querySelectorAll('.mobile-tab').forEach(b=>{
-    b.classList.toggle('active', b.dataset.view===id);
-  });
-  if(id==='results'&&!document.getElementById('conflict-list').innerHTML) buildResults();
-}
-
-// ANALYSIS PROGRESS SIMULATION
-function startAnalysis(){
-  showView('progress');
-  const stages=[
-    {pct:5,text:'Loading plan set (48 sheets)...',log:'Loaded 9516 Bay Dr plan set'},
-    {pct:10,text:'Classifying sheet disciplines...',log:'Identified 7 disciplines: Arch, Struct, Elec, Mech, Plumb, Civil, Landscape'},
-    {pct:15,text:'Rendering pages for AI extraction...',log:'Rendering A1 \u2014 Architectural Floor Plan (200 DPI)'},
-    {pct:20,text:'Extracting elements from A1...',log:'A1: Found 45 elements (walls, doors, windows, rooms)'},
-    {pct:25,text:'Extracting elements from A2...',log:'A2: Found 38 elements (second floor layout, stairs)'},
-    {pct:30,text:'Extracting elements from S1, S2...',log:'S1-S2: Found 28 structural elements (beams, columns, footings)'},
-    {pct:38,text:'Processing structural sheets S4-S9...',log:'S4-S9: Found 52 structural elements (trusses, bracing, headers)'},
-    {pct:45,text:'Extracting electrical elements E1-E4...',log:'E1-E4: Found 34 elements (panels, circuits, fixtures, outlets)'},
-    {pct:52,text:'Extracting mechanical elements M1-M3...',log:'M1-M3: Found 22 elements (HVAC units, ducts, diffusers, exhaust fans)'},
-    {pct:58,text:'Extracting plumbing elements P1-P4...',log:'P1-P4: Found 26 elements (pipes, fixtures, vents, drains)'},
-    {pct:63,text:'Processing civil and landscape...',log:'CV1, L-1: Found 15 elements (grades, utilities, irrigation)'},
-    {pct:68,text:'Running cross-discipline conflict detection...',log:'Comparing Architectural \u2194 Structural (28 element pairs)'},
-    {pct:73,text:'Detecting spatial clashes...',log:'\u26a0 CONFLICT: Structural beam conflicts with HVAC duct (S2 \u2194 M1)'},
-    {pct:78,text:'Checking code compliance...',log:'\u26a0 CONFLICT: Electrical panel clearance violation (E1 \u2194 A1)'},
-    {pct:82,text:'Detecting specification mismatches...',log:'\u26a0 CONFLICT: Window header size mismatch (A3 \u2194 S6)'},
-    {pct:87,text:'Checking coordination gaps...',log:'\u26a0 CONFLICT: Missing exhaust termination coordination (M3 \u2194 A4)'},
-    {pct:92,text:'Scoring severity (50-point model)...',log:'Scored 9 conflicts: 1 Critical, 6 Major, 2 Minor'},
-    {pct:96,text:'Estimating cost and schedule impacts...',log:'Total cost exposure: $29,400 \u2013 $81,300'},
-    {pct:100,text:'Analysis complete!',log:'Report generated \u2014 9 conflicts detected across 7 discipline pairs'},
-  ];
-
-  let i=0;
-  const run=()=>{
-    if(i>=stages.length){
-      analysisComplete=true;
-      updateNavLocks();
-      setTimeout(()=>showView('results'),800);
-      return;
-    }
-    const s=stages[i];
-    document.getElementById('pct').textContent=s.pct+'%';
-    document.getElementById('pbar').style.width=s.pct+'%';
-    document.getElementById('stage').textContent=s.text;
-    const log=document.getElementById('log');
-    const cls=s.log.startsWith('\u26a0')?'log-line highlight':'log-line';
-    log.innerHTML+=`<div class="${cls}"><span class="time">${new Date().toLocaleTimeString()}</span>${s.log}</div>`;
-    log.scrollTop=log.scrollHeight;
-    i++;
-    setTimeout(run, 600+Math.random()*1200);
-  };
-  run();
-}
-
-// BUILD RESULTS
-function buildResults(){
-  const s=DATA.summary;
-  // Summary boxes
-  document.getElementById('summary-row').innerHTML=`
-    <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
-    <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
-    <div class="stat-box stat-major"><div class="num">${s.major}</div><div class="lbl">Major</div></div>
-    <div class="stat-box stat-minor"><div class="num">${s.minor}</div><div class="lbl">Minor</div></div>`;
-  document.getElementById('summary-row2').innerHTML=`
-    <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} \u2013 $${s.cost_high.toLocaleString()}</div></div>
-    <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
-
-  // Filters
-  const severities=['All','Critical','Major','Minor'];
-  document.getElementById('filters').innerHTML=severities.map(sv=>
-    `<button class="filter-btn ${sv==='All'?'active':''}" onclick="filterConflicts('${sv}',this)">${sv}</button>`
-  ).join('');
-
-  renderConflicts(DATA.conflicts);
-}
-
-let currentFilter='All';
-function filterConflicts(sev,btn){
-  currentFilter=sev;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const filtered=sev==='All'?DATA.conflicts:DATA.conflicts.filter(c=>c.severity===sev);
-  renderConflicts(filtered);
-}
-
-function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--major)':'var(--minor)'}
-
-function renderConflicts(conflicts){
-  const list=document.getElementById('conflict-list');
-  list.innerHTML=conflicts.map(c=>{
-    const dims=['constructability','cost','safety','schedule','downstream'];
-    const scoresHTML=dims.map(d=>{
-      const v=c.scores[d]||0;
-      return `<div class="score-dim">
-        <div class="dim-label">${d.slice(0,6)}</div>
-        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div>
-        <div class="dim-val" style="color:${scoreColor(v)}">${v}/10</div>
-      </div>`;
-    }).join('');
-
-    return `<div class="conflict-card" onclick="this.classList.toggle('expanded')">
-      <div class="cc-header">
-        <span class="sev-badge sev-${c.severity}">${c.severity}</span>
-        <span class="cc-title">${c.title}</span>
-        <span class="cc-id">${c.id}</span>
-        <span class="cc-chevron">\u25BC</span>
-      </div>
-      <div class="cc-body">
-        <div class="cc-meta">
-          <div class="cc-meta-item"><span class="k">Disciplines:</span> ${c.disc_a} \u2194 ${c.disc_b}</div>
-          <div class="cc-meta-item"><span class="k">Type:</span> ${c.type}</div>
-          <div class="cc-meta-item"><span class="k">Location:</span> ${c.location}</div>
-          <div class="cc-meta-item"><span class="k">Sheets:</span> ${Array.isArray(c.sheets)?c.sheets.join(', '):c.sheets}</div>
-        </div>
-        <div class="cc-desc">${c.description}</div>
-        <div class="scores-grid">${scoresHTML}</div>
-        <div class="cc-impact">
-          <div class="impact-box"><span class="ib-label">Cost Exposure:</span> $${c.cost_low.toLocaleString()} \u2013 $${c.cost_high.toLocaleString()}</div>
-          <div class="impact-box"><span class="ib-label">Schedule Impact:</span> ${c.schedule_impact}</div>
-        </div>
-        <div class="cc-action"><strong>Recommended Action:</strong> ${c.recommended_action}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-</script>
 </body>
 </html>
