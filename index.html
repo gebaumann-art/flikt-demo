@@ -50,19 +50,12 @@ white-space:nowrap;margin-left:12px;flex-shrink:0}
 .card-stat .num{font-size:20px;font-weight:800}
 .card-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:2px}
 
-.severity-row{display:flex;gap:8px;margin-bottom:16px}
-.sev-pill{padding:4px 12px;border-radius:16px;font-size:11px;font-weight:700;color:white}
-.sev-critical{background:var(--critical)}
-.sev-major{background:var(--major)}
-.sev-minor{background:var(--minor)}
-
-.disciplines-list{display:flex;flex-wrap:wrap;gap:6px}
+.disciplines-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
 .disc-tag{background:var(--navy);padding:3px 10px;border-radius:14px;font-size:11px;
 border:1px solid var(--border);color:var(--text-muted)}
 
-.card-arrow{position:absolute;right:20px;bottom:20px;color:var(--text-muted);font-size:20px;
-transition:all .25s ease}
-.project-card:hover .card-arrow{color:var(--amber);transform:translateX(4px)}
+.card-cta{color:var(--amber);font-size:13px;font-weight:700;transition:all .25s ease}
+.project-card:hover .card-cta{transform:translateX(4px)}
 
 /* Footer */
 .footer{text-align:center;padding:48px 32px 32px;color:var(--text-muted);font-size:12px}
@@ -97,13 +90,8 @@ transition:all .25s ease}
     <div class="card-address">123 Oceanview Drive, Surfside, FL 33154</div>
     <div class="card-stats">
       <div class="card-stat"><div class="num">$2.8M</div><div class="lbl">Construction Value</div></div>
-      <div class="card-stat"><div class="num">48</div><div class="lbl">Sheets Analyzed</div></div>
-      <div class="card-stat"><div class="num">9</div><div class="lbl">Conflicts Found</div></div>
-    </div>
-    <div class="severity-row">
-      <span class="sev-pill sev-critical">1 Critical</span>
-      <span class="sev-pill sev-major">6 Major</span>
-      <span class="sev-pill sev-minor">2 Minor</span>
+      <div class="card-stat"><div class="num">48</div><div class="lbl">Total Sheets</div></div>
+      <div class="card-stat"><div class="num">7</div><div class="lbl">Disciplines</div></div>
     </div>
     <div class="disciplines-list">
       <span class="disc-tag">Architectural</span>
@@ -114,7 +102,7 @@ transition:all .25s ease}
       <span class="disc-tag">Civil</span>
       <span class="disc-tag">Landscape</span>
     </div>
-    <span class="card-arrow">&rarr;</span>
+    <div class="card-cta">Run Analysis &rarr;</div>
   </a>
 
   <!-- Harbor Club -->
@@ -126,12 +114,8 @@ transition:all .25s ease}
     <div class="card-address">100 Harbor Club Blvd, Miami Beach, FL 33139</div>
     <div class="card-stats">
       <div class="card-stat"><div class="num">$1.5M</div><div class="lbl">Construction Value</div></div>
-      <div class="card-stat"><div class="num">42</div><div class="lbl">Sheets Analyzed</div></div>
-      <div class="card-stat"><div class="num">11</div><div class="lbl">Conflicts Found</div></div>
-    </div>
-    <div class="severity-row">
-      <span class="sev-pill sev-major">5 Major</span>
-      <span class="sev-pill sev-minor">6 Minor</span>
+      <div class="card-stat"><div class="num">42</div><div class="lbl">Total Sheets</div></div>
+      <div class="card-stat"><div class="num">5</div><div class="lbl">Disciplines</div></div>
     </div>
     <div class="disciplines-list">
       <span class="disc-tag">Architectural</span>
@@ -140,7 +124,7 @@ transition:all .25s ease}
       <span class="disc-tag">Landscape</span>
       <span class="disc-tag">Civil</span>
     </div>
-    <span class="card-arrow">&rarr;</span>
+    <div class="card-cta">Run Analysis &rarr;</div>
   </a>
 
 </div>
