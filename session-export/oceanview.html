@@ -3,20 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Harbor Club — Flikt.AI Plan Analysis">
-    <meta property="og:description" content="AI-powered construction plan conflict detection. See real results from Harbor Club.">
-    <meta property="og:image" content="https://gebaumann-art.github.io/flikt-demo/og_final_demo.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://gebaumann-art.github.io/flikt-demo/harbor-club.html">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://gebaumann-art.github.io/flikt-demo/og_final_demo.png">
-<title>Harbor Club — Flikt.AI Plan Analysis</title>
+<title>Oceanview Residence — Flikt.AI Plan Analysis</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--navy:#1B2A4A;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
---critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;--bg:#0F1723;--card:#1A2540;
+--critical:#DC2626;--major:#EA580C;--minor:#16A34A;--bg:#0F1723;--card:#1A2540;
 --card-hover:#223050;--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;transition:background .3s,color .3s}
@@ -61,7 +52,7 @@ padding:32px;margin:32px 0}
 .meta-item .value{font-size:18px;font-weight:700;margin-top:4px}
 .disciplines-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .disc-tag{background:var(--navy);padding:4px 12px;border-radius:16px;font-size:12px;
-border:1px solid var(--border);color:white}
+border:1px solid var(--border)}
 .disc-tag .count{color:var(--amber);font-weight:700;margin-left:4px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:8px;
 font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
@@ -86,19 +77,17 @@ padding:16px;margin-top:32px;text-align:left;max-height:250px;overflow-y:auto;fo
 .log-line.highlight{color:var(--text)}
 
 /* RESULTS VIEW */
-.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
-.stat-box{padding:20px;border-radius:10px;text-align:center;color:white}
-.stat-box .num{font-size:32px;font-weight:800;color:white}
-.stat-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.85;color:white}
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.stat-box{padding:20px;border-radius:10px;text-align:center}
+.stat-box .num{font-size:32px;font-weight:800}
+.stat-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.85}
 .stat-total{background:var(--navy)}
 .stat-critical{background:var(--critical)}
-.stat-high{background:var(--high)}
-.stat-medium{background:var(--medium)}
-.stat-low{background:var(--low)}
+.stat-major{background:var(--major)}
+.stat-minor{background:var(--minor)}
 .summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:24px}
-.stat-cost{background:var(--navy);padding:16px 20px;border-radius:10px;text-align:center;color:white}
-.stat-cost .num{font-size:22px;font-weight:700;color:white}
-.stat-cost .lbl{color:white}
+.stat-cost{background:var(--navy);padding:16px 20px;border-radius:10px;text-align:center}
+.stat-cost .num{font-size:22px;font-weight:700}
 .stat-pairs{background:var(--amber);color:var(--navy-dark);padding:16px 20px;border-radius:10px;text-align:center}
 .stat-pairs .num{font-size:22px;font-weight:700}
 
@@ -115,9 +104,8 @@ margin-bottom:16px;overflow:hidden;transition:all .2s}
 .cc-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer}
 .sev-badge{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;color:white;min-width:70px;text-align:center}
 .sev-Critical{background:var(--critical)}
-.sev-High{background:var(--high)}
-.sev-Medium{background:var(--medium)}
-.sev-Low{background:var(--low)}
+.sev-Major{background:var(--major)}
+.sev-Minor{background:var(--minor)}
 .cc-title{font-size:14px;font-weight:700;flex:1}
 .cc-id{font-size:11px;color:var(--text-muted)}
 .cc-chevron{color:var(--text-muted);transition:transform .2s;font-size:18px}
@@ -155,17 +143,6 @@ padding:40px;color:#333;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
 .rm-bar{height:4px;background:var(--amber);border-radius:2px;margin:12px 0}
 .rm-meta{font-size:12px;color:#666;margin:8px 0}
 
-/* Mobile Bottom Tab Bar */
-.mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy-dark);
-border-top:2px solid var(--amber);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
-.mobile-tabs-inner{display:flex;justify-content:space-around;align-items:center}
-.mobile-tab{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;
-color:var(--text-muted);font-size:10px;font-weight:600;padding:6px 12px;cursor:pointer;transition:color .2s;
--webkit-tap-highlight-color:transparent}
-.mobile-tab svg{width:20px;height:20px}
-.mobile-tab.active{color:var(--amber)}
-.mobile-tab.locked{opacity:0.3;pointer-events:none}
-
 /* Responsive */
 @media(max-width:768px){
 .header{flex-direction:column;gap:12px;padding:12px}
@@ -177,15 +154,13 @@ color:var(--text-muted);font-size:10px;font-weight:600;padding:6px 12px;cursor:p
 .cc-impact{grid-template-columns:1fr}
 .cc-meta{grid-template-columns:1fr}
 .nav{display:none}
-.mobile-tabs{display:block}
-body{padding-bottom:72px}
 }
 </style>
 </head>
 <body>
 <div class="header">
   <div class="header-left">
-    <a href="index.html" class="back-link">← Back to Projects</a>
+    <a href="landing.html" class="back-link">← Back to Projects</a>
     <div class="logo">FLIKT<span>.AI</span></div>
   </div>
   <div style="display:flex;gap:12px;align-items:center">
@@ -273,10 +248,10 @@ body{padding-bottom:72px}
       <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
     </div>
     <div style="margin-top:32px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-      <a href="FliktAI_Harbor_Club_Demo_Report.pdf" download class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download PDF Report
-      </a>
+      <div style="text-align:center;padding:20px;background:var(--card);border-radius:8px;border:1px solid var(--border);flex:1;min-width:200px">
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:8px">Contact Flikt.AI for full PDF reports</p>
+        <p style="color:var(--amber);font-weight:700"><a href="mailto:info@flikt.ai">info@flikt.ai</a></p>
+      </div>
       <button class="btn btn-outline" onclick="showView('results')">
         Back to Results
       </button>
@@ -284,43 +259,9 @@ body{padding-bottom:72px}
   </div>
 </div>
 
-<!-- Mobile Bottom Tab Bar -->
-<div class="mobile-tabs">
-  <div class="mobile-tabs-inner">
-    <button class="mobile-tab active" onclick="showView('dashboard')" data-view="dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Dashboard
-    </button>
-    <button class="mobile-tab" onclick="showView('progress')" data-view="progress">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Analysis
-    </button>
-    <button class="mobile-tab" onclick="showView('results')" data-view="results">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      Results
-    </button>
-    <button class="mobile-tab" onclick="showView('report')" data-view="report">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Report
-    </button>
-  </div>
-</div>
-
 <script>
-// Demo data - Harbor Club with 11 conflicts (5 AI-detected + 6 GC field review, GC-corrected severities)
-let DATA = {"project":{"id":"demo-harbor-club","name":"Harbor Club — Community Renovation","address":"100 Harbor Club Blvd, Miami Beach, FL 33139","type":"Community / HOA Renovation","construction_value":1500000,"total_sheets":42,"disciplines":{"Architectural":["A1","A2"],"Structural":["S1","S2"],"Electrical":["E1","E2"],"Landscape":["L-1","L-2"],"Civil":["C-1"]},"correction_rounds":3,"analysis_completed_at":"2026-03-04T16:08:00Z"},"conflicts":[
-{"id":"C001","title":"Court surface material mismatch — asphalt vs concrete","disc_a":"Civil","disc_b":"Structural","type":"Material Spec Mismatch","severity":"High","confidence":0.91,"location":"Padel and pickleball court areas","sheets":["C-04","S-series"],"description":"Civil plans show courts surfaced with asphalt, while structural plans show concrete. Combined bids exceed $1M and this discrepancy directly impacts bidding — contractors cannot price the job without knowing which material to use. Different structural requirements for each surface type.","recommended_action":"Design team to issue RFI confirming court surface material. Update civil and structural plans to match. Reissue affected bid packages with corrected specifications.","scores":{"constructability":8,"cost":9,"safety":3,"schedule":7,"downstream":8},"cost_low":50000,"cost_high":150000,"schedule_impact":"14–21 days"},
-{"id":"C002","title":"Court SF discrepancy — 9,044 SF vs 5,923 SF","disc_a":"Architectural","disc_b":"Civil","type":"Quantity / SF Discrepancy","severity":"High","confidence":0.88,"location":"Court complex area","sheets":["A-1.1","C-04","S-series"],"description":"Architectural plans show 9,044 SF for the court complex, but civil plans show 5,923 SF. The 3,121 SF gap affects drainage design calculations, structural load assumptions, and material quantities. Drainage infrastructure sized for the wrong area could cause flooding or inadequate runoff management.","recommended_action":"Confirm correct court SF with architect. Update civil drainage design based on confirmed area. Verify structural loads match actual court dimensions.","scores":{"constructability":7,"cost":7,"safety":2,"schedule":6,"downstream":8},"cost_low":30000,"cost_high":80000,"schedule_impact":"10–14 days"},
-{"id":"C003","title":"Walkway material mismatch — concrete vs pavers","disc_a":"Civil","disc_b":"Structural","type":"Material Spec Mismatch","severity":"Medium","confidence":0.87,"location":"Pedestrian walkways throughout site","sheets":["C-04","S-series"],"description":"Structural plans specify concrete for walkways while civil plans show pavers. Different materials require different base preparation, drainage approaches, and installation methods. Bidders cannot accurately price walkway scope without resolution.","recommended_action":"Design team to confirm walkway material specification. Update affected plan sheets to reflect consistent material. Issue addendum to clarify for bidding contractors.","scores":{"constructability":7,"cost":6,"safety":3,"schedule":5,"downstream":7},"cost_low":25000,"cost_high":60000,"schedule_impact":"7–10 days"},
-{"id":"C004","title":"Kids play area material mismatch — concrete vs sand","disc_a":"Civil","disc_b":"Structural","type":"Material Spec Mismatch","severity":"Medium","confidence":0.86,"location":"Children's playground area","sheets":["C-04","S-series"],"description":"Structural plans show concrete surface at the kids play area while civil plans specify sand. This has safety code implications — playground safety standards (ASTM F1292) require impact-attenuating surfaces. Concrete would not meet fall height requirements for play equipment.","recommended_action":"Verify playground surface meets ASTM F1292 impact attenuation requirements. Coordinate with equipment manufacturer for required fall zone surfacing. Update plans to show code-compliant surface material.","scores":{"constructability":6,"cost":5,"safety":8,"schedule":4,"downstream":6},"cost_low":15000,"cost_high":40000,"schedule_impact":"5–7 days"},
-{"id":"C005","title":"Volleyball court missing from civil plans","disc_a":"Architectural","disc_b":"Civil","type":"Missing Scope","severity":"Medium","confidence":0.90,"location":"Volleyball court area","sheets":["SP-0.1","A-1.1","C-04"],"description":"Site plan SP-0.1 shows a new volleyball court and architectural plan A-1.1 shows grass removal in that area, but civil plan C-04 shows the volleyball court as existing with no excavation or sand installation scope. The civil plans do not account for the new construction required.","recommended_action":"Add volleyball court construction scope to civil plans including excavation, sand installation, drainage, and border containment. Coordinate with landscape for adjacent grading impacts.","scores":{"constructability":7,"cost":6,"safety":2,"schedule":7,"downstream":7},"cost_low":20000,"cost_high":50000,"schedule_impact":"7–14 days"},
-{"id":"C006","title":"Fencing scope unclear around pickleball courts","disc_a":"Architectural","disc_b":"Architectural","type":"Missing Scope Clarity","severity":"Low","confidence":0.74,"location":"Pickleball court perimeter","sheets":["A-1.0"],"description":"Plan A-1.0 shows what appears to be 4.5-foot fencing around the pickleball courts but it is not explicitly called out with dimensions or specifications for bidders. Contractors cannot accurately price fencing scope without clear callouts for height, material, gates, and total linear footage.","recommended_action":"Add explicit fencing callouts to architectural plans showing height, material type, gate locations, and total linear footage. Issue fencing specification section or detail sheet for bidder clarity.","scores":{"constructability":4,"cost":5,"safety":3,"schedule":3,"downstream":5},"cost_low":10000,"cost_high":30000,"schedule_impact":"3–5 days"},
-{"id":"C007","title":"Electrical conduit routing conflicts with landscape tree plantings","disc_a":"Electrical","disc_b":"Landscape","type":"Spatial Clash","severity":"Medium","confidence":0.82,"location":"Throughout site areas with new lighting and tree plantings","sheets":["E-1","L-2"],"description":"Underground electrical conduit routing conflicts with new tree plantings and relocated Sabal palms in recreational areas. Conduits will conflict with tree root systems and planting operations, particularly around the 15 new palms being installed.","recommended_action":"Coordinate electrical conduit routing with landscape architect to avoid root zones. Relocate conduits minimum 10 feet from tree trunks or use directional boring under root systems.","scores":{"constructability":5,"cost":4,"safety":2,"schedule":4,"downstream":5},"cost_low":8000,"cost_high":18000,"schedule_impact":"10 days"},
-{"id":"C008","title":"Structural calculations missing for electrical equipment foundations","disc_a":"Structural","disc_b":"Electrical","type":"Missing Coordination","severity":"Low","confidence":0.78,"location":"Electrical room and outdoor equipment areas","sheets":["S-2","E-1"],"description":"Electrical plans show equipment room modifications and new outdoor electrical equipment, but the structural calculations index does not include foundation design for electrical equipment loads. The electrical riser diagram shows significant infrastructure requiring proper structural support.","recommended_action":"Structural engineer to provide foundation calculations for all electrical equipment. Coordinate equipment loads and mounting requirements between disciplines.","scores":{"constructability":5,"cost":4,"safety":4,"schedule":3,"downstream":4},"cost_low":12000,"cost_high":25000,"schedule_impact":"14 days"},
-{"id":"C009","title":"Site demolition conflicts with utility relocations","disc_a":"Architectural","disc_b":"Civil","type":"Specification Mismatch","severity":"Medium","confidence":0.89,"location":"Areas marked for demolition on site","sheets":["D-1","C-1"],"description":"Architectural demolition plan overlaps with civil survey showing existing utilities through demolition areas. No clear coordination between demolition scope and how existing utilities will be protected or relocated during construction.","recommended_action":"Perform utility potholing to verify exact locations. Coordinate demolition sequence with utility relocations. Update demolition plan to show utility protection measures.","scores":{"constructability":6,"cost":5,"safety":5,"schedule":5,"downstream":5},"cost_low":25000,"cost_high":50000,"schedule_impact":"21 days"},
-{"id":"C010","title":"Landscape irrigation conflicts with electrical underground systems","disc_a":"Landscape","disc_b":"Electrical","type":"Spatial Clash","severity":"Low","confidence":0.75,"location":"New lounge area and recreational spaces","sheets":["L-1","E-1"],"description":"Landscape irrigation and electrical underground conduit in same areas with no coordination shown. Installation of both systems without a composite plan risks damage to either system during construction.","recommended_action":"Coordinate irrigation and electrical routing to maintain proper separation (minimum 12 inches). Create composite utility plan showing both systems.","scores":{"constructability":4,"cost":4,"safety":3,"schedule":5,"downstream":4},"cost_low":6000,"cost_high":15000,"schedule_impact":"8 days"},
-{"id":"C011","title":"Wind load calculations may not account for new site lighting structures","disc_a":"Structural","disc_b":"Electrical","type":"Missing Coordination","severity":"Low","confidence":0.71,"location":"Outdoor lighting pole locations","sheets":["S-1","E-2"],"description":"Structural wind calculations cover building elements but may not include outdoor lighting poles and fixtures shown in electrical plans. These structures are subject to the same 170 mph wind load requirements and require proper foundation design.","recommended_action":"Include lighting pole wind loads in structural calculations. Verify all outdoor electrical equipment is designed for project wind speeds.","scores":{"constructability":5,"cost":4,"safety":8,"schedule":3,"downstream":4},"cost_low":4000,"cost_high":12000,"schedule_impact":"5 days"}
-],"summary":{"total_conflicts":11,"critical":0,"high":2,"medium":5,"low":4,"cost_low":205000,"cost_high":530000,"discipline_pairs":6}};
+// Demo data - Oceanview Residence with updated name and address
+let DATA = {"project":{"id":"demo-oceanview","name":"Oceanview Residence — New Construction","address":"123 Oceanview Drive, Surfside, FL 33154","type":"Single Family Residential","construction_value":2800000,"total_sheets":48,"disciplines":{"Architectural":["A1","A2","A3","A4"],"Structural":["S1","S2","S4","S5","S6","S7","S8","S9"],"Electrical":["E1","E2","E3","E4"],"Mechanical":["M1","M2","M3"],"Plumbing":["P1","P2","P3","P4"],"Civil":["CV1"],"Landscape":["L-1"]},"correction_rounds":5,"analysis_completed_at":"2026-03-01T15:30:00Z"},"conflicts":[{"id":"C001","title":"Structural Beam Conflicts with HVAC Supply Duct Run","disc_a":"Architectural","disc_b":"Mechanical","type":"Spatial Clash","severity":"Critical","confidence":0.93,"location":"Second Floor, Above Living Area","sheets":["S2","M1","A2"],"description":"The main HVAC supply trunk duct shown on M1 at the second floor runs directly through the path of a W10x22 structural steel beam shown on S2. The beam spans the living area at elevation 9'-6\" and the duct requires 14\" of vertical clearance at the same location. This conflict was identified across the May and July submittals with no resolution noted. The 5 correction rounds suggest this was flagged but the coordination remains unresolved.","recommended_action":"Schedule coordination meeting between structural engineer and mechanical contractor. Options: (1) Lower duct to run beneath beam with a bulkhead soffit, reducing ceiling height to 8'-2\" locally, or (2) Reroute duct through adjacent hallway. Option 2 preferred to maintain open ceiling in living area.","scores":{"constructability":9,"cost":6,"safety":10,"schedule":5,"downstream":10},"cost_low":8500,"cost_high":22000,"schedule_impact":"12 days (2–2 weeks)"},{"id":"C002","title":"Electrical Panel Clearance Violation at Garage Wall","disc_a":"Architectural","disc_b":"Electrical","type":"Code Violation","severity":"Major","confidence":0.91,"location":"Garage, West Wall","sheets":["E1","A1","S1"],"description":"The main electrical panel (200A) shown on E1 is located on the west garage wall at a position that places it 28 inches from the adjacent water heater shown on P1. NEC 110.26 requires a minimum 36-inch clear workspace in front of the panel. The water heater encroaches into this clearance zone. Additionally, structural bracing shown on S1 further restricts the available workspace.","recommended_action":"Relocate electrical panel 4 feet north along the garage west wall to achieve required 36-inch clearance. Verify new location does not conflict with garage door framing shown on A1. Coordinate with plumbing contractor to confirm water heater remains accessible.","scores":{"constructability":7,"cost":5,"safety":8,"schedule":4,"downstream":6},"cost_low":4500,"cost_high":12000,"schedule_impact":"7 days (1–2 weeks)"},{"id":"C003","title":"Plumbing Vent Stack Routing Through Roof Truss","disc_a":"Plumbing","disc_b":"Structural","type":"Spatial Clash","severity":"Major","confidence":0.89,"location":"Master Bathroom, Roof Level","sheets":["P2","S5","S7"],"description":"The 3-inch plumbing vent stack serving the master bathroom fixtures on P2 is routed vertically through the roof at a location that intersects with a roof truss web member shown on S5 and S7. The truss cannot be field-modified without engineering review. Two versions of S7 exist in the submittal set ([239062] and [239154]), suggesting this area was revised but the plumbing routing was not updated to match.","recommended_action":"Offset plumbing vent stack 18 inches east to pass between truss web members. Requires re-routing the horizontal vent connection under the floor. Structural engineer must confirm clear zone. Do not field-cut any truss members.","scores":{"constructability":8,"cost":5,"safety":10,"schedule":5,"downstream":10},"cost_low":5000,"cost_high":15000,"schedule_impact":"10 days (1–2 weeks)"},{"id":"C004","title":"AC Condensate Drain Conflicts with Foundation Footing","disc_a":"Architectural","disc_b":"Mechanical","type":"Spatial Clash","severity":"Major","confidence":0.86,"location":"Mechanical Closet, Ground Floor","sheets":["M2","S4","A1"],"description":"The AC condensate drain line shown on M2 exits the mechanical closet at grade level and routes through an area where the continuous foundation footing shown on S4 is located. The drain line cannot penetrate the footing without structural approval. The AC calculations document specifies a 3-ton unit requiring a 3/4\" condensate line with proper slope, but the current routing lacks adequate fall due to the footing obstruction.","recommended_action":"Route condensate drain above the footing using a condensate pump, or redirect the drain line 6 feet south to exit through the exterior wall above the footing line. Condensate pump option is simpler but adds a maintenance item. Coordinate with structural.","scores":{"constructability":7,"cost":4,"safety":7,"schedule":3,"downstream":6},"cost_low":2000,"cost_high":6000,"schedule_impact":"5 days"},{"id":"C005","title":"Landscape Irrigation Line Crosses Underground Electrical Feed","disc_a":"Civil","disc_b":"Electrical","type":"Missing Coordination","severity":"Major","confidence":0.84,"location":"Front Yard, East Side","sheets":["L-1","E1","CV1"],"description":"The landscape irrigation main line shown on L-1 crosses the underground electrical service lateral shown on E1 at the front yard east side. The civil site plan on CV1 does not show either utility, indicating a coordination gap between landscape, electrical, and civil disciplines. NEC requires minimum 12-inch vertical separation between irrigation and electrical conduits.","recommended_action":"Add irrigation line and electrical lateral to civil utility plan (CV1). Ensure minimum 12-inch vertical separation at crossing point. If separation cannot be achieved, sleeve the irrigation line with Schedule 40 PVC at the crossing. Landscape contractor to coordinate with electrician before trenching.","scores":{"constructability":8,"cost":3,"safety":8,"schedule":2,"downstream":8},"cost_low":1500,"cost_high":4500,"schedule_impact":"3 days"},{"id":"C006","title":"Window Header Size Mismatch Between Architectural and Structural","disc_a":"Architectural","disc_b":"Structural","type":"Specification Mismatch","severity":"Major","confidence":0.9,"location":"East Elevation, Second Floor Windows","sheets":["A3","S6"],"description":"Architectural elevations on A3 show (3) 6'-0\" wide impact windows on the east second-floor elevation, but the structural plan on S6 specifies headers sized for 4'-0\" openings at those locations. The signed and sealed structural set (S6[239067]) does not match the architectural window schedule. In Surfside FL, impact-rated windows require properly sized headers to meet Miami-Dade wind load requirements.","recommended_action":"Structural engineer to recheck header sizing for 6'-0\" openings per Miami-Dade wind load requirements (HVHZ). Likely requires upgrading from (2) 2x10 to (2) 2x12 or LVL beam. Window supplier to confirm frame dimensions match structural opening. This must be resolved before framing begins.","scores":{"constructability":7,"cost":4,"safety":10,"schedule":4,"downstream":6},"cost_low":3000,"cost_high":8500,"schedule_impact":"7 days (1–2 weeks)"},{"id":"C007","title":"Bathroom Exhaust Fan Ducting Lacks Exterior Termination Point","disc_a":"Architectural","disc_b":"Mechanical","type":"Missing Coordination","severity":"Minor","confidence":0.82,"location":"Second Floor Bathrooms (2 locations)","sheets":["M3","A4"],"description":"Mechanical plan M3 shows bathroom exhaust fans in both second-floor bathrooms but does not show duct routing to an exterior termination point. Architectural roof plan A4 does not show any roof caps or wall vents for bathroom exhaust. IRC M1501.1 requires all exhaust fans to terminate to the exterior. Without a defined path, the installer will need to improvise routing, risking conflicts with roof trusses.","recommended_action":"Add exhaust duct routing to M3 showing path from each fan to a roof cap or soffit vent. Coordinate with structural to confirm duct path clears roof trusses (reference S5, S7). Add roof caps to A4 roof plan. Preferred termination: through roof with proper flashing.","scores":{"constructability":7,"cost":2,"safety":8,"schedule":2,"downstream":4},"cost_low":800,"cost_high":2500,"schedule_impact":"2 days"},{"id":"C008","title":"Recessed Light Fixtures Conflict with Ceiling Joist Locations","disc_a":"Electrical","disc_b":"Structural","type":"Spatial Clash","severity":"Minor","confidence":0.78,"location":"Kitchen and Dining Area, First Floor","sheets":["E3","S2"],"description":"The electrical reflected ceiling plan on E3 shows 6 recessed LED downlights in the kitchen and dining area at locations that coincide with ceiling joist positions shown on S2. IC-rated recessed fixtures require a minimum 3\" clearance from framing members. At least 3 of the 6 fixtures appear to be directly beneath joists based on the structural framing layout.","recommended_action":"Shift affected recessed fixtures 6-8 inches to fall between ceiling joists. Electrician to verify final positions against structural framing before rough-in. Minor adjustment — can be resolved during electrical rough-in coordination with framing contractor.","scores":{"constructability":2,"cost":2,"safety":8,"schedule":1,"downstream":4},"cost_low":600,"cost_high":1800,"schedule_impact":"1 days"},{"id":"C009","title":"Stormwater Drainage Grade Conflicts with Driveway Elevation","disc_a":"Architectural","disc_b":"Civil","type":"Missing Coordination","severity":"Major","confidence":0.85,"location":"Front of Property, Driveway to Street","sheets":["CV1","A1"],"description":"The civil site plan CV1 shows finished grade elevations that create a negative slope from the property toward the driveway, potentially directing stormwater toward the garage entry rather than to the street swale. The architectural site plan on A1 shows a different finished floor elevation than CV1, creating a 4-inch discrepancy that affects the drainage design. The survey with trees document shows existing grade conditions that differ from both plans.","recommended_action":"Civil engineer to reconcile finished floor elevation between CV1 and A1. Verify positive drainage slope from building to street at minimum 2% grade. May require adjusting driveway approach elevation or adding a trench drain at garage entry. Reference survey for existing conditions.","scores":{"constructability":7,"cost":4,"safety":7,"schedule":3,"downstream":6},"cost_low":3500,"cost_high":9000,"schedule_impact":"5 days"}],"summary":{"total_conflicts":9,"critical":1,"major":6,"minor":2,"cost_low":29400,"cost_high":81300,"discipline_pairs":7}};
 
 let analysisComplete = false;
 init();
@@ -359,14 +300,6 @@ function updateNavLocks(){
       b.classList.remove('locked');
     }
   });
-  document.querySelectorAll('.mobile-tab').forEach(b=>{
-    const view = b.dataset.view;
-    if(!analysisComplete && (view==='results' || view==='report')){
-      b.classList.add('locked');
-    } else {
-      b.classList.remove('locked');
-    }
-  });
 }
 
 function init(){
@@ -395,39 +328,31 @@ function showView(id){
     if(b.textContent.toLowerCase().includes(id==='dashboard'?'dashboard':id==='progress'?'analysis':id))
       b.classList.add('active');
   });
-  document.querySelectorAll('.mobile-tab').forEach(b=>{
-    b.classList.toggle('active', b.dataset.view===id);
-  });
   if(id==='results'&&!document.getElementById('conflict-list').innerHTML) buildResults();
 }
 
 function startAnalysis(){
   showView('progress');
   const stages=[
-    {pct:3,text:'Loading plan set (42 sheets)...',log:'Loaded Harbor Club plan set'},
-    {pct:7,text:'Classifying sheet disciplines...',log:'Identified 5 disciplines: Architectural, Structural, Electrical, Landscape, Civil'},
-    {pct:12,text:'Rendering pages for AI extraction...',log:'Rendering A1 – Architectural Site Plan (200 DPI)'},
-    {pct:17,text:'Extracting elements from A1...',log:'A1: Found 38 elements (buildings, site features, demolition areas)'},
-    {pct:22,text:'Extracting elements from A2...',log:'A2: Found 22 elements (details, annotations, court layouts)'},
-    {pct:27,text:'Extracting structural elements S1-S2...',log:'S1-S2: Found 24 structural elements (foundations, building frame, surface specs)'},
-    {pct:33,text:'Processing electrical sheets E1-E2...',log:'E1-E2: Found 28 elements (panels, circuits, site lighting, equipment)'},
-    {pct:38,text:'Extracting landscape elements L-1, L-2...',log:'L-1-L2: Found 31 elements (plantings, irrigation, features)'},
-    {pct:43,text:'Processing civil plans and survey...',log:'C-1/C-04: Found 19 elements (grades, utilities, court surfaces, walkways)'},
-    {pct:48,text:'Cross-referencing material specifications...',log:'Comparing material callouts across Civil ↔ Structural sheets'},
-    {pct:53,text:'Detecting material mismatches...',log:'⚠ CONFLICT: Court surface mismatch — asphalt vs concrete (C-04 ↔ S-series)'},
-    {pct:57,text:'Checking quantity discrepancies...',log:'⚠ CONFLICT: Court SF discrepancy — 9,044 vs 5,923 SF (A-1.1 ↔ C-04)'},
-    {pct:61,text:'Cross-referencing scope across sheets...',log:'⚠ CONFLICT: Walkway material mismatch — concrete vs pavers (C-04 ↔ S-series)'},
-    {pct:65,text:'Checking safety-critical specifications...',log:'⚠ CONFLICT: Kids play area — concrete vs sand, safety code issue (C-04 ↔ S-series)'},
-    {pct:69,text:'Detecting missing scope items...',log:'⚠ CONFLICT: Volleyball court missing from civil plans (SP-0.1 ↔ C-04)'},
-    {pct:73,text:'Reviewing bid clarity and callouts...',log:'⚠ CONFLICT: Fencing scope unclear around pickleball courts (A-1.0)'},
-    {pct:77,text:'Running spatial clash detection...',log:'⚠ CONFLICT: Electrical conduit conflicts with tree planting areas (E-1 ↔ L-2)'},
-    {pct:80,text:'Checking coordination gaps...',log:'⚠ CONFLICT: Structural calcs missing for equipment foundations (S-2 ↔ E-1)'},
-    {pct:84,text:'Detecting utility conflicts...',log:'⚠ CONFLICT: Site demolition conflicts with utility relocations (D-1 ↔ C-1)'},
-    {pct:87,text:'Detecting underground system clashes...',log:'⚠ CONFLICT: Irrigation conflicts with electrical underground (L-1 ↔ E-1)'},
-    {pct:90,text:'Checking wind load coordination...',log:'⚠ CONFLICT: Wind load calcs may not cover new lighting structures (S-1 ↔ E-2)'},
-    {pct:94,text:'Scoring severity (50-point model)...',log:'Scored 11 conflicts: 0 Critical, 2 High, 5 Medium, 4 Low'},
-    {pct:97,text:'Estimating cost and schedule impacts...',log:'Total cost exposure: $205,000 – $530,000'},
-    {pct:100,text:'Analysis complete!',log:'Report generated – 11 conflicts detected across 6 discipline pairs'},
+    {pct:5,text:'Loading plan set (48 sheets)...',log:'Loaded Oceanview Residence plan set'},
+    {pct:10,text:'Classifying sheet disciplines...',log:'Identified 7 disciplines: Arch, Struct, Elec, Mech, Plumb, Civil, Landscape'},
+    {pct:15,text:'Rendering pages for AI extraction...',log:'Rendering A1 – Architectural Floor Plan (200 DPI)'},
+    {pct:20,text:'Extracting elements from A1...',log:'A1: Found 45 elements (walls, doors, windows, rooms)'},
+    {pct:25,text:'Extracting elements from A2...',log:'A2: Found 38 elements (second floor layout, stairs)'},
+    {pct:30,text:'Extracting elements from S1, S2...',log:'S1-S2: Found 28 structural elements (beams, columns, footings)'},
+    {pct:38,text:'Processing structural sheets S4-S9...',log:'S4-S9: Found 52 structural elements (trusses, bracing, headers)'},
+    {pct:45,text:'Extracting electrical elements E1-E4...',log:'E1-E4: Found 34 elements (panels, circuits, fixtures, outlets)'},
+    {pct:52,text:'Extracting mechanical elements M1-M3...',log:'M1-M3: Found 22 elements (HVAC units, ducts, diffusers, exhaust fans)'},
+    {pct:58,text:'Extracting plumbing elements P1-P4...',log:'P1-P4: Found 26 elements (pipes, fixtures, vents, drains)'},
+    {pct:63,text:'Processing civil and landscape...',log:'CV1, L-1: Found 15 elements (grades, utilities, irrigation)'},
+    {pct:68,text:'Running cross-discipline conflict detection...',log:'Comparing Architectural ↔ Structural (28 element pairs)'},
+    {pct:73,text:'Detecting spatial clashes...',log:'⚠ CONFLICT: Structural beam conflicts with HVAC duct (S2 ↔ M1)'},
+    {pct:78,text:'Checking code compliance...',log:'⚠ CONFLICT: Electrical panel clearance violation (E1 ↔ A1)'},
+    {pct:82,text:'Detecting specification mismatches...',log:'⚠ CONFLICT: Window header size mismatch (A3 ↔ S6)'},
+    {pct:87,text:'Checking coordination gaps...',log:'⚠ CONFLICT: Missing exhaust termination coordination (M3 ↔ A4)'},
+    {pct:92,text:'Scoring severity (50-point model)...',log:'Scored 9 conflicts: 1 Critical, 6 Major, 2 Minor'},
+    {pct:96,text:'Estimating cost and schedule impacts...',log:'Total cost exposure: $29,400 – $81,300'},
+    {pct:100,text:'Analysis complete!',log:'Report generated – 9 conflicts detected across 7 discipline pairs'},
   ];
 
   let i=0;
@@ -457,14 +382,13 @@ function buildResults(){
   document.getElementById('summary-row').innerHTML=`
     <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
     <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
-    <div class="stat-box stat-high"><div class="num">${s.high}</div><div class="lbl">High</div></div>
-    <div class="stat-box stat-medium"><div class="num">${s.medium}</div><div class="lbl">Medium</div></div>
-    <div class="stat-box stat-low"><div class="num">${s.low}</div><div class="lbl">Low</div></div>`;
+    <div class="stat-box stat-major"><div class="num">${s.major}</div><div class="lbl">Major</div></div>
+    <div class="stat-box stat-minor"><div class="num">${s.minor}</div><div class="lbl">Minor</div></div>`;
   document.getElementById('summary-row2').innerHTML=`
     <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} – $${s.cost_high.toLocaleString()}</div></div>
     <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
 
-  const severities=['All','Critical','High','Medium','Low'];
+  const severities=['All','Critical','Major','Minor'];
   document.getElementById('filters').innerHTML=severities.map(sv=>
     `<button class="filter-btn ${sv==='All'?'active':''}" onclick="filterConflicts('${sv}',this)">${sv}</button>`
   ).join('');
@@ -481,7 +405,7 @@ function filterConflicts(sev,btn){
   renderConflicts(filtered);
 }
 
-function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
+function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--major)':'var(--minor)'}
 
 function renderConflicts(conflicts){
   const list=document.getElementById('conflict-list');

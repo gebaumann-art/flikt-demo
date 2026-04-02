@@ -1,0 +1,11 @@
+DEPRECATED — DO NOT USE THESE FILES
+=====================================
+Date: 2026-03-06
+
+The Python files in this directory are STALE COPIES from the demo-portal export.
+The canonical source of truth is now:
+
+    FLIKT/Coding/pipeline/
+
+NOTE: The process_plans.py here is MISSING Step 3B (text extraction),
+which the canonical version includes. Do not use this copy.

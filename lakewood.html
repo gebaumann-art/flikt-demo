@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lakewood Residences — Flikt.AI Plan Analysis</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
+--critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;--bg:#0F1723;--card:#1A2540;
+--card-hover:#223050;--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;transition:background .3s,color .3s}
+a{color:var(--amber);text-decoration:none;transition:color .2s}
+a:hover{color:var(--amber-light)}
+
+/* Light theme */
+body.light-theme{--bg:#f0f2f5;--card:#ffffff;--text:#333333;--text-muted:#666666;--border:#dddddd}
+
+/* Header */
+.header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
+display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:20px}
+.back-link{color:var(--text-muted);font-size:13px;font-weight:600;transition:color .2s}
+.back-link:hover{color:var(--amber)}
+.logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
+.logo span{color:var(--amber)}
+.theme-toggle{background:none;border:1px solid var(--amber);color:var(--amber);
+padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.theme-toggle:hover{background:rgba(232,160,32,0.1)}
+.nav{display:flex;gap:4px}
+.nav button{background:none;border:1px solid transparent;color:var(--text-muted);
+padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.nav button:hover{color:white;background:rgba(255,255,255,0.05)}
+.nav button.active{color:var(--amber);border-color:var(--amber);background:rgba(232,160,32,0.08)}
+.nav button.locked{opacity:0.3;cursor:not-allowed;pointer-events:none}
+
+/* Views */
+.view{display:none;padding:32px;max-width:1100px;margin:0 auto}
+.view.active{display:block}
+
+/* DASHBOARD VIEW */
+.hero{text-align:center;margin:40px 0}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.hero p{color:var(--text-muted);font-size:16px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+padding:32px;margin:32px 0}
+.project-card h2{font-size:20px;margin-bottom:16px;color:var(--amber)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.meta-item{padding:12px;background:rgba(255,255,255,0.03);border-radius:8px}
+.meta-item .label{font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px}
+.meta-item .value{font-size:18px;font-weight:700;margin-top:4px}
+.disciplines-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.disc-tag{background:var(--navy);padding:4px 12px;border-radius:16px;font-size:12px;
+border:1px solid var(--border);color:white}
+.disc-tag .count{color:var(--amber);font-weight:700;margin-left:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:8px;
+font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--amber);color:var(--navy-dark)}
+.btn-primary:hover{background:var(--amber-light);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--amber);border:2px solid var(--amber)}
+.btn-outline:hover{background:rgba(232,160,32,0.1)}
+.center-btn{text-align:center;margin:32px 0}
+
+/* PROGRESS VIEW */
+.progress-container{max-width:700px;margin:60px auto;text-align:center}
+.progress-container h2{font-size:24px;margin-bottom:32px}
+.progress-bar-wrap{background:var(--navy);border-radius:12px;height:20px;overflow:hidden;margin:20px 0}
+.progress-bar{background:linear-gradient(90deg,var(--amber),var(--amber-light));height:100%;
+border-radius:12px;transition:width .3s ease;width:0%}
+.progress-pct{font-size:48px;font-weight:800;color:var(--amber);margin:16px 0}
+.progress-stage{color:var(--text-muted);font-size:14px;margin:8px 0}
+.activity-log{background:var(--card);border:1px solid var(--border);border-radius:8px;
+padding:16px;margin-top:32px;text-align:left;max-height:250px;overflow-y:auto;font-family:monospace;font-size:12px}
+.log-line{padding:3px 0;color:var(--text-muted)}
+.log-line .time{color:var(--amber);margin-right:8px}
+.log-line.highlight{color:var(--text)}
+
+/* RESULTS VIEW */
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+.stat-box{padding:20px;border-radius:10px;text-align:center;color:white}
+.stat-box .num{font-size:32px;font-weight:800;color:white}
+.stat-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.85;color:white}
+.stat-total{background:var(--navy)}
+.stat-critical{background:var(--critical)}
+.stat-high{background:var(--high)}
+.stat-medium{background:var(--medium)}
+.stat-low{background:var(--low)}
+.summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:24px}
+.stat-cost{background:var(--navy);padding:16px 20px;border-radius:10px;text-align:center;color:white}
+.stat-cost .num{font-size:22px;font-weight:700;color:white}
+.stat-cost .lbl{color:white}
+.stat-pairs{background:var(--amber);color:var(--navy-dark);padding:16px 20px;border-radius:10px;text-align:center}
+.stat-pairs .num{font-size:22px;font-weight:700}
+
+/* Filters */
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--text-muted);
+padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--amber);color:var(--navy-dark);border-color:var(--amber)}
+
+/* Conflict Cards */
+.conflict-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+margin-bottom:16px;overflow:hidden;transition:all .2s}
+.conflict-card:hover{border-color:var(--amber);transform:translateY(-1px)}
+.cc-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.sev-badge{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;color:white;min-width:70px;text-align:center}
+.sev-Critical{background:var(--critical)}
+.sev-High{background:var(--high)}
+.sev-Medium{background:var(--medium)}
+.sev-Low{background:var(--low)}
+.cc-title{font-size:14px;font-weight:700;flex:1}
+.cc-id{font-size:11px;color:var(--text-muted)}
+.cc-chevron{color:var(--text-muted);transition:transform .2s;font-size:18px}
+.conflict-card.expanded .cc-chevron{transform:rotate(180deg)}
+.cc-body{display:none;padding:0 20px 20px}
+.conflict-card.expanded .cc-body{display:block}
+.cc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.03);
+padding:12px;border-radius:8px;margin-bottom:12px}
+.cc-meta-item{font-size:12px}
+.cc-meta-item .k{color:var(--text-muted);font-weight:600}
+.cc-desc{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6}
+.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.score-dim{text-align:center}
+.score-dim .dim-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.score-bar-bg{height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.score-dim .dim-val{font-size:11px;font-weight:700;margin-top:2px}
+.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.impact-box{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:6px;
+border-left:3px solid var(--amber);font-size:12px}
+.impact-box .ib-label{font-weight:700;color:var(--text)}
+.cc-action{background:rgba(232,160,32,0.06);border:1px solid rgba(232,160,32,0.2);
+border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6}
+.cc-action strong{color:var(--amber)}
+
+/* Confidence badge */
+.cc-confidence{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);margin-left:auto;padding:2px 10px;background:rgba(255,255,255,0.05);border-radius:10px}
+.cc-confidence .dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+
+/* REPORT VIEW */
+.report-preview{text-align:center;margin:40px 0}
+.report-preview h2{margin-bottom:16px}
+.report-mockup{background:white;border-radius:8px;max-width:500px;margin:0 auto;
+padding:40px;color:#333;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.rm-header{background:var(--navy);color:white;padding:30px;border-radius:6px;margin-bottom:20px}
+.rm-header h3{font-size:24px;letter-spacing:1px}
+.rm-header p{opacity:.7;font-size:12px;margin-top:4px}
+.rm-title{font-size:18px;font-weight:700;color:var(--navy);text-align:center;margin:16px 0}
+.rm-bar{height:4px;background:var(--amber);border-radius:2px;margin:12px 0}
+.rm-meta{font-size:12px;color:#666;margin:8px 0}
+
+/* Mobile Bottom Tab Bar */
+.mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy-dark);
+border-top:2px solid var(--amber);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-tabs-inner{display:flex;justify-content:space-around;align-items:center}
+.mobile-tab{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;
+color:var(--text-muted);font-size:10px;font-weight:600;padding:6px 12px;cursor:pointer;transition:color .2s;
+-webkit-tap-highlight-color:transparent}
+.mobile-tab svg{width:20px;height:20px}
+.mobile-tab.active{color:var(--amber)}
+.mobile-tab.locked{opacity:0.3;pointer-events:none}
+
+/* Responsive */
+@media(max-width:768px){
+.header{flex-direction:column;gap:12px;padding:12px}
+.header-left{flex-direction:column;width:100%;gap:8px}
+.summary-row{grid-template-columns:repeat(2,1fr)}
+.summary-row2{grid-template-columns:1fr}
+.meta-grid{grid-template-columns:1fr 1fr}
+.scores-grid{grid-template-columns:repeat(3,1fr)}
+.cc-impact{grid-template-columns:1fr}
+.cc-meta{grid-template-columns:1fr}
+.nav{display:none}
+.mobile-tabs{display:block}
+body{padding-bottom:72px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <a href="index.html" class="back-link">&larr; Back to Projects</a>
+    <div class="logo">FLIKT<span>.AI</span></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="nav">
+      <button class="active" onclick="showView('dashboard')">Dashboard</button>
+      <button onclick="showView('progress')">Analysis</button>
+      <button onclick="showView('results')">Results</button>
+      <button onclick="showView('report')">Report</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme">
+      <span id="theme-icon"></span>
+    </button>
+  </div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div id="dashboard" class="view active">
+  <div class="hero">
+    <h1>AI-Powered Plan Coordination</h1>
+    <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework.</p>
+  </div>
+  <div class="project-card">
+    <h2 id="proj-name"></h2>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="label">Address</div><div class="value" id="proj-addr"></div></div>
+      <div class="meta-item"><div class="label">Project Type</div><div class="value" id="proj-type"></div></div>
+      <div class="meta-item"><div class="label">Construction Value</div><div class="value" id="proj-value"></div></div>
+      <div class="meta-item"><div class="label">Total Sheets</div><div class="value" id="proj-sheets"></div></div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="label" style="font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">Disciplines Detected</div>
+      <div class="disciplines-list" id="disc-list"></div>
+    </div>
+  </div>
+  <div class="center-btn">
+    <button class="btn btn-primary" onclick="startAnalysis()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Run Conflict Analysis
+    </button>
+  </div>
+</div>
+
+<!-- PROGRESS VIEW -->
+<div id="progress" class="view">
+  <div class="progress-container">
+    <h2>Analyzing Plan Set</h2>
+    <div class="progress-pct" id="pct">0%</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="pbar"></div></div>
+    <div class="progress-stage" id="stage">Initializing...</div>
+    <div class="activity-log" id="log"></div>
+  </div>
+</div>
+
+<!-- RESULTS VIEW -->
+<div id="results" class="view">
+  <h2 style="margin-bottom:20px">Conflict Analysis Results</h2>
+  <div class="summary-row" id="summary-row"></div>
+  <div class="summary-row2" id="summary-row2"></div>
+  <div class="filters" id="filters"></div>
+  <div id="conflict-list"></div>
+  <div class="center-btn" style="margin-top:24px">
+    <button class="btn btn-primary" onclick="showView('report')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      View Full Report
+    </button>
+  </div>
+</div>
+
+<!-- REPORT VIEW -->
+<div id="report" class="view">
+  <div class="report-preview">
+    <h2>Plan Conflict &amp; Coordination Report</h2>
+    <p style="color:var(--text-muted);margin-bottom:24px">Professional PDF report ready for download</p>
+    <div class="report-mockup">
+      <div class="rm-header">
+        <h3>FLIKT.AI</h3>
+        <p>AI-Powered Plan Coordination</p>
+      </div>
+      <div class="rm-bar"></div>
+      <div class="rm-title">Plan Conflict &amp; Coordination Report</div>
+      <div class="rm-bar"></div>
+      <div class="rm-meta"><strong>Project:</strong> <span id="rm-proj"></span></div>
+      <div class="rm-meta"><strong>Report Date:</strong> March 31, 2026</div>
+      <div class="rm-meta"><strong>Conflicts Found:</strong> <span id="rm-count"></span></div>
+      <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
+    </div>
+    <div style="margin-top:32px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="alert('PDF report generation coming soon.')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF Report
+      </button>
+      <button class="btn btn-outline" onclick="showView('results')">
+        Back to Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Tab Bar -->
+<div class="mobile-tabs">
+  <div class="mobile-tabs-inner">
+    <button class="mobile-tab active" onclick="showView('dashboard')" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="mobile-tab" onclick="showView('progress')" data-view="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Analysis
+    </button>
+    <button class="mobile-tab" onclick="showView('results')" data-view="results">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Results
+    </button>
+    <button class="mobile-tab" onclick="showView('report')" data-view="report">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Report
+    </button>
+  </div>
+</div>
+
+<script>
+// Demo data - Lakewood Residences (large multifamily community, 38 sheets across 8 disciplines)
+let DATA = {"project":{"id":"demo-lakewood","name":"Lakewood Residences — New Construction","address":"450 Lakewood Blvd, Winter Park, FL 32789","type":"Multifamily Community — 288 Units","construction_value":38000000,"total_sheets":38,"disciplines":{"Architectural":["A106B","A107B","A108A","A109A","A302","A401","A411C","A422","A423"],"Structural":["S106A","S106B"],"Mechanical":["M101"],"Electrical":["E001","E101A"],"Plumbing":["P001C","P101A"],"Fire Protection":["FP101"],"Civil":["C847"],"Landscape":["L001","L101"]},"analysis_completed_at":"2026-03-31T14:25:03Z"},"conflicts":[
+{"id":"C001","title":"Fire Alarm System Missing Waterflow Dispatch","disc_a":"Fire Protection","disc_b":"Electrical","type":"Code Violation","severity":"Critical","confidence":0.95,"location":"Throughout buildings — fire protection system","sheets":["FP101","E001"],"description":"The fire protection plans show flow switches and tamper devices on the sprinkler system risers, but the electrical drawings do not show any fire alarm system components or monitoring panel to receive and dispatch these alarm signals. Per NFPA 13 and local codes, waterflow alarms must be monitored and dispatched. No fire alarm control panel, pull stations, or notification appliances are shown on electrical drawings.","recommended_action":"Add complete fire alarm system to electrical drawings including: FACP (Fire Alarm Control Panel), waterflow monitoring modules, tamper switch monitoring, pull stations at exits, horn/strobes per NFPA 72, and dialer for central station monitoring.","scores":{"constructability":7,"cost":8,"safety":10,"schedule":6,"downstream":9},"cost_low":25000,"cost_high":45000,"schedule_impact":"10–14 days"},
+{"id":"C002","title":"Electrical Power Missing for Dog Wash Equipment","disc_a":"Plumbing","disc_b":"Electrical","type":"Missing Coordination","severity":"High","confidence":0.92,"location":"Dog wash building","sheets":["P101A","E101A"],"description":"The plumbing plan shows a dog wash station with associated equipment including a water heater, but the electrical plan for the dog wash building shows no dedicated circuits for the water heater or any other dog wash equipment. The panel schedule shows mostly spare circuits without proper allocation for the plumbing equipment shown.","recommended_action":"Add dedicated electrical circuits to the dog wash panel for: (1) Water heater (likely 30A/240V for electric water heater), (2) Any pumps or mechanical equipment associated with the dog wash station, (3) Verify if dog wash requires GFCI protection per code.","scores":{"constructability":6,"cost":4,"safety":7,"schedule":5,"downstream":8},"cost_low":3500,"cost_high":8500,"schedule_impact":"5–7 days"},
+{"id":"C003","title":"Shear Wall Penetrations for HVAC Ductwork","disc_a":"Structural","disc_b":"Mechanical","type":"Spatial Clash","severity":"High","confidence":0.91,"location":"Garage building shear walls","sheets":["S106A","M101"],"description":"The structural drawings show shear walls in the garage building for lateral force resistance, but the mechanical plans show HVAC ductwork routing through these same wall locations. Penetrating shear walls compromises their structural integrity and violates building code unless properly detailed with reinforcement by the structural engineer.","recommended_action":"Reroute HVAC ductwork to avoid shear wall penetrations, or provide structural details for reinforced openings with proper headers and jamb reinforcement. Coordinate with structural engineer for any required penetrations — no field cutting permitted without engineering approval.","scores":{"constructability":8,"cost":6,"safety":5,"schedule":7,"downstream":6},"cost_low":8000,"cost_high":18000,"schedule_impact":"7–10 days"},
+{"id":"C004","title":"Missing Electrical Service for Pool Equipment","disc_a":"Plumbing","disc_b":"Electrical","type":"Missing Coordination","severity":"High","confidence":0.87,"location":"Pool equipment area","sheets":["P001C","E001"],"description":"The plumbing site plan shows pool equipment including pumps and heaters, but no electrical service or circuits are shown on the electrical drawings for this equipment. Pool pumps typically require 240V circuits, and pool heaters may require substantial electrical loads not accounted for in the panel schedules.","recommended_action":"Add electrical sub-panel near pool equipment area with circuits for: pool pump(s), spa pump if applicable, pool/spa heater controls, pool lighting transformer, and equipment timer/controls. Coordinate load calculations with pool equipment specifications.","scores":{"constructability":6,"cost":7,"safety":6,"schedule":5,"downstream":8},"cost_low":12000,"cost_high":22000,"schedule_impact":"7–10 days"},
+{"id":"C005","title":"Electrical Panel Clearance Violation","disc_a":"Electrical","disc_b":"Plumbing","type":"Code Violation","severity":"Medium","confidence":0.89,"location":"Maintenance building mechanical/electrical room","sheets":["E101A","P101A"],"description":"The electrical panel in the maintenance building is shown with plumbing fixtures and a water heater in close proximity. NEC requires 36-inch clear working space in front of panels, 30-inch width, and 78-inch height clearance. The water heater and associated piping appear to encroach on required electrical clearances.","recommended_action":"Relocate either the electrical panel or plumbing equipment to maintain code-required clearances. Verify 36-inch front clearance, 30-inch width (15 inches each side of panel centerline), and full height clearance to structural members above.","scores":{"constructability":5,"cost":4,"safety":8,"schedule":3,"downstream":6},"cost_low":3000,"cost_high":7500,"schedule_impact":"3–5 days"},
+{"id":"C006","title":"Condenser Unit Pad Conflicts with Landscape Planting","disc_a":"Mechanical","disc_b":"Landscape","type":"Spatial Clash","severity":"Medium","confidence":0.88,"location":"Building perimeter at multiple locations","sheets":["M101","L001"],"description":"The mechanical plan shows multiple condensing units at building perimeters, but the landscape layout plan shows planting areas and shrubs in these same locations. The civil/landscape plans do not show concrete pads for the mechanical equipment, creating conflicts between plantings and HVAC equipment placement.","recommended_action":"Coordinate mechanical equipment pad locations with landscape architect. Relocate plantings minimum 3 feet from equipment pads. Add equipment pads to civil/site plans. Ensure proper clearances for equipment access and airflow.","scores":{"constructability":5,"cost":3,"safety":2,"schedule":4,"downstream":7},"cost_low":2500,"cost_high":6000,"schedule_impact":"3–4 days"},
+{"id":"C007","title":"Ceiling Height vs Structural Clearance Conflict","disc_a":"Architectural","disc_b":"Structural","type":"Spatial Clash","severity":"Medium","confidence":0.86,"location":"Garage building and breezeways","sheets":["A109A","S106B"],"description":"The architectural drawings indicate 8'-6\" truss bearing elevation, but with truss depth and bottom chord, the actual ceiling clearance will be reduced. The structural details show wood trusses that will extend below the bearing height, potentially conflicting with the intended ceiling heights shown architecturally, especially in areas requiring ADA clearance.","recommended_action":"Verify actual clear height under trusses meets minimum requirements. Adjust either truss profiles or architectural ceiling heights. Pay special attention to ADA routes requiring 80-inch minimum clearance.","scores":{"constructability":4,"cost":3,"safety":5,"schedule":2,"downstream":6},"cost_low":2000,"cost_high":8000,"schedule_impact":"2–4 days"},
+{"id":"C008","title":"Roof Material Specification Mismatch Across Disciplines","disc_a":"Architectural","disc_b":"Specifications","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Roof — all buildings","sheets":["A422","A302","A411C","SPEC-07"],"description":"Multiple disciplines specify different materials for roof: Architectural plans show asphalt shingles and metal roof panels, while specifications reference aluminum, membrane roof, sand, tile, and additional materials not shown on architectural drawings. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct roofing material for each building type with the design team. Update all conflicting documents to match the approved selections.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C009","title":"Ceiling Material Specification Mismatch","disc_a":"Architectural","disc_b":"Specifications","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Ceiling — clubhouse and amenity buildings","sheets":["A107B","A106D","C847","SPEC-09"],"description":"Multiple disciplines specify different materials for ceiling: Architectural plans show drywall, PVC, tile, and wood. Specifications reference aluminum, insulation, plywood, steel, vinyl, and wood. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct ceiling material for each space with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C010","title":"Structural Material Specification Mismatch Across 3 Disciplines","disc_a":"Architectural","disc_b":"Landscape","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Structure — all buildings","sheets":["A422","A109A","A423","L101","SPEC-03"],"description":"Multiple disciplines specify different structural materials: Architectural plans show CMU, concrete, steel, and wood. Landscape references PVC. Specifications list concrete, plywood, and steel. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct structural material for each application with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C011","title":"Wall Material Specification Mismatch","disc_a":"Architectural","disc_b":"Specifications","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Walls — apartments and clubhouse","sheets":["A130C","A601C","A609C","SPEC-04","SPEC-07"],"description":"Multiple disciplines specify different wall materials: Architectural plans show CMU, drywall, insulation, stucco, tile, vinyl, and wood. Specifications add brick, concrete, copper, membrane roof, PVC, plywood, and steel. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct wall material for each wall type with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C012","title":"Opening Material Specification Mismatch","disc_a":"Architectural","disc_b":"Specifications","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Door and window openings — all buildings","sheets":["A401","A423","SPEC-08","SPEC-09"],"description":"Multiple disciplines specify different opening materials: Architectural plans show brick, concrete, glass, plywood, steel, and wood. Specifications add aluminum, drywall, galvanized, insulation, stucco, and vinyl. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct material for openings with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C013","title":"Floor Material Specification Mismatch Across 3 Disciplines","disc_a":"Architectural","disc_b":"Landscape","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Floor — apartments, clubhouse, and amenity areas","sheets":["A422","A413","A307","L101","SPEC-09"],"description":"Multiple disciplines specify different flooring materials: Architectural plans show carpet, concrete, epoxy, pavers, tile, vinyl, and wood. Landscape specifies concrete only. Specifications add copper, drywall, insulation, PVC, plywood, sand, and steel. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct flooring material for each space type with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C014","title":"Foundation Material Specification Mismatch Across 3 Disciplines","disc_a":"Architectural","disc_b":"Landscape","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Foundation — all buildings","sheets":["A107B","A108A","A413","L101","SPEC-03"],"description":"Multiple disciplines specify different foundation materials: Architectural and landscape both reference concrete, while specifications add CMU and PVC. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct foundation material with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C015","title":"Fencing Material Specification Mismatch","disc_a":"Architectural","disc_b":"Specifications","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Site perimeter and amenity fencing","sheets":["A108A","A109A","SPEC-03","SPEC-32"],"description":"Multiple disciplines specify different fencing materials: Architectural plans show aluminum and wood. Specifications reference aluminum, concrete, insulation, membrane roof, and shingles. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct fencing material with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C016","title":"Pool Area Material Specification Mismatch Across 3 Disciplines","disc_a":"Architectural","disc_b":"Landscape","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Pool and amenity deck area","sheets":["A422","A423","L001","L101","SPEC-07"],"description":"Multiple disciplines specify different pool area materials: Architectural references membrane roof. Landscape shows pavers and tile. Specifications list insulation, plywood, and shingles. These materials must be coordinated before bidding.","recommended_action":"Confirm the correct pool area material with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C017","title":"Window Material Specification Mismatch","disc_a":"Architectural","disc_b":"Specifications","type":"Specification Mismatch","severity":"Medium","confidence":0.80,"location":"Windows — apartments and clubhouse","sheets":["A401","A423","SPEC-08"],"description":"Multiple disciplines specify different window materials: Architectural plans show aluminum, glass, and wood. Specifications add insulation and vinyl. These materials must be coordinated before bidding, particularly for impact-rated assemblies.","recommended_action":"Confirm the correct window material and impact rating requirements with the design team. Update all conflicting documents to match.","scores":{"constructability":5,"cost":6,"safety":2,"schedule":4,"downstream":5},"cost_low":5000,"cost_high":30000,"schedule_impact":"7–14 days"},
+{"id":"C018","title":"Irrigation Controller Power Supply Missing","disc_a":"Landscape","disc_b":"Electrical","type":"Missing Coordination","severity":"Low","confidence":0.85,"location":"Site irrigation system","sheets":["L001","E001"],"description":"The landscape plans show an irrigation system layout, but the electrical drawings do not show any dedicated circuits or transformers for irrigation controllers. Irrigation systems require 24V transformer power supplies and control wiring that are not indicated on the electrical plans.","recommended_action":"Add 120V circuit to nearest panel for irrigation controller location. Include weatherproof receptacle and transformer for irrigation control power. Coordinate controller location with landscape architect.","scores":{"constructability":3,"cost":2,"safety":1,"schedule":3,"downstream":5},"cost_low":1500,"cost_high":3500,"schedule_impact":"2–3 days"},
+{"id":"C019","title":"Mixed Scales Detected in Architectural Plans","disc_a":"Architectural","disc_b":"Architectural","type":"Specification Mismatch","severity":"Low","confidence":0.60,"location":"Multiple architectural sheets","sheets":["A106B","A107B","A108A","A109A","A302"],"description":"Architectural plans use 11 different drawing scales across the set, including 1/4\" = 1'-0\", 3/8\" = 1'-0\", 1/2\" = 1'-0\", 1\" = 1'-0\", 3\" = 1'-0\", and 1\" = 40'-0\". While multiple scales are common, this quantity may cause dimension confusion during construction if not clearly noted on each view.","recommended_action":"Verify all scale notations are correct and consistent. Ensure each view on every sheet has a clearly legible scale notation.","scores":{"constructability":3,"cost":2,"safety":1,"schedule":2,"downstream":4},"cost_low":0,"cost_high":5000,"schedule_impact":"< 7 days"},
+{"id":"C020","title":"Mixed Scales Detected in Landscape Plans","disc_a":"Landscape","disc_b":"Landscape","type":"Specification Mismatch","severity":"Low","confidence":0.60,"location":"Multiple landscape sheets","sheets":["L001","L101"],"description":"Landscape plans use 3 different drawing scales including 1\" = 20'-0\", 1\" = 10'-0\", and 1/2\" = 1'-0\". This may cause dimension confusion during site layout and planting operations.","recommended_action":"Verify all scale notations are correct and consistent across all landscape sheets.","scores":{"constructability":3,"cost":2,"safety":1,"schedule":2,"downstream":4},"cost_low":0,"cost_high":5000,"schedule_impact":"< 7 days"}
+],"summary":{"total_conflicts":20,"critical":1,"high":3,"medium":13,"low":3,"cost_low":107500,"cost_high":428500,"discipline_pairs":10}};
+
+let analysisComplete = false;
+init();
+
+function toggleTheme(){
+  const isDark = !document.body.classList.contains('light-theme');
+  if(isDark){
+    document.body.classList.add('light-theme');
+    localStorage.setItem('flikt-theme','light');
+    document.getElementById('theme-icon').textContent='\u{1F319}';
+  } else {
+    document.body.classList.remove('light-theme');
+    localStorage.setItem('flikt-theme','dark');
+    document.getElementById('theme-icon').textContent='\u{2600}\u{FE0F}';
+  }
+}
+
+function loadTheme(){
+  const saved = localStorage.getItem('flikt-theme');
+  if(saved === 'light'){
+    document.body.classList.add('light-theme');
+    document.getElementById('theme-icon').textContent='\u{1F319}';
+  } else {
+    document.getElementById('theme-icon').textContent='\u{2600}\u{FE0F}';
+  }
+}
+
+loadTheme();
+
+function updateNavLocks(){
+  document.querySelectorAll('.nav button').forEach(b=>{
+    const label = b.textContent.toLowerCase();
+    if(!analysisComplete && (label.includes('results') || label.includes('report'))){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    const view = b.dataset.view;
+    if(!analysisComplete && (view==='results' || view==='report')){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+}
+
+function init(){
+  const p=DATA.project, s=DATA.summary;
+  document.getElementById('proj-name').textContent=p.name;
+  document.getElementById('proj-addr').textContent=p.address;
+  document.getElementById('proj-type').textContent=p.type;
+  document.getElementById('proj-value').textContent='$'+p.construction_value.toLocaleString();
+  document.getElementById('proj-sheets').textContent=p.total_sheets+' sheets';
+  const dl=document.getElementById('disc-list');
+  Object.entries(p.disciplines).forEach(([name,sheets])=>{
+    dl.innerHTML+=`<span class="disc-tag">${name}<span class="count">${sheets.length}</span></span>`;
+  });
+  document.getElementById('rm-proj').textContent=p.name;
+  document.getElementById('rm-count').textContent=s.total_conflicts;
+  document.getElementById('rm-cost').textContent='$'+s.cost_low.toLocaleString()+' \u2013 $'+s.cost_high.toLocaleString();
+  updateNavLocks();
+}
+
+function showView(id){
+  if(!analysisComplete && (id==='results'||id==='report')) return;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>{
+    if(b.textContent.toLowerCase().includes(id==='dashboard'?'dashboard':id==='progress'?'analysis':id))
+      b.classList.add('active');
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===id);
+  });
+  if(id==='results'&&!document.getElementById('conflict-list').innerHTML) buildResults();
+}
+
+function startAnalysis(){
+  showView('progress');
+  const stages=[
+    {pct:2,text:'Loading plan set (38 sheets)...',log:'Loaded Lakewood Residences plan set \u2014 38 construction documents + specifications'},
+    {pct:5,text:'Classifying sheet disciplines...',log:'Identified 8 disciplines: Arch, Struct, Mech, Elec, Plumb, Fire Prot, Civil, Landscape'},
+    {pct:9,text:'Rendering architectural plans...',log:'Rendering 9 architectural sheets at 200 DPI'},
+    {pct:14,text:'Extracting architectural elements...',log:'A-series: Found 186 elements (floor plans, elevations, details, schedules)'},
+    {pct:19,text:'Processing structural sheets...',log:'S-series: Found 42 structural elements (shear walls, framing, foundations)'},
+    {pct:24,text:'Extracting MEP elements...',log:'M/E/P-series: Found 67 elements (HVAC, panels, circuits, piping, fixtures)'},
+    {pct:30,text:'Processing fire protection plans...',log:'FP-series: Found 18 elements (sprinkler risers, flow switches, tamper devices)'},
+    {pct:36,text:'Extracting civil and landscape...',log:'C/L-series: Found 34 elements (grading, utilities, irrigation, pool deck)'},
+    {pct:42,text:'Parsing specification book...',log:'Specifications: Extracted 890 requirements across 32 CSI divisions'},
+    {pct:48,text:'Running cross-discipline conflict detection...',log:'Comparing 347 elements across 10 discipline pairs'},
+    {pct:54,text:'Checking code compliance (FBC 2020)...',log:'\u26A0 CONFLICT: Fire alarm system missing waterflow dispatch \u2014 NFPA 72 violation'},
+    {pct:59,text:'Detecting spatial clashes...',log:'\u26A0 CONFLICT: Shear wall penetrations for HVAC ductwork in garage building'},
+    {pct:64,text:'Checking MEP coordination gaps...',log:'\u26A0 CONFLICT: Dog wash electrical power missing \u2014 no dedicated circuits shown'},
+    {pct:69,text:'Verifying pool equipment coordination...',log:'\u26A0 CONFLICT: Pool pumps and heaters missing electrical service'},
+    {pct:74,text:'Cross-referencing specifications...',log:'\u26A0 CONFLICT: 10 specification mismatches detected across roof, ceiling, walls, openings'},
+    {pct:79,text:'Checking ceiling heights and clearances...',log:'\u26A0 CONFLICT: Garage ceiling height reduced below ADA clearance by truss depth'},
+    {pct:84,text:'Verifying landscape/MEP coordination...',log:'\u26A0 CONFLICT: Condenser pads conflict with landscape plantings at building perimeters'},
+    {pct:89,text:'Checking electrical panel clearances...',log:'\u26A0 CONFLICT: NEC 110.26 panel clearance violation in maintenance building'},
+    {pct:93,text:'Scoring severity (50-point model)...',log:'Scored 20 conflicts: 1 Critical, 3 High, 13 Medium, 3 Low'},
+    {pct:97,text:'Estimating cost and schedule impacts...',log:'Total cost exposure: $107,500 \u2013 $428,500'},
+    {pct:100,text:'Analysis complete!',log:'Report generated \u2014 20 conflicts detected across 10 discipline pairs'},
+  ];
+
+  let i=0;
+  const run=()=>{
+    if(i>=stages.length){
+      analysisComplete=true;
+      updateNavLocks();
+      setTimeout(()=>showView('results'),800);
+      return;
+    }
+    const s=stages[i];
+    document.getElementById('pct').textContent=s.pct+'%';
+    document.getElementById('pbar').style.width=s.pct+'%';
+    document.getElementById('stage').textContent=s.text;
+    const log=document.getElementById('log');
+    const cls=s.log.startsWith('\u26A0')?'log-line highlight':'log-line';
+    log.innerHTML+=`<div class="${cls}"><span class="time">${new Date().toLocaleTimeString()}</span>${s.log}</div>`;
+    log.scrollTop=log.scrollHeight;
+    i++;
+    setTimeout(run, 600+Math.random()*1200);
+  };
+  run();
+}
+
+function buildResults(){
+  const s=DATA.summary;
+  document.getElementById('summary-row').innerHTML=`
+    <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
+    <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
+    <div class="stat-box stat-high"><div class="num">${s.high}</div><div class="lbl">High</div></div>
+    <div class="stat-box stat-medium"><div class="num">${s.medium}</div><div class="lbl">Medium</div></div>
+    <div class="stat-box stat-low"><div class="num">${s.low}</div><div class="lbl">Low</div></div>`;
+  document.getElementById('summary-row2').innerHTML=`
+    <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} \u2013 $${s.cost_high.toLocaleString()}</div></div>
+    <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
+
+  const severities=['All','Critical','High','Medium','Low'];
+  document.getElementById('filters').innerHTML=severities.map(sv=>
+    `<button class="filter-btn ${sv==='All'?'active':''}" onclick="filterConflicts('${sv}',this)">${sv}</button>`
+  ).join('');
+
+  renderConflicts(DATA.conflicts);
+}
+
+let currentFilter='All';
+function filterConflicts(sev,btn){
+  currentFilter=sev;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered=sev==='All'?DATA.conflicts:DATA.conflicts.filter(c=>c.severity===sev);
+  renderConflicts(filtered);
+}
+
+function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
+
+function renderConflicts(conflicts){
+  const list=document.getElementById('conflict-list');
+  list.innerHTML=conflicts.map(c=>{
+    const dims=['constructability','cost','safety','schedule','downstream'];
+    const scoresHTML=dims.map(d=>{
+      const v=c.scores[d]||0;
+      return `<div class="score-dim">
+        <div class="dim-label">${d.slice(0,6)}</div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div>
+        <div class="dim-val" style="color:${scoreColor(v)}">${v}/10</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="conflict-card" onclick="this.classList.toggle('expanded')">
+      <div class="cc-header">
+        <span class="sev-badge sev-${c.severity}">${c.severity}</span>
+        <span class="cc-title">${c.title}</span>
+        <span class="cc-id">${c.id}</span>
+        <span class="cc-chevron">\u25BC</span>
+      </div>
+      <div class="cc-body">
+        <div class="cc-meta">
+          <div class="cc-meta-item"><span class="k">Disciplines:</span> ${c.disc_a} \u2194 ${c.disc_b}</div>
+          <div class="cc-meta-item"><span class="k">Type:</span> ${c.type}</div>
+          <div class="cc-meta-item"><span class="k">Location:</span> ${c.location}</div>
+          <div class="cc-meta-item"><span class="k">Sheets:</span> ${Array.isArray(c.sheets)?c.sheets.join(', '):c.sheets}</div>
+        </div>
+        <div class="cc-desc">${c.description}</div>
+        <div class="scores-grid">${scoresHTML}</div>
+        <div class="cc-impact">
+          <div class="impact-box"><span class="ib-label">Cost Exposure:</span> $${c.cost_low.toLocaleString()} \u2013 $${c.cost_high.toLocaleString()}</div>
+          <div class="impact-box"><span class="ib-label">Schedule Impact:</span> ${c.schedule_impact}</div>
+        </div>
+        <div class="cc-action"><strong>Recommended Action:</strong> ${c.recommended_action}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
