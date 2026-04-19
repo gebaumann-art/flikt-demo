@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Atrium &mdash; Flikt.AI Plan Analysis</title>
+<meta property="og:title" content="The Atrium &mdash; Flikt.AI Plan Analysis">
+<meta property="og:description" content="AI-powered plan coordination demo. Real conflict data, anonymized project details.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og_final_demo.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
+--critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;--bg:#0F1723;--card:#1A2540;
+--card-hover:#223050;--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;transition:background .3s,color .3s}
+a{color:var(--amber);text-decoration:none;transition:color .2s}
+a:hover{color:var(--amber-light)}
+body.light-theme{--bg:#f0f2f5;--card:#ffffff;--text:#333333;--text-muted:#666666;--border:#dddddd}
+.header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
+display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:20px}
+.back-link{color:var(--text-muted);font-size:13px;font-weight:600;transition:color .2s}
+.back-link:hover{color:var(--amber)}
+.logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
+.logo span{color:var(--amber)}
+.theme-toggle{background:none;border:1px solid var(--amber);color:var(--amber);
+padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.theme-toggle:hover{background:rgba(232,160,32,0.1)}
+.nav{display:flex;gap:4px}
+.nav button{background:none;border:1px solid transparent;color:var(--text-muted);
+padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.nav button:hover{color:white;background:rgba(255,255,255,0.05)}
+.nav button.active{color:var(--amber);border-color:var(--amber);background:rgba(232,160,32,0.08)}
+.nav button.locked{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.view{display:none;padding:32px;max-width:1100px;margin:0 auto}
+.view.active{display:block}
+.hero{text-align:center;margin:40px 0}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.hero p{color:var(--text-muted);font-size:16px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+padding:32px;margin:32px 0}
+.project-card h2{font-size:20px;margin-bottom:16px;color:var(--amber)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.meta-item{padding:12px;background:rgba(255,255,255,0.03);border-radius:8px}
+.meta-item .label{font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px}
+.meta-item .value{font-size:18px;font-weight:700;margin-top:4px}
+.disciplines-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.disc-tag{background:var(--navy);padding:4px 12px;border-radius:16px;font-size:12px;
+border:1px solid var(--border);color:white}
+.disc-tag .count{color:var(--amber);font-weight:700;margin-left:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:8px;
+font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--amber);color:var(--navy-dark)}
+.btn-primary:hover{background:var(--amber-light);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--amber);border:2px solid var(--amber)}
+.btn-outline:hover{background:rgba(232,160,32,0.1)}
+.center-btn{text-align:center;margin:32px 0}
+.progress-container{max-width:700px;margin:60px auto;text-align:center}
+.progress-container h2{font-size:24px;margin-bottom:32px}
+.progress-bar-wrap{background:var(--navy);border-radius:12px;height:20px;overflow:hidden;margin:20px 0}
+.progress-bar{background:linear-gradient(90deg,var(--amber),var(--amber-light));height:100%;
+border-radius:12px;transition:width .3s ease;width:0%}
+.progress-pct{font-size:48px;font-weight:800;color:var(--amber);margin:16px 0}
+.progress-stage{color:var(--text-muted);font-size:14px;margin:8px 0}
+.activity-log{background:var(--card);border:1px solid var(--border);border-radius:8px;
+padding:16px;margin-top:32px;text-align:left;max-height:250px;overflow-y:auto;font-family:monospace;font-size:12px}
+.log-line{padding:3px 0;color:var(--text-muted)}
+.log-line .time{color:var(--amber);margin-right:8px}
+.log-line.highlight{color:var(--text)}
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+.stat-box{padding:20px;border-radius:10px;text-align:center;color:white}
+.stat-box .num{font-size:32px;font-weight:800;color:white}
+.stat-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.85;color:white}
+.stat-total{background:var(--navy)}
+.stat-critical{background:var(--critical)}
+.stat-high{background:var(--high)}
+.stat-medium{background:var(--medium)}
+.stat-low{background:var(--low)}
+.summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:24px}
+.stat-cost{background:var(--navy);padding:16px 20px;border-radius:10px;text-align:center;color:white}
+.stat-cost .num{font-size:22px;font-weight:700;color:white}
+.stat-cost .lbl{color:white}
+.stat-pairs{background:var(--amber);color:var(--navy-dark);padding:16px 20px;border-radius:10px;text-align:center}
+.stat-pairs .num{font-size:22px;font-weight:700}
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--text-muted);
+padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--amber);color:var(--navy-dark);border-color:var(--amber)}
+.conflict-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+margin-bottom:16px;overflow:hidden;transition:all .2s}
+.conflict-card:hover{border-color:var(--amber);transform:translateY(-1px)}
+.cc-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;flex-wrap:wrap}
+.sev-badge{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;color:white;min-width:70px;text-align:center}
+.sev-Critical{background:var(--critical)}
+.sev-High{background:var(--high)}
+.sev-Medium{background:var(--medium)}
+.sev-Low{background:var(--low)}
+.ne-badge{background:rgba(22,163,74,0.15);color:var(--low);border:1px solid var(--low);
+padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.cc-title{font-size:14px;font-weight:700;flex:1;min-width:200px}
+.cc-id{font-size:11px;color:var(--text-muted)}
+.cc-chevron{color:var(--text-muted);transition:transform .2s;font-size:18px}
+.conflict-card.expanded .cc-chevron{transform:rotate(180deg)}
+.cc-body{display:none;padding:0 20px 20px}
+.conflict-card.expanded .cc-body{display:block}
+.cc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.03);
+padding:12px;border-radius:8px;margin-bottom:12px}
+.cc-meta-item{font-size:12px}
+.cc-meta-item .k{color:var(--text-muted);font-weight:600}
+.cc-desc{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6}
+.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.score-dim{text-align:center}
+.score-dim .dim-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.score-bar-bg{height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.score-dim .dim-val{font-size:11px;font-weight:700;margin-top:2px}
+.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.impact-box{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:6px;
+border-left:3px solid var(--amber);font-size:12px}
+.impact-box .ib-label{font-weight:700;color:var(--text)}
+.cc-action{background:rgba(232,160,32,0.06);border:1px solid rgba(232,160,32,0.2);
+border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6}
+.cc-action strong{color:var(--amber)}
+.truncated-notice{padding:16px;margin-top:20px;background:rgba(232,160,32,0.06);
+border:1px solid rgba(232,160,32,0.3);border-radius:8px;text-align:center;font-size:13px;color:var(--text-muted)}
+.truncated-notice strong{color:var(--amber)}
+.report-preview{text-align:center;margin:40px 0}
+.report-preview h2{margin-bottom:16px}
+.report-mockup{background:white;border-radius:8px;max-width:500px;margin:0 auto;
+padding:40px;color:#333;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.rm-header{background:var(--navy);color:white;padding:30px;border-radius:6px;margin-bottom:20px}
+.rm-header h3{font-size:24px;letter-spacing:1px}
+.rm-header p{opacity:.7;font-size:12px;margin-top:4px}
+.rm-title{font-size:18px;font-weight:700;color:var(--navy);text-align:center;margin:16px 0}
+.rm-bar{height:4px;background:var(--amber);border-radius:2px;margin:12px 0}
+.rm-meta{font-size:12px;color:#666;margin:8px 0}
+.mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy-dark);
+border-top:2px solid var(--amber);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-tabs-inner{display:flex;justify-content:space-around;align-items:center}
+.mobile-tab{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;
+color:var(--text-muted);font-size:10px;font-weight:600;padding:6px 12px;cursor:pointer;transition:color .2s;
+-webkit-tap-highlight-color:transparent}
+.mobile-tab svg{width:20px;height:20px}
+.mobile-tab.active{color:var(--amber)}
+.mobile-tab.locked{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+.header{flex-direction:column;gap:12px;padding:12px}
+.header-left{flex-direction:column;width:100%;gap:8px}
+.summary-row{grid-template-columns:repeat(2,1fr)}
+.summary-row2{grid-template-columns:1fr}
+.meta-grid{grid-template-columns:1fr 1fr}
+.scores-grid{grid-template-columns:repeat(3,1fr)}
+.cc-impact{grid-template-columns:1fr}
+.cc-meta{grid-template-columns:1fr}
+.nav{display:none}
+.mobile-tabs{display:block}
+body{padding-bottom:72px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <a href="index.html" class="back-link">&larr; Back to Projects</a>
+    <div class="logo">FLIKT<span>.AI</span></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="nav">
+      <button class="active" onclick="showView('dashboard')">Dashboard</button>
+      <button onclick="showView('progress')">Analysis</button>
+      <button onclick="showView('results')">Results</button>
+      <button onclick="showView('report')">Report</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme">
+      <span id="theme-icon"></span>
+    </button>
+  </div>
+</div>
+
+<div id="dashboard" class="view active">
+  <div class="hero">
+    <h1>AI-Powered Plan Coordination</h1>
+    <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework.</p>
+  </div>
+  <div class="project-card">
+    <h2 id="proj-name"></h2>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="label">Address</div><div class="value" id="proj-addr"></div></div>
+      <div class="meta-item"><div class="label">Project Type</div><div class="value" id="proj-type"></div></div>
+      <div class="meta-item"><div class="label">Construction Value</div><div class="value" id="proj-value"></div></div>
+      <div class="meta-item"><div class="label">Total Sheets</div><div class="value" id="proj-sheets"></div></div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="label" style="font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">Disciplines Detected</div>
+      <div class="disciplines-list" id="disc-list"></div>
+    </div>
+  </div>
+  <div class="center-btn">
+    <button class="btn btn-primary" onclick="startAnalysis()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Run Conflict Analysis
+    </button>
+  </div>
+</div>
+
+<div id="progress" class="view">
+  <div class="progress-container">
+    <h2>Analyzing Plan Set</h2>
+    <div class="progress-pct" id="pct">0%</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="pbar"></div></div>
+    <div class="progress-stage" id="stage">Initializing...</div>
+    <div class="activity-log" id="log"></div>
+  </div>
+</div>
+
+<div id="results" class="view">
+  <h2 style="margin-bottom:20px">Conflict Analysis Results</h2>
+  <div class="summary-row" id="summary-row"></div>
+  <div class="summary-row2" id="summary-row2"></div>
+  <div class="filters" id="filters"></div>
+  <div id="conflict-list"></div>
+  <div id="truncated-notice"></div>
+  <div class="center-btn" style="margin-top:24px">
+    <button class="btn btn-primary" onclick="showView('report')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      View Full Report
+    </button>
+  </div>
+</div>
+
+<div id="report" class="view">
+  <div class="report-preview">
+    <h2>Plan Conflict &amp; Coordination Report</h2>
+    <p style="color:var(--text-muted);margin-bottom:24px">Professional PDF report ready for download</p>
+    <div class="report-mockup">
+      <div class="rm-header">
+        <h3>FLIKT.AI</h3>
+        <p>AI-Powered Plan Coordination</p>
+      </div>
+      <div class="rm-bar"></div>
+      <div class="rm-title">Plan Conflict &amp; Coordination Report</div>
+      <div class="rm-bar"></div>
+      <div class="rm-meta"><strong>Project:</strong> <span id="rm-proj"></span></div>
+      <div class="rm-meta"><strong>Report Date:</strong> April 19, 2026</div>
+      <div class="rm-meta"><strong>Conflicts Found:</strong> <span id="rm-count"></span></div>
+      <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
+    </div>
+    <div style="margin-top:32px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <a href="FliktAI_The_Atrium_Report.pdf" download class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF Report
+      </a>
+      <button class="btn btn-outline" onclick="showView('results')">
+        Back to Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-tabs">
+  <div class="mobile-tabs-inner">
+    <button class="mobile-tab active" onclick="showView('dashboard')" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="mobile-tab" onclick="showView('progress')" data-view="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Analysis
+    </button>
+    <button class="mobile-tab" onclick="showView('results')" data-view="results">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Results
+    </button>
+    <button class="mobile-tab" onclick="showView('report')" data-view="report">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Report
+    </button>
+  </div>
+</div>
+
+<script>
+let DATA = {"project": {"id": "demo-the-atrium", "name": "The Atrium", "name_long": "The Atrium — Lobby Renovation", "address": "2500 Bayshore Drive, Miami Beach, FL 33140", "type": "Multifamily Common Area Renovation", "construction_value": 1200000, "construction_value_display": "$1,200,000", "disciplines": {"Architectural": [], "Electrical": [], "Mechanical": [], "Plumbing": []}, "total_sheets": 4}, "summary": {"total_conflicts": 17, "critical": 0, "high": 5, "medium": 9, "low": 3, "cost_low": 85431, "cost_high": 198390, "discipline_pairs": 7}, "conflicts": [{"id": "C001", "title": "Fire Alarm System Design Not Shown - Life Safety Coordination Gap", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "High", "confidence": 0.98, "location": "All remodeled areas - Lobby, Mezzanine, Corridors (Floors 4-26), Penthouses", "sheets": ["A1", "E1", "E3", "E4", "E2", "A2", "M1", "M2", "P2"], "description": "The architectural cover sheet A1 lists the project as Occupancy Type R2, Construction Type I-A, and references the 2023 Florida Building Code and Florida Fire Prevention Code. The scope includes complete common space interior remodel across lobby, mezzanine, elevator lobbies, business center, card room, wellness center, and main corridors on each floor. The architectural sheet list includes 'LS1 LIFE SAFETY PLAN' but no fire alarm plan sheets are included in the provided set. The electrical plans (E1-E4) show power and lighting only — no fire alarm devices (smoke detectors, horn/strobes, pull stations, duct smoke detectors) are shown for the remodeled areas. The electrical notes reference smoke detectors (Note 25, 29) but these appear to be dwelling-unit-specific notes carried over from a residential template, not applicable to common area fire alarm. For an R2 Type I-A building, NFPA 72 and the Florida Fire Prevention Code require a building fire alarm system with notification appliances in corridors and common areas. Demolishing and reconstructing walls, ceilings, and corridors will displace existing fire alarm devices that must be relocated or replaced.", "recommended_action": "Provide a fire alarm device layout plan showing all required devices per NFPA 72 and Florida Building Code for all remodeled areas. At minimum, show: corridor smoke detectors at proper spacing, duct smoke detectors on all A/C systems over 2000 CFM, horn/strobes in all common areas per notification appliance spacing requirements, and pull stations at exits. Coordinate device locations with the architectural RCP and mechanical duct layouts. If fire alarm design is delegated to a fire alarm contractor, provide a clear delegation note with performance specifications.", "source": "vision", "flags": ["Code Compliance", "Life Safety", "NFPA 72", "code-compliance", "deferred_submittal", "life-safety"], "scores": {"constructability": 5, "cost": 6, "safety": 9, "schedule": 5, "downstream": 8}, "cost_low": 13389, "cost_high": 29164, "schedule_impact": "10-21 days", "consensus": {"runs_detected": 4, "total_runs": 5, "agreement": "4/5"}}, {"id": "C002", "title": "Mechanical Fan Shutdown on Fire Alarm Not Coordinated with Fire Alarm Design", "disc_a": "Mechanical", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "High", "confidence": 0.95, "location": "All Levels - HVAC Systems", "sheets": ["M3", "M1", "P2", "E3", "E1", "M2", "A1"], "description": "Mechanical note 14 on M3 states: 'PROVIDE ALL FANS AND ROOFTOP UNITS WITH RELAYS TO SHUT DOWN WHEN FIRE ALARMS INITIATED. COORDINATE LOCATION WITH THE ELECTRICAL.' This requires fire alarm integration with the HVAC systems — specifically, duct smoke detectors and relay connections to shut down air handling equipment upon fire alarm activation. However, no fire alarm system design is shown on any electrical plan, and no duct smoke detectors are shown on either the mechanical or electrical plans. For a high-rise R2 building, NFPA 90A requires smoke detectors in ducts serving areas over 2,000 CFM. The mechanical plans show systems with airflows well exceeding this threshold (multiple diffusers at 150-300 CFM each per system). Without fire alarm coordination, the HVAC shutdown on alarm cannot be implemented.", "recommended_action": "Include duct smoke detector locations on mechanical plans at supply and return ducts for systems exceeding 2,000 CFM per NFPA 90A. Coordinate with fire alarm designer (if delegated) or add to electrical plans. Show relay connections between fire alarm panel and HVAC equipment for automatic shutdown. Verify compliance with Florida Fire Prevention Code for high-rise buildings.", "source": "vision", "flags": ["NFPA", "code-compliance", "life-safety"], "scores": {"constructability": 5, "cost": 5, "safety": 9, "schedule": 5, "downstream": 7}, "cost_low": 12625, "cost_high": 28642, "schedule_impact": "7-10 days", "consensus": {"runs_detected": 1, "total_runs": 5, "agreement": "1/5", "override": "severity=High"}}, {"id": "C003", "title": "Fire Rated Penetration Details Missing for New Ductwork Through Fire-Rated Assemblies", "disc_a": "Mechanical", "disc_b": "Architectural", "type": "Code Violation", "severity": "High", "confidence": 0.94, "location": "Lobby Level and Mezzanine Level - Stair enclosures, elevator lobbies, corridor walls", "sheets": ["M1", "M2", "A6", "A1", "M3", "A2", "P3", "P1"], "description": "The mechanical plans M1 and M2 show new ductwork penetrating through walls separating corridors from occupied spaces (e.g., ductwork from corridor 138 into Business Center, Reception, Cafe Lounge 3, Wellness rooms). In an R2 Type I-A building per the 2023 Florida Building Code, corridors serving as exit access must maintain their fire-resistance rating. The architectural notes on A2 state: 'ALL FIRE EXTINGUISHER CABINETS LOCATED IN A FIRE RATED WALL ASSEMBLY SHALL BE PROVIDED AS A FIRE RATED CABINET' and reference fire resistance ratings. The plumbing notes on P3 state: 'PROVIDE FIRE RETARDANT UL APPROVED SEALANT ON ALL PENETRATIONS OF FIRE RATED STRUCTURAL SLABS, WALLS, AND PARTITIONS.' However, the mechanical plans and notes on M3 do not include fire damper requirements at rated wall penetrations. HVAC Note 29 states 'NO FLEXIBLE DUCTS SHALL PASS THROUGH FIREWALLS' but does not address fire dampers for sheet metal duct penetrations. The architectural sheet list includes A6 and A6 for 'Fire Stopping Details' but these sheets are not provided for review, creating a documentation gap.", "recommended_action": "Mechanical engineer must identify all duct penetrations through fire-rated walls and add fire dampers and/or combination fire-smoke dampers at each penetration. Show damper locations on the mechanical plans with proper access panel requirements. Coordinate with architectural fire stopping details (A6 through A6) to ensure consistency. This is a code compliance issue that will be flagged during inspection.", "source": "vision", "flags": ["Code Compliance", "FBC 2023", "Fire Rating", "Life Safety"], "scores": {"constructability": 5, "cost": 5, "safety": 8, "schedule": 4, "downstream": 7}, "cost_low": 9161, "cost_high": 20957, "schedule_impact": "5-10 days", "consensus": {"runs_detected": 4, "total_runs": 5, "agreement": "4/5"}}, {"id": "C004", "title": "Sprinkler System Coordination Missing for New Ceiling Layouts", "disc_a": "Architectural", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "High", "confidence": 0.8, "location": "All remodeled areas - Lobby, Mezzanine, Corridors", "sheets": ["A2", "P1", "P2"], "description": "The architectural plans show new suspended gypsum board ceilings throughout the remodeled common areas, with ceiling height changes, soffits, and cove details. No fire sprinkler plans are included in the drawing set. In a Type I-A, R2 occupancy high-rise building, the existing sprinkler system must be modified to accommodate new ceiling heights and configurations. When ceilings are demolished and replaced at potentially different heights, existing sprinkler heads must be relocated to maintain proper coverage per NFPA 13. The plumbing plans (P1, P2) address only domestic water and sanitary systems — no fire protection/sprinkler modifications are shown. The architectural sheet list does not include a fire sprinkler plan.", "recommended_action": "A fire sprinkler modification plan must be developed showing relocated/new sprinkler heads coordinated with the new ceiling layouts. Engage a fire protection engineer or sprinkler contractor to design the modifications per NFPA 13. Coordinate sprinkler head locations with the architectural RCP, mechanical diffuser locations, and electrical lighting layout. This is required for permit and inspection approval.", "source": "vision", "flags": ["Code Compliance", "Life Safety", "Missing Discipline"], "scores": {"constructability": 6, "cost": 7, "safety": 9, "schedule": 7, "downstream": 7}, "cost_low": 13365, "cost_high": 28954, "schedule_impact": "14-21 days", "consensus": {"runs_detected": 1, "total_runs": 5, "agreement": "1/5", "override": "severity=High"}}, {"id": "C005", "title": "Architectural References Door and Window Schedules Not Included in Provided Drawing Set", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "High", "confidence": 0.75, "location": "All Renovated Areas - Lobby, Mezzanine, Corridors", "sheets": ["A1", "A4"], "description": "Multiple architectural demolition plans (A1, A1, A1, A1) reference 'SEE DOOR SCHEDULE' for existing doors to be demolished and 'SEE WINDOW SCHEDULE FOR ADDITIONAL' information for windows to be demolished/replaced. The sheet index on A1 lists A4 as 'Schedules & Wall Sections' but this sheet is not included in the provided drawing set. The architectural cover sheet notes state: 'WINDOWS & DOORS SHALL BE IMPACT RATED & HAVE A CURRENT NOA APPROVAL NUMBER & SHOP DRAWING AS SUPPLIED FOR WEATHERIZATION & IMPACT RATING APPROVAL' — this is critical for the High Velocity Hurricane Zone (HVHZ) in Fort Lauderdale. Without the door and window schedules, contractors cannot verify: door sizes, fire ratings, hardware requirements, impact rating specifications, frame types, or NOA numbers. The door hardware specification references 'SCHLAGE SATIN NICKEL FINISH' lever handles and 'HAFELE OR APPROVED EQUAL' for sliding/barn doors, but specific door schedule entries are needed for procurement.", "recommended_action": "1) Include sheet A4 (Schedules & Wall Sections) in the drawing set. 2) Verify all new doors in fire-rated corridors have appropriate fire ratings. 3) Confirm all exterior-facing doors and windows have current NOA approval for HVHZ compliance. 4) Coordinate door hardware schedule with architectural specifications for Schlage and Hafele products.", "source": "vision", "flags": ["HVHZ Compliance", "Incomplete Documents", "Missing Documentation"], "scores": {"constructability": 7, "cost": 4, "safety": 4, "schedule": 6, "downstream": 8}, "cost_low": 6028, "cost_high": 14216, "schedule_impact": "7 days", "consensus": {"runs_detected": 2, "total_runs": 5, "agreement": "2/5"}}, {"id": "C006", "title": "Tankless Water Heater Electrical Circuit Sizing Mismatch", "disc_a": "Plumbing", "disc_b": "Electrical-Lighting", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.98, "location": "Lobby Level - Coffee/Sink Area near Reception", "sheets": ["P1", "E1", "E5", "P3"], "description": "The plumbing plans specify a new point-of-use electric tankless water heater, Titan N4, rated at 208V and 4.2KW. The plumbing fixture schedule on P3 confirms 'INSTANTANEOUS ELECTRIC WATER HEATER 1.0 GPM RECOVERY AT 33°F TEMPERATURE RISE, 208V.' However, reviewing the electrical panel schedules on E1, while Panel-LA is 120Y/208V 3-phase, the panel schedule shows an 'INSTANT WATER HEATER (NEW)' entry but the existing water heater circuit shows only 78A. A 4.2KW unit at 208V single-phase draws approximately 20A, which is modest, but the electrical plans on E1 (lobby power plan) do not clearly show a dedicated circuit or disconnect for this new tankless water heater at its plumbing-indicated location. The electrical note #17 states contractor shall provide control wires between AHU and CU but makes no mention of water heater coordination. Additionally, the plumbing schedule shows the water heater sizing calculation yields only 0.98 total fixture units with a service size of 1-1/4\", suggesting very limited hot water demand — the Titan N4 at 4.2KW may be undersized for simultaneous use if additional fixtures are added during the remodel.", "recommended_action": "Verify that the electrical panel schedule circuit for the instant water heater is sized for a minimum 25A breaker (125% of 20.2A continuous load = 25.25A) with #10 AWG copper conductors minimum. Confirm voltage compatibility - the Titan N4 is rated 208V but verify if the panel serving it (Panel-LA at 120Y/208V 3-phase) provides the correct single-phase 208V tap. Coordinate between plumbing and electrical engineers to confirm final equipment selection and circuit sizing.", "source": "vision", "flags": ["Equipment Sizing", "NEC Compliance", "equipment-sizing"], "scores": {"constructability": 4, "cost": 3, "safety": 7, "schedule": 2, "downstream": 5}, "cost_low": 2284, "cost_high": 5955, "schedule_impact": "2-3 days", "consensus": {"runs_detected": 5, "total_runs": 5, "agreement": "5/5"}}, {"id": "C007", "title": "Mezzanine Gym Area - Electrical Receptacle Locations Deferred to Unspecified Design Package", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.98, "location": "Mezzanine Level - Gym Area", "sheets": ["E3", "E1", "M1", "E5", "A1", "M3", "M2", "E4", "E2"], "description": "The architectural cover sheet A1 lists sheet LS1 'LIFE SAFETY PLAN' in the sheet index, but no life safety or fire alarm plan is included in the provided drawing set. The project is an R2 occupancy, Type I-A construction, involving complete common space interior remodel across lobby, elevator lobbies, business center, card room, wellness center, and main corridors on each floor (4th-26th). The electrical notes on E1 reference smoke detectors (Note #25: 'ALL SMOKE DETECTORS SHOULD BE INTERCONNECTED') and combination CO/smoke alarms (Note #29), but these appear to address dwelling unit requirements, not common area fire alarm systems. For a high-rise R2 building undergoing Level 2 Alteration per FBC-Existing Building, the fire alarm system in common areas must be addressed. No waterflow switches, tamper switches, pull stations, horn/strobes, duct smoke detectors, or fire alarm control panel connections are shown on any electrical plan. The architectural general notes reference fire extinguisher cabinets in fire-rated walls (Note 20.2) but no fire alarm device layout is provided.", "recommended_action": "Obtain the gym equipment layout and interior design drawings referenced on E3. Once received, coordinate receptacle locations, mounting heights, and circuit requirements with the electrical engineer. Update the panel schedule to reflect actual gym equipment loads. If the interior design package is not yet complete, issue a hold on gym electrical rough-in and establish a milestone date for receipt of this information to avoid schedule impact.", "source": "vision", "flags": ["Missing Reference Drawings"], "scores": {"constructability": 6, "cost": 4, "safety": 2, "schedule": 6, "downstream": 6}, "cost_low": 2004, "cost_high": 4960, "schedule_impact": "7-14 days", "consensus": {"runs_detected": 2, "total_runs": 5, "agreement": "2/5"}}, {"id": "C008", "title": "Corridor Floors 4-26 - No Mechanical Plans for Remodeled Areas", "disc_a": "Architectural", "disc_b": "Mechanical", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.95, "location": "Floors 4-26 Typical Corridors, PG Intermediate Level, upper unit Corridors", "sheets": ["A2", "A1", "M2", "E3", "M1", "P1"], "description": "The architectural mezzanine plan (A1, A1) shows extensive renovation scope including the Gym, Sauna, Men's Restroom, Women's Restroom, Lockers, Massage rooms, and Pool Deck Access areas — all marked for demolition and replacement of ceilings, flooring, and wall finishes. The mechanical mezzanine plan M2 shows new ductwork only in a limited area (appears to be the corridor/lobby area near Elevator Lobby 3) with notes referencing 'EXISTING A/C1 SYSTEM TO REMAIN.' However, the Gym, Sauna, Massage, and Restroom/Locker areas — which are undergoing complete interior renovation — show no new mechanical work, no exhaust provisions for the Sauna, and no verification that existing HVAC systems are adequate for the renovated spaces. The Sauna specifically requires dedicated exhaust per FMC. The electrical plan E3 shows new receptacles and lighting in these areas (XA7, LAA1, etc.) confirming active renovation scope, yet mechanical coverage is absent.", "recommended_action": "Mechanical engineer to confirm whether corridor HVAC systems on floors 4-26, PG intermediate, and upper unit levels are affected by the ceiling demolition/replacement. If existing HVAC devices are to remain, add a note on mechanical drawings confirming this. If any modifications are needed (diffuser relocation, duct modifications for new ceiling heights), provide mechanical plans for these levels.", "source": "vision", "flags": ["ASHRAE 62.1", "FBC Mechanical", "HVAC Capacity", "Multi-Floor", "Scope Gap", "Ventilation Code", "incomplete-coordination"], "scores": {"constructability": 5, "cost": 4, "safety": 2, "schedule": 5, "downstream": 5}, "cost_low": 2764, "cost_high": 6755, "schedule_impact": "5-10 days", "consensus": {"runs_detected": 5, "total_runs": 5, "agreement": "5/5"}}, {"id": "C009", "title": "Missing Electrical Circuit for Existing/New A/C Systems Serving Remodeled Spaces", "disc_a": "Mechanical", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.95, "location": "Lobby Level and Mezzanine Level", "sheets": ["E1", "E5", "M1", "M2", "E3", "E2", "M3", "P2", "P1", "P3", "A2"], "description": "The mechanical plans M1 and M2 show extensive new ductwork connecting to existing A/C systems (A/C1, A/C1, A/C1, A/C2) with notes stating 'EXISTING A/C SYSTEM TO REMAIN AND REUSE. CONTRACTOR TO VERIFY EXACT LOCATION, CAPACITY AND CONDITION.' The HVAC notes on M3 state: 'PROVIDE ALL CONTROL EQUIPMENT, MOTOR STARTERS, RELAYS, LINE VOLTAGE CONTROLS, TRANSFORMERS, LOW VOLTAGE CONTROLS AND DEVICES' and 'ALL LOW VOLTAGE WIRING AND CONDUIT REQUIRED FOR MECHANICAL EQUIPMENT SHALL BE FURNISHED AND INSTALLED BY MECHANICAL CONTRACTOR.' However, the electrical notes on E1 state 'ELECTRICAL CONTRACTOR SHALL PROVIDE CONTROL WIRES BETWEEN A.H.U. AND C.U.' (Note 17) and 'RUN ALL C.U. LOW VOLTAGE WIRES FROM A.H.U. TO C.U. IN 1/2\" CONDUIT' (Note 24). There is a scope gap — the mechanical notes assign low-voltage wiring to the mechanical contractor while the electrical notes assign control wiring to the electrical contractor. Neither discipline clearly delineates responsibility for the new ductwork zone controls and motorized dampers.", "recommended_action": "Electrical engineer should verify that all existing A/C systems being retained have adequate existing electrical feeds that will not be disturbed by the remodel. If any A/C equipment is being relocated or modified, corresponding electrical circuit modifications must be shown on the electrical plans. Add a coordination note cross-referencing mechanical equipment tags to electrical panel circuits.", "source": "vision", "flags": ["Scope Boundary", "scope-gap"], "scores": {"constructability": 4, "cost": 3, "safety": 3, "schedule": 4, "downstream": 6}, "cost_low": 3110, "cost_high": 7856, "schedule_impact": "3-7 days", "consensus": {"runs_detected": 4, "total_runs": 5, "agreement": "4/5"}}, {"id": "C010", "title": "Material mismatch at walls across 2 disciplines", "disc_a": "Architectural", "disc_b": "Plumbing", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.8, "location": "walls", "sheets": ["P1", "241211-ARCH-251204_p17", "A1", "S1", "BHE - 250305 - The Atrium - Plumbing - 2025.10.28_p3", "A2", "241211-ARCH-251204_p18", "241211-ARCH-251204_p1", "P3", "241211-ARCH-251204_p15"], "description": "Multiple disciplines specify different materials for walls: Architectural (241211-ARCH-251204_p1, 241211-ARCH-251204_p15, 241211-ARCH-251204_p17, 241211-ARCH-251204_p18, A2, S1): CMU, Concrete, Drywall, PVC, Steel; Plumbing (BHE - 250305 - The Atrium - Plumbing - 2025.10.28_p3): Copper. These materials must be coordinated before bidding.", "recommended_action": "Confirm the correct material for walls with the design team. Update all conflicting disciplines' documents to match.", "source": "text_extraction", "flags": [], "scores": {"constructability": 5, "cost": 6, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 3630, "cost_high": 8604, "schedule_impact": "7-14 days", "consensus": {"runs_detected": 5, "total_runs": 5, "agreement": "5/5"}}, {"id": "C011", "title": "Mechanical Ductwork in Lobby Ceiling Plenum vs Architectural RCP Coordination", "disc_a": "Mechanical", "disc_b": "Architectural", "type": "Spatial Clash", "severity": "Medium", "confidence": 0.78, "location": "Lobby Level - Main Lobby, Corridors, Cafe Lounge, Reception", "sheets": ["M1", "A2", "E2"], "description": "The mechanical plan (M1) shows extensive new ductwork throughout the lobby level with duct sizes up to 34x20 inches (20 inches deep) and 28x12 inches. The architectural RCP (A2) shows suspended gypsum board ceilings with smooth paint finish throughout the lobby areas. The architectural notes state 'Finish ceiling heights are given from top of concrete.' In an existing concrete high-rise building (Type I-A construction), the available plenum space between the structural concrete slab above and the finished ceiling is critical. A 34x20 duct requires at least 22 inches of clear plenum space (20 inches plus 2 inches clearance). Without explicit ceiling height dimensions and slab-to-slab heights on the drawings, there is a significant risk that the new ductwork — particularly the larger trunk ducts in the corridor and lobby areas — will not fit within the available ceiling plenum, especially when competing with lighting fixtures, sprinkler piping, and electrical conduit.", "recommended_action": "Conduct a plenum space analysis: determine the slab-to-slab height at the lobby level and subtract the architectural finished ceiling height to calculate available plenum depth. Verify that the largest duct (34x20) plus insulation, hangers, sprinkler piping, and lighting can fit within the available space. If insufficient, consider reducing duct sizes by increasing duct width and decreasing height, or lowering the ceiling in trunk duct zones with soffits.", "source": "vision", "flags": ["Ceiling Congestion", "Ceiling Coordination Required", "Plenum Space", "ceiling-congestion", "field-coordination"], "scores": {"constructability": 7, "cost": 5, "safety": 1, "schedule": 6, "downstream": 7}, "cost_low": 4496, "cost_high": 10920, "schedule_impact": "7-14 days", "consensus": {"runs_detected": 5, "total_runs": 5, "agreement": "5/5"}}, {"id": "C012", "title": "No Mechanical HVAC Design for Upper Floor Corridors (4th-26th) Despite Architectural Renovation Scope", "disc_a": "Architectural", "disc_b": "Mechanical", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.75, "location": "Corridors — Floors 4 through 26, PH1, PH2", "sheets": ["A1", "M1", "M2", "M3"], "description": "The architectural plans show renovation scope for typical corridors on floors 4-26 (sheet A1) and upper unit corridors PH1 and PH2 (sheet A1), including new framing and drywall, new flooring with Whisper Mat sound control membrane (STC 72), and new wall finishes. Demo plans A1 show ceiling demolition (Key Note 1) and flooring demolition (Key Note 2) in these corridors. However, the mechanical drawing set only includes M1 (Lobby Mechanical Plan) and M2 (Mezzanine Mechanical Plan) — no mechanical plans are provided for the upper floor corridors. If ceilings are being demolished and replaced, any existing HVAC diffusers, ductwork, or equipment in the corridor ceiling space needs to be addressed. The mechanical notes on M3 reference 'CONTRACTOR SHALL BE RESPONSIBLE FOR COORDINATION OF ALL TRADES, LANDLORD REQUIREMENTS, CEILING HEIGHTS, AND EXISTING STRUCTURAL' but no corridor HVAC plan exists.", "recommended_action": "Mechanical engineer to confirm whether existing HVAC systems in upper floor corridors are to remain as-is or require modification. If corridor ceilings are being demolished per architectural plans, provide mechanical coordination notes or plans showing existing HVAC elements to be protected, relocated, or reinstalled. At minimum, add a note to mechanical drawings addressing upper floor corridor HVAC scope.", "source": "vision", "flags": ["Bidding Impact", "Missing Document", "Scope Gap"], "scores": {"constructability": 6, "cost": 5, "safety": 2, "schedule": 6, "downstream": 6}, "cost_low": 2912, "cost_high": 7108, "schedule_impact": "5-10 days", "consensus": {"runs_detected": 2, "total_runs": 5, "agreement": "2/5"}}, {"id": "C013", "title": "Architectural Floor Drain Requirements Not Addressed — Janitor Closet, Bar Area, and Wellness Rooms Missing Plumbing Coordination", "disc_a": "Architectural", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.75, "location": "Lobby Level — Janitor Room, Bar, Cafe Lounge 3; Mezzanine — Wellness/Yoga Room", "sheets": ["A1", "P1", "P2"], "description": "The architectural proposed plans A1 and A1 show several rooms that typically require floor drains or plumbing connections: (1) Janitor closet on lobby level — typically requires a mop sink and floor drain, architectural demo plan notes 'EXISTING MOP SINK TO REMAIN AND REUSE' but the proposed plan should confirm; (2) Bar area on lobby level — the demo plan A1 shows 'DEMO EXIST'G BAR' with key note 5 'DEMO EXIST'G BAR AND REPLACE W NEW' — the new bar will require sink, drain, and potentially ice maker connections but plumbing plan P1 does not show any plumbing for the new bar area; (3) Cafe Lounge 3 — shown on architectural plans with food service implications but no plumbing connections shown; (4) Wellness/Yoga Room and Wellness/Pilates Room on mezzanine — no plumbing shown on P2 for these areas. The plumbing scope appears limited to the lobby sink relocation and coffee maker area only.", "recommended_action": "1) Confirm with architect whether the new bar requires plumbing (sink, drain, ice maker line). 2) Add bar plumbing connections to P1 if required. 3) Verify janitor closet mop sink connection on proposed plumbing plan. 4) Confirm whether wellness rooms require any plumbing (drinking fountain, etc.).", "source": "vision", "flags": ["Scope Gap"], "scores": {"constructability": 6, "cost": 4, "safety": 2, "schedule": 6, "downstream": 6}, "cost_low": 3672, "cost_high": 9280, "schedule_impact": "5 days", "consensus": {"runs_detected": 2, "total_runs": 5, "agreement": "2/5"}}, {"id": "C014", "title": "Unresolved Coordination: COORDINATE WITH: ALL TRADES PRIOR TO", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.65, "location": "241211-ARCH-251204.pdf p13", "sheets": ["241211-ARCH-251204.pdf p13"], "description": "Unresolved coordination item on 241211-ARCH-251204.pdf p13: COORDINATE WITH: ALL TRADES PRIOR TO SUBMITTAL. This item requires resolution before construction.", "recommended_action": "Resolve the pending item and update all affected sheets. Issue RFI if design decision is needed.", "source": "rfi_parser", "flags": [], "scores": {"constructability": 4, "cost": 4, "safety": 2, "schedule": 4, "downstream": 6}, "cost_low": 3237, "cost_high": 8123, "schedule_impact": "11 days", "consensus": {"runs_detected": 5, "total_runs": 5, "agreement": "5/5"}}, {"id": "C015", "title": "Existing Panel-XB Reuse - Electrical Background Does Not Match Architectural Demo", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Low", "confidence": 0.98, "location": "Lobby Level - Electrical Room", "sheets": ["E1", "E2", "A1", "E3", "E5", "E4"], "description": "The architectural cover sheet A1 lists sheet LS1 as 'LIFE SAFETY PLAN' in the sheet index, but no life safety or fire alarm plan sheet is included in the provided electrical drawing set (E1-E5). The scope of work includes complete common space interior remodel across lobby, elevator lobbies, business center, card room, wellness center, and main corridors on each floor. Per 2023 Florida Building Code and NFPA 72, any renovation of this scope in an R2 occupancy, Type I-A construction requires updated fire alarm device layout including smoke detectors, heat detectors, horn/strobes, pull stations, and duct smoke detectors. The electrical notes reference smoke detectors (Note 25, 29) but these appear to be dwelling-unit-specific requirements. No fire alarm riser diagram, device schedule, or notification appliance layout is shown for the common area renovation. The architectural notes on A2 reference fire extinguisher cabinets in fire-rated walls (Note 20.2) and fire resistance ratings (Note 23.1) but no corresponding fire alarm coordination is shown.", "recommended_action": "Electrical engineer to review the architectural demolition plans and identify which existing circuits on Panel-XB and Panel-LA are affected by the demolition scope. Provide demolition/protection notes on the electrical plans for circuits that pass through demolition areas. Coordinate circuit shutdowns with the construction phasing plan.", "source": "vision", "flags": ["Demolition Coordination"], "scores": {"constructability": 4, "cost": 2, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 820, "cost_high": 2064, "schedule_impact": "3 days", "consensus": {"runs_detected": 2, "total_runs": 5, "agreement": "2/5"}}, {"id": "C016", "title": "Plumbing Plan Date Precedes Architectural and Mechanical Plan Dates", "disc_a": "Plumbing", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Low", "confidence": 0.9, "location": "Project-wide", "sheets": ["P1", "P2", "P3", "A1", "M1", "E1"], "description": "The plumbing plans (P1, P2, P3) are dated 10/28/2025, while the architectural plans are dated 12/04/2025 and the mechanical plans are dated 12/09/2025. The electrical plans are dated 12/10/2025. The plumbing plans predate the other disciplines by approximately 6 weeks. During this period, architectural layout changes may have occurred that are not reflected in the plumbing plans. Specifically, if wall locations, fixture positions, or room configurations changed between October and December, the plumbing rough-in locations may not align with the final architectural layout. The plumbing plan shows sink relocations and new piping connections that must align precisely with the architectural casework and fixture locations.", "recommended_action": "Plumbing engineer should review the latest architectural plans (dated 12/04/2025) and verify that all plumbing fixture locations, pipe routing, and connection points still align with the current architectural layout. If any architectural changes affect plumbing, issue updated plumbing plans. All disciplines should be issued with the same architectural background revision.", "source": "vision", "flags": ["Document Coordination"], "scores": {"constructability": 2, "cost": 2, "safety": 0, "schedule": 3, "downstream": 4}, "cost_low": 826, "cost_high": 2084, "schedule_impact": "2-4 days", "consensus": {"runs_detected": 2, "total_runs": 5, "agreement": "2/5"}}, {"id": "C017", "title": "Plumbing Condensate Riser Coordination with Mechanical A/C Systems", "disc_a": "Plumbing", "disc_b": "Mechanical", "type": "Missing Coordination", "severity": "Low", "confidence": 0.88, "location": "Lobby and Mezzanine Levels", "sheets": ["P1", "M1", "P2", "M2", "P3", "M3"], "description": "The plumbing notes on P3 state: 'THE PLUMBING CONTRACTOR SHALL RUN BUILDING CONDENSATE RISER WITH STUB-OUTS AT THE AIR CONDITIONING UNITS IF APPLICABLE. THE MECHANICAL CONTRACTOR IS RESPONSIBLE TO CONNECT HIS EQUIPMENT TO THOSE STUB-OUTS.' The mechanical plans M1 and M2 reference multiple existing A/C systems (A/C1, A/C1, A/C1, A/C2) to remain and be reused, with new ductwork connections. However, the plumbing plans P1 and P2 show no condensate drain lines, condensate receptors, or condensate piping for any of these A/C units. Since the project involves demolition and reconstruction of ceilings and finishes in these areas, existing condensate lines may be disturbed or need rerouting. The plumbing notes also reference 'INTERIOR CONDENSATE DRAIN PIPING RUNNING HORIZONTALLY SHALL BE INSULATED WITH A MINIMUM OF 1/2 INCH THICK ARMAFLEX INSULATION' but no condensate piping is shown on the plans.", "recommended_action": "Mechanical engineer should confirm condensate drain requirements for all A/C systems in the scope of work and show condensate drain routing on mechanical plans. Plumbing engineer should show condensate drain receptors or connection points on plumbing plans. Both disciplines should coordinate to ensure condensate from modified A/C systems has a proper drain path.", "source": "vision", "flags": ["MEP Coordination", "MEP-coordination"], "scores": {"constructability": 4, "cost": 3, "safety": 2, "schedule": 3, "downstream": 5}, "cost_low": 1108, "cost_high": 2748, "schedule_impact": "2-3 days", "consensus": {"runs_detected": 4, "total_runs": 5, "agreement": "4/5"}}]};
+const STAGES = [{"pct": 3, "text": "Loading plan set (4 sheets)...", "log": "Loaded The Atrium plan set — 4 construction documents"}, {"pct": 6, "text": "Classifying sheet disciplines...", "log": "Identified 4 disciplines: Architectural, Electrical, Mechanical, Plumbing"}, {"pct": 12, "text": "Rendering architectural plans...", "log": "Architectural: extracting floor plans, elevations, details"}, {"pct": 26, "text": "Extracting MEP elements...", "log": "MEP: identifying equipment, panels, circuits, fixtures"}, {"pct": 52, "text": "Running cross-discipline conflict detection...", "log": "Comparing elements across 7 discipline pairs"}, {"pct": 60, "text": "Checking code compliance...", "log": "⚠ Detecting building-code + accessibility issues"}, {"pct": 68, "text": "Detecting spatial clashes...", "log": "⚠ Scanning for geometric conflicts between disciplines"}, {"pct": 75, "text": "Checking MEP coordination gaps...", "log": "⚠ Identifying missing equipment circuits, routing conflicts"}, {"pct": 82, "text": "Scoring severity (50-point model)...", "log": "Scored 17 conflicts: 0 Critical, 5 High, 9 Medium, 3 Low"}, {"pct": 92, "text": "Estimating cost and schedule impacts...", "log": "Total cost exposure: $85,431 – $198,390"}, {"pct": 100, "text": "Analysis complete!", "log": "Report generated — 17 conflicts across 7 discipline pairs"}];
+const RENDER_CAP = 9999;
+
+let analysisComplete = false;
+init();
+
+function toggleTheme(){
+  const isDark = !document.body.classList.contains('light-theme');
+  if(isDark){
+    document.body.classList.add('light-theme');
+    localStorage.setItem('flikt-theme','light');
+    document.getElementById('theme-icon').textContent='\u{1F319}';
+  } else {
+    document.body.classList.remove('light-theme');
+    localStorage.setItem('flikt-theme','dark');
+    document.getElementById('theme-icon').textContent='\u{2600}\u{FE0F}';
+  }
+}
+
+function loadTheme(){
+  const saved = localStorage.getItem('flikt-theme');
+  if(saved === 'light'){
+    document.body.classList.add('light-theme');
+    document.getElementById('theme-icon').textContent='\u{1F319}';
+  } else {
+    document.getElementById('theme-icon').textContent='\u{2600}\u{FE0F}';
+  }
+}
+
+loadTheme();
+
+function updateNavLocks(){
+  document.querySelectorAll('.nav button').forEach(b=>{
+    const label = b.textContent.toLowerCase();
+    if(!analysisComplete && (label.includes('results') || label.includes('report'))){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    const view = b.dataset.view;
+    if(!analysisComplete && (view==='results' || view==='report')){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+}
+
+function init(){
+  const p=DATA.project, s=DATA.summary;
+  document.getElementById('proj-name').textContent=p.name_long || p.name;
+  document.getElementById('proj-addr').textContent=p.address;
+  document.getElementById('proj-type').textContent=p.type;
+  document.getElementById('proj-value').textContent=p.construction_value_display || ('$'+(p.construction_value||0).toLocaleString());
+  document.getElementById('proj-sheets').textContent=p.total_sheets+' sheets';
+  const dl=document.getElementById('disc-list');
+  Object.entries(p.disciplines).forEach(([name,sheets])=>{
+    const n = (sheets && sheets.length) || 0;
+    const cnt = n > 0 ? `<span class="count">${n}</span>` : '';
+    dl.innerHTML+=`<span class="disc-tag">${name}${cnt}</span>`;
+  });
+  document.getElementById('rm-proj').textContent=p.name;
+  document.getElementById('rm-count').textContent=s.total_conflicts;
+  document.getElementById('rm-cost').textContent='$'+s.cost_low.toLocaleString()+' \u2013 $'+s.cost_high.toLocaleString();
+  updateNavLocks();
+}
+
+function showView(id){
+  if(!analysisComplete && (id==='results'||id==='report')) return;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>{
+    if(b.textContent.toLowerCase().includes(id==='dashboard'?'dashboard':id==='progress'?'analysis':id))
+      b.classList.add('active');
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===id);
+  });
+  if(id==='results'&&!document.getElementById('conflict-list').innerHTML) buildResults();
+}
+
+function startAnalysis(){
+  showView('progress');
+  let i=0;
+  const run=()=>{
+    if(i>=STAGES.length){
+      analysisComplete=true;
+      updateNavLocks();
+      setTimeout(()=>showView('results'),800);
+      return;
+    }
+    const s=STAGES[i];
+    document.getElementById('pct').textContent=s.pct+'%';
+    document.getElementById('pbar').style.width=s.pct+'%';
+    document.getElementById('stage').textContent=s.text;
+    const log=document.getElementById('log');
+    const cls=s.log.startsWith('\u26A0')?'log-line highlight':'log-line';
+    log.innerHTML+=`<div class="${cls}"><span class="time">${new Date().toLocaleTimeString()}</span>${s.log}</div>`;
+    log.scrollTop=log.scrollHeight;
+    i++;
+    setTimeout(run, 500+Math.random()*900);
+  };
+  run();
+}
+
+const SEVERITY_ORDER = {Critical:0, High:1, Medium:2, Low:3};
+function sortedConflicts(){
+  return DATA.conflicts.slice().sort((a,b)=>{
+    const sa = SEVERITY_ORDER[a.severity]??99, sb=SEVERITY_ORDER[b.severity]??99;
+    if(sa!==sb) return sa-sb;
+    return (b.cost_high||0)-(a.cost_high||0);
+  });
+}
+
+function buildResults(){
+  const s=DATA.summary;
+  document.getElementById('summary-row').innerHTML=`
+    <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
+    <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
+    <div class="stat-box stat-high"><div class="num">${s.high}</div><div class="lbl">High</div></div>
+    <div class="stat-box stat-medium"><div class="num">${s.medium}</div><div class="lbl">Medium</div></div>
+    <div class="stat-box stat-low"><div class="num">${s.low}</div><div class="lbl">Low</div></div>`;
+  document.getElementById('summary-row2').innerHTML=`
+    <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} \u2013 $${s.cost_high.toLocaleString()}</div></div>
+    <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
+
+  const severities=['All','Critical','High','Medium','Low'];
+  document.getElementById('filters').innerHTML=severities.map(sv=>
+    `<button class="filter-btn ${sv==='All'?'active':''}" onclick="filterConflicts('${sv}',this)">${sv}</button>`
+  ).join('');
+
+  renderConflicts('All');
+}
+
+let currentFilter='All';
+function filterConflicts(sev,btn){
+  currentFilter=sev;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderConflicts(sev);
+}
+
+function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
+
+function renderConflicts(severity){
+  const sorted = sortedConflicts();
+  const filtered = severity==='All' ? sorted : sorted.filter(c=>c.severity===severity);
+  const visible = filtered.slice(0, RENDER_CAP);
+  const hidden = filtered.length - visible.length;
+
+  const list=document.getElementById('conflict-list');
+  list.innerHTML=visible.map(c=>{
+    const dims=['constructability','cost','safety','schedule','downstream'];
+    const scoresHTML=dims.map(d=>{
+      const v=(c.scores||{})[d]||0;
+      return `<div class="score-dim">
+        <div class="dim-label">${d.slice(0,6)}</div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div>
+        <div class="dim-val" style="color:${scoreColor(v)}">${v}/10</div>
+      </div>`;
+    }).join('');
+
+    const neBadge = c.ne_validated ? '<span class="ne-badge">&check; NE-VALIDATED</span>' : '';
+    const sheetsStr = Array.isArray(c.sheets)?c.sheets.join(', '):(c.sheets||'');
+
+    return `<div class="conflict-card" onclick="this.classList.toggle('expanded')">
+      <div class="cc-header">
+        <span class="sev-badge sev-${c.severity}">${c.severity}</span>
+        <span class="cc-title">${escapeHtml(c.title)}</span>
+        ${neBadge}
+        <span class="cc-id">${c.id}</span>
+        <span class="cc-chevron">\u25BC</span>
+      </div>
+      <div class="cc-body">
+        <div class="cc-meta">
+          <div class="cc-meta-item"><span class="k">Disciplines:</span> ${escapeHtml(c.disc_a||'')} \u2194 ${escapeHtml(c.disc_b||'')}</div>
+          <div class="cc-meta-item"><span class="k">Type:</span> ${escapeHtml(c.type||'')}</div>
+          <div class="cc-meta-item"><span class="k">Location:</span> ${escapeHtml(c.location||'')}</div>
+          <div class="cc-meta-item"><span class="k">Sheets:</span> ${escapeHtml(sheetsStr)}</div>
+        </div>
+        <div class="cc-desc">${escapeHtml(c.description||'')}</div>
+        <div class="scores-grid">${scoresHTML}</div>
+        <div class="cc-impact">
+          <div class="impact-box"><span class="ib-label">Cost Exposure:</span> $${(c.cost_low||0).toLocaleString()} \u2013 $${(c.cost_high||0).toLocaleString()}</div>
+          <div class="impact-box"><span class="ib-label">Schedule Impact:</span> ${escapeHtml(c.schedule_impact||'')}</div>
+        </div>
+        <div class="cc-action"><strong>Recommended Action:</strong> ${escapeHtml(c.recommended_action||'')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const notice = document.getElementById('truncated-notice');
+  if(hidden > 0){
+    notice.innerHTML=`<div class="truncated-notice"><strong>Showing top ${visible.length} of ${filtered.length} conflicts</strong> by severity. <a href="FliktAI_The_Atrium_Report.pdf" download>Download the full PDF report</a> to see all ${DATA.summary.total_conflicts} findings.</div>`;
+  } else {
+    notice.innerHTML='';
+  }
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+</script>
+</body>
+</html>

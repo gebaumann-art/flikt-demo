@@ -1,0 +1,5 @@
+# The _build/ folder is auto-excluded from GitHub Pages publication by Jekyll
+# (Jekyll ignores folders whose names start with an underscore). The builder
+# scripts inside _build/ ARE committed to the repo for reproducibility.
+__pycache__/
+*.pyc

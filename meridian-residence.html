@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Residence &mdash; Flikt.AI Plan Analysis</title>
+<meta property="og:title" content="Meridian Residence &mdash; Flikt.AI Plan Analysis">
+<meta property="og:description" content="AI-powered plan coordination demo. Real conflict data, anonymized project details.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og_final_demo.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1B2A4A;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
+--critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;--bg:#0F1723;--card:#1A2540;
+--card-hover:#223050;--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;transition:background .3s,color .3s}
+a{color:var(--amber);text-decoration:none;transition:color .2s}
+a:hover{color:var(--amber-light)}
+body.light-theme{--bg:#f0f2f5;--card:#ffffff;--text:#333333;--text-muted:#666666;--border:#dddddd}
+.header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
+display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:20px}
+.back-link{color:var(--text-muted);font-size:13px;font-weight:600;transition:color .2s}
+.back-link:hover{color:var(--amber)}
+.logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
+.logo span{color:var(--amber)}
+.theme-toggle{background:none;border:1px solid var(--amber);color:var(--amber);
+padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.theme-toggle:hover{background:rgba(232,160,32,0.1)}
+.nav{display:flex;gap:4px}
+.nav button{background:none;border:1px solid transparent;color:var(--text-muted);
+padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.nav button:hover{color:white;background:rgba(255,255,255,0.05)}
+.nav button.active{color:var(--amber);border-color:var(--amber);background:rgba(232,160,32,0.08)}
+.nav button.locked{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.view{display:none;padding:32px;max-width:1100px;margin:0 auto}
+.view.active{display:block}
+.hero{text-align:center;margin:40px 0}
+.hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.hero p{color:var(--text-muted);font-size:16px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+padding:32px;margin:32px 0}
+.project-card h2{font-size:20px;margin-bottom:16px;color:var(--amber)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.meta-item{padding:12px;background:rgba(255,255,255,0.03);border-radius:8px}
+.meta-item .label{font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px}
+.meta-item .value{font-size:18px;font-weight:700;margin-top:4px}
+.disciplines-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.disc-tag{background:var(--navy);padding:4px 12px;border-radius:16px;font-size:12px;
+border:1px solid var(--border);color:white}
+.disc-tag .count{color:var(--amber);font-weight:700;margin-left:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:8px;
+font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--amber);color:var(--navy-dark)}
+.btn-primary:hover{background:var(--amber-light);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--amber);border:2px solid var(--amber)}
+.btn-outline:hover{background:rgba(232,160,32,0.1)}
+.center-btn{text-align:center;margin:32px 0}
+.progress-container{max-width:700px;margin:60px auto;text-align:center}
+.progress-container h2{font-size:24px;margin-bottom:32px}
+.progress-bar-wrap{background:var(--navy);border-radius:12px;height:20px;overflow:hidden;margin:20px 0}
+.progress-bar{background:linear-gradient(90deg,var(--amber),var(--amber-light));height:100%;
+border-radius:12px;transition:width .3s ease;width:0%}
+.progress-pct{font-size:48px;font-weight:800;color:var(--amber);margin:16px 0}
+.progress-stage{color:var(--text-muted);font-size:14px;margin:8px 0}
+.activity-log{background:var(--card);border:1px solid var(--border);border-radius:8px;
+padding:16px;margin-top:32px;text-align:left;max-height:250px;overflow-y:auto;font-family:monospace;font-size:12px}
+.log-line{padding:3px 0;color:var(--text-muted)}
+.log-line .time{color:var(--amber);margin-right:8px}
+.log-line.highlight{color:var(--text)}
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+.stat-box{padding:20px;border-radius:10px;text-align:center;color:white}
+.stat-box .num{font-size:32px;font-weight:800;color:white}
+.stat-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.85;color:white}
+.stat-total{background:var(--navy)}
+.stat-critical{background:var(--critical)}
+.stat-high{background:var(--high)}
+.stat-medium{background:var(--medium)}
+.stat-low{background:var(--low)}
+.summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:24px}
+.stat-cost{background:var(--navy);padding:16px 20px;border-radius:10px;text-align:center;color:white}
+.stat-cost .num{font-size:22px;font-weight:700;color:white}
+.stat-cost .lbl{color:white}
+.stat-pairs{background:var(--amber);color:var(--navy-dark);padding:16px 20px;border-radius:10px;text-align:center}
+.stat-pairs .num{font-size:22px;font-weight:700}
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--text-muted);
+padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--amber);color:var(--navy-dark);border-color:var(--amber)}
+.conflict-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+margin-bottom:16px;overflow:hidden;transition:all .2s}
+.conflict-card:hover{border-color:var(--amber);transform:translateY(-1px)}
+.cc-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;flex-wrap:wrap}
+.sev-badge{padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;color:white;min-width:70px;text-align:center}
+.sev-Critical{background:var(--critical)}
+.sev-High{background:var(--high)}
+.sev-Medium{background:var(--medium)}
+.sev-Low{background:var(--low)}
+.ne-badge{background:rgba(22,163,74,0.15);color:var(--low);border:1px solid var(--low);
+padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.cc-title{font-size:14px;font-weight:700;flex:1;min-width:200px}
+.cc-id{font-size:11px;color:var(--text-muted)}
+.cc-chevron{color:var(--text-muted);transition:transform .2s;font-size:18px}
+.conflict-card.expanded .cc-chevron{transform:rotate(180deg)}
+.cc-body{display:none;padding:0 20px 20px}
+.conflict-card.expanded .cc-body{display:block}
+.cc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.03);
+padding:12px;border-radius:8px;margin-bottom:12px}
+.cc-meta-item{font-size:12px}
+.cc-meta-item .k{color:var(--text-muted);font-weight:600}
+.cc-desc{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6}
+.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.score-dim{text-align:center}
+.score-dim .dim-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.score-bar-bg{height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.score-dim .dim-val{font-size:11px;font-weight:700;margin-top:2px}
+.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.impact-box{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:6px;
+border-left:3px solid var(--amber);font-size:12px}
+.impact-box .ib-label{font-weight:700;color:var(--text)}
+.cc-action{background:rgba(232,160,32,0.06);border:1px solid rgba(232,160,32,0.2);
+border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6}
+.cc-action strong{color:var(--amber)}
+.truncated-notice{padding:16px;margin-top:20px;background:rgba(232,160,32,0.06);
+border:1px solid rgba(232,160,32,0.3);border-radius:8px;text-align:center;font-size:13px;color:var(--text-muted)}
+.truncated-notice strong{color:var(--amber)}
+.report-preview{text-align:center;margin:40px 0}
+.report-preview h2{margin-bottom:16px}
+.report-mockup{background:white;border-radius:8px;max-width:500px;margin:0 auto;
+padding:40px;color:#333;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.rm-header{background:var(--navy);color:white;padding:30px;border-radius:6px;margin-bottom:20px}
+.rm-header h3{font-size:24px;letter-spacing:1px}
+.rm-header p{opacity:.7;font-size:12px;margin-top:4px}
+.rm-title{font-size:18px;font-weight:700;color:var(--navy);text-align:center;margin:16px 0}
+.rm-bar{height:4px;background:var(--amber);border-radius:2px;margin:12px 0}
+.rm-meta{font-size:12px;color:#666;margin:8px 0}
+.mobile-tabs{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy-dark);
+border-top:2px solid var(--amber);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-tabs-inner{display:flex;justify-content:space-around;align-items:center}
+.mobile-tab{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;
+color:var(--text-muted);font-size:10px;font-weight:600;padding:6px 12px;cursor:pointer;transition:color .2s;
+-webkit-tap-highlight-color:transparent}
+.mobile-tab svg{width:20px;height:20px}
+.mobile-tab.active{color:var(--amber)}
+.mobile-tab.locked{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+.header{flex-direction:column;gap:12px;padding:12px}
+.header-left{flex-direction:column;width:100%;gap:8px}
+.summary-row{grid-template-columns:repeat(2,1fr)}
+.summary-row2{grid-template-columns:1fr}
+.meta-grid{grid-template-columns:1fr 1fr}
+.scores-grid{grid-template-columns:repeat(3,1fr)}
+.cc-impact{grid-template-columns:1fr}
+.cc-meta{grid-template-columns:1fr}
+.nav{display:none}
+.mobile-tabs{display:block}
+body{padding-bottom:72px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <a href="index.html" class="back-link">&larr; Back to Projects</a>
+    <div class="logo">FLIKT<span>.AI</span></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="nav">
+      <button class="active" onclick="showView('dashboard')">Dashboard</button>
+      <button onclick="showView('progress')">Analysis</button>
+      <button onclick="showView('results')">Results</button>
+      <button onclick="showView('report')">Report</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme">
+      <span id="theme-icon"></span>
+    </button>
+  </div>
+</div>
+
+<div id="dashboard" class="view active">
+  <div class="hero">
+    <h1>AI-Powered Plan Coordination</h1>
+    <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework.</p>
+  </div>
+  <div class="project-card">
+    <h2 id="proj-name"></h2>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="label">Address</div><div class="value" id="proj-addr"></div></div>
+      <div class="meta-item"><div class="label">Project Type</div><div class="value" id="proj-type"></div></div>
+      <div class="meta-item"><div class="label">Construction Value</div><div class="value" id="proj-value"></div></div>
+      <div class="meta-item"><div class="label">Total Sheets</div><div class="value" id="proj-sheets"></div></div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="label" style="font-size:11px;text-transform:uppercase;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">Disciplines Detected</div>
+      <div class="disciplines-list" id="disc-list"></div>
+    </div>
+  </div>
+  <div class="center-btn">
+    <button class="btn btn-primary" onclick="startAnalysis()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Run Conflict Analysis
+    </button>
+  </div>
+</div>
+
+<div id="progress" class="view">
+  <div class="progress-container">
+    <h2>Analyzing Plan Set</h2>
+    <div class="progress-pct" id="pct">0%</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="pbar"></div></div>
+    <div class="progress-stage" id="stage">Initializing...</div>
+    <div class="activity-log" id="log"></div>
+  </div>
+</div>
+
+<div id="results" class="view">
+  <h2 style="margin-bottom:20px">Conflict Analysis Results</h2>
+  <div class="summary-row" id="summary-row"></div>
+  <div class="summary-row2" id="summary-row2"></div>
+  <div class="filters" id="filters"></div>
+  <div id="conflict-list"></div>
+  <div id="truncated-notice"></div>
+  <div class="center-btn" style="margin-top:24px">
+    <button class="btn btn-primary" onclick="showView('report')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      View Full Report
+    </button>
+  </div>
+</div>
+
+<div id="report" class="view">
+  <div class="report-preview">
+    <h2>Plan Conflict &amp; Coordination Report</h2>
+    <p style="color:var(--text-muted);margin-bottom:24px">Professional PDF report ready for download</p>
+    <div class="report-mockup">
+      <div class="rm-header">
+        <h3>FLIKT.AI</h3>
+        <p>AI-Powered Plan Coordination</p>
+      </div>
+      <div class="rm-bar"></div>
+      <div class="rm-title">Plan Conflict &amp; Coordination Report</div>
+      <div class="rm-bar"></div>
+      <div class="rm-meta"><strong>Project:</strong> <span id="rm-proj"></span></div>
+      <div class="rm-meta"><strong>Report Date:</strong> April 19, 2026</div>
+      <div class="rm-meta"><strong>Conflicts Found:</strong> <span id="rm-count"></span></div>
+      <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
+    </div>
+    <div style="margin-top:32px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <a href="FliktAI_Meridian_Residence_Report.pdf" download class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF Report
+      </a>
+      <button class="btn btn-outline" onclick="showView('results')">
+        Back to Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-tabs">
+  <div class="mobile-tabs-inner">
+    <button class="mobile-tab active" onclick="showView('dashboard')" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="mobile-tab" onclick="showView('progress')" data-view="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Analysis
+    </button>
+    <button class="mobile-tab" onclick="showView('results')" data-view="results">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Results
+    </button>
+    <button class="mobile-tab" onclick="showView('report')" data-view="report">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Report
+    </button>
+  </div>
+</div>
+
+<script>
+let DATA = {"project": {"id": "demo-meridian", "name": "Meridian Residence", "name_long": "Meridian Residence — Single Family New Construction", "address": "425 Meridian Ave, Surfside, FL 33154", "type": "Single Family New Construction", "construction_value": 3200000, "construction_value_display": "$3,200,000", "disciplines": {"Architectural": [], "Electrical": [], "Mechanical": [], "Plumbing": [], "Structural": []}, "total_sheets": 25}, "summary": {"total_conflicts": 34, "critical": 1, "high": 9, "medium": 10, "low": 14, "cost_low": 100700, "cost_high": 487100, "discipline_pairs": 14}, "conflicts": [{"id": "C032", "title": "Missing Structural Support for ELEVATOR — Structural scope gap", "disc_a": "Architectural", "disc_b": "Structural", "type": "Missing Coordination", "severity": "Critical", "confidence": 0.765, "location": "C1", "sheets": ["C1"], "description": "ELEVATOR found on Architectural plans (sheet C1) but no corresponding structural support found on Structural plans. Elevator requires hoistway structural design, pit, and machine room", "recommended_action": "Verify Structural plans include structural support for ELEVATOR. Issue RFI if missing.", "source": "scope_completeness", "scores": {"constructability": 9, "cost": 9, "safety": 10, "schedule": 9, "downstream": 5}, "cost_low": 14400, "cost_high": 42300, "schedule_impact": "19 days"}, {"id": "C009", "title": "Refrigerant Line Penetrations Through CMU Shear Walls Not Detailed", "disc_a": "Mechanical", "disc_b": "Structural", "type": "Spatial Clash", "severity": "High", "confidence": 0.8, "location": "Exterior CMU walls at condensing unit connections", "sheets": ["M1", "S1"], "description": "The mechanical detail on M1 shows refrigerant lines running 'UP IN WALL SPACE' with hard and soft tubing, and the refrigerant line piping detail shows lines penetrating through walls to reach exterior condensing units. The structural drawings S1 show reinforced CMU shear walls (SW1 and SW2) with specific reinforcement patterns (#4 and #5 bars at various spacings, horizontal and vertical). Penetrating shear walls for refrigerant lines, conduit (power and control per item 7 of the condensing unit detail), and PVC sleeves for refrigerant lines would compromise the structural integrity of the shear wall reinforcement. The structural shear wall notes on S1 do not address any allowable penetrations.", "recommended_action": "Coordinate refrigerant line and conduit penetration locations with the structural engineer. Provide structural details for any penetrations through shear walls, including reinforcement around openings. Consider routing refrigerant lines through non-shear wall locations or above the wall through the roof/soffit area to avoid compromising shear wall integrity.", "source": "vision", "scores": {"constructability": 7, "cost": 5, "safety": 6, "schedule": 5, "downstream": 7}, "cost_low": 4000, "cost_high": 12000, "schedule_impact": "7-14 days"}, {"id": "C033", "title": "Missing Fire Recall for ELEVATOR — Electrical scope gap", "disc_a": "Architectural", "disc_b": "Electrical", "type": "Missing Coordination", "severity": "High", "confidence": 0.765, "location": "C1", "sheets": ["C1"], "description": "ELEVATOR found on Architectural plans (sheet C1) but no corresponding fire recall found on Electrical plans. Elevator requires fire recall/Phase I/II per code", "recommended_action": "Verify Electrical plans include fire recall for ELEVATOR. Issue RFI if missing.", "source": "scope_completeness", "scores": {"constructability": 4, "cost": 5, "safety": 9, "schedule": 4, "downstream": 8}, "cost_low": 7600, "cost_high": 22300, "schedule_impact": "10 days"}, {"id": "C015", "title": "Panel A+B Total Demand 214+153=367 Amps Exceeds 400A Service Capacity After Derating", "disc_a": "Electrical-Lighting", "disc_b": "Electrical-Lighting", "type": "Specification Mismatch", "severity": "High", "confidence": 0.75, "location": "Electrical service entrance, south side of building near electrical meter", "sheets": ["E1"], "description": "The service calculations on E1 show Panel A total demand load of 31.57 KW (341 VA) = 214 AMPS and Panel B total demand of 46.25 KW (241 VA) = 153 AMPS. The new service is noted as >400 AMPS for Panel A and >100 AMPS (new panel) for Panel B. However, the combined demand of 214A + 153A = 367A approaches the 400A main service limit. The electrical riser shows a 400A main breaker with Panel A at 200A and Panel B at 200A. Panel A demand alone at 214A exceeds its 200A panel rating, requiring either a larger panel or load redistribution.", "recommended_action": "Verify Panel A demand calculation — 214A exceeds the 200A panel bus rating. Either upgrade Panel A to a 225A bus panel, redistribute loads between panels, or confirm demand factor calculations reduce actual load below 200A. Coordinate with utility for service sizing confirmation.", "source": "vision", "scores": {"constructability": 5, "cost": 6, "safety": 8, "schedule": 4, "downstream": 7}, "cost_low": 3000, "cost_high": 12000, "schedule_impact": "5-10 days"}, {"id": "C016", "title": "Pool Equipment Missing Dedicated Electrical Circuit on Panel Schedule", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "High", "confidence": 0.75, "location": "Pool area, west side of property", "sheets": ["E1", "A1"], "description": "The site plan (A1) shows a pool (14'x34') with a separate permit notation. The electrical Panel B calculations on E1 list 'POOL LIGHTS' at 1,100W and 'POOL LIGHT CONNECTED LOAD' at 4,630 KW, but there is no dedicated circuit for a pool pump, pool heater, or pool equipment on either Panel A or Panel B schedules. The panel schedule on E1 does not include pool pump circuits either. Per NEC Article 680, pool pumps require dedicated branch circuits with GFCI protection. While the pool is noted as 'under separate permit,' the electrical service sizing must account for pool equipment loads.", "recommended_action": "Confirm whether pool equipment electrical loads are included in the service calculation or if a separate sub-panel/service is planned. If pool is under separate permit, verify that the main service has adequate spare capacity for future pool equipment connection. Add pool pump circuit (typically 20A-30A, 240V) to panel schedule or provide a dedicated pool sub-panel.", "source": "vision", "scores": {"constructability": 6, "cost": 5, "safety": 9, "schedule": 4, "downstream": 7}, "cost_low": 2500, "cost_high": 8000, "schedule_impact": "3-7 days"}, {"id": "CV026", "title": "Ceiling height 2'-0\" below 7'-6\" minimum for habitable space", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Code Violation", "severity": "High", "confidence": 0.75, "location": "OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling DARK", "sheets": ["A3"], "description": "Plans show ceiling height of 2'-0\" at OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling DARK (habitable space). Code minimum for this space type is 7'-6\". This may result in a code violation that requires structural or mechanical redesign to correct.", "recommended_action": "Verify ceiling height at OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling DARK. If below minimum, coordinate with Structural and Mechanical to raise ceiling or adjust ductwork/piping routing to achieve minimum 7'-6\" clear height.", "source": "code_check", "scores": {"constructability": 7, "cost": 6, "safety": 5, "schedule": 7, "downstream": 8}, "cost_low": 5000, "cost_high": 40000, "schedule_impact": "10-21 days"}, {"id": "CV027", "title": "Ceiling height 2'-0\" below 7'-6\" minimum for habitable space", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Code Violation", "severity": "High", "confidence": 0.75, "location": "OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling PROP", "sheets": ["A3"], "description": "Plans show ceiling height of 2'-0\" at OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling PROP (habitable space). Code minimum for this space type is 7'-6\". This may result in a code violation that requires structural or mechanical redesign to correct.", "recommended_action": "Verify ceiling height at OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling PROP. If below minimum, coordinate with Structural and Mechanical to raise ceiling or adjust ductwork/piping routing to achieve minimum 7'-6\" clear height.", "source": "code_check", "scores": {"constructability": 7, "cost": 6, "safety": 5, "schedule": 7, "downstream": 8}, "cost_low": 5000, "cost_high": 40000, "schedule_impact": "10-21 days"}, {"id": "CV028", "title": "Ceiling height 0'-8\" below 7'-6\" minimum for habitable space", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Code Violation", "severity": "High", "confidence": 0.75, "location": "ILTI PINS DNI 32 PS. RUNNER/CHANNEL FASTENED 3 5/8\" x 1-1/4\" (25GA) DRYWALL CEILING FLOOR FINISH FLU", "sheets": ["A5"], "description": "Plans show ceiling height of 0'-8\" at ILTI PINS DNI 32 PS. RUNNER/CHANNEL FASTENED 3 5/8\" x 1-1/4\" (25GA) DRYWALL CEILING FLOOR FINISH FLU (habitable space). Code minimum for this space type is 7'-6\". This may result in a code violation that requires structural or mechanical redesign to correct.", "recommended_action": "Verify ceiling height at ILTI PINS DNI 32 PS. RUNNER/CHANNEL FASTENED 3 5/8\" x 1-1/4\" (25GA) DRYWALL CEILING FLOOR FINISH FLU. If below minimum, coordinate with Structural and Mechanical to raise ceiling or adjust ductwork/piping routing to achieve minimum 7'-6\" clear height.", "source": "code_check", "scores": {"constructability": 7, "cost": 6, "safety": 5, "schedule": 7, "downstream": 8}, "cost_low": 5000, "cost_high": 40000, "schedule_impact": "10-21 days"}, {"id": "CV029", "title": "Ceiling height 3'-0\" below 7'-6\" minimum for habitable space", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Code Violation", "severity": "High", "confidence": 0.75, "location": "\" 10\" 10\" 4'-9\" 1-1/2\" Ø HANDRAIL @ 34\" A.F.F. 4\" 3'-0\" FLOOR TO CEILING GLASS WALL DN 5 6 7 8 9 10 11 18", "sheets": ["R3"], "description": "Plans show ceiling height of 3'-0\" at \" 10\" 10\" 4'-9\" 1-1/2\" Ø HANDRAIL @ 34\" A.F.F. 4\" 3'-0\" FLOOR TO CEILING GLASS WALL DN 5 6 7 8 9 10 11 18 (habitable space). Code minimum for this space type is 7'-6\". This may result in a code violation that requires structural or mechanical redesign to correct.", "recommended_action": "Verify ceiling height at \" 10\" 10\" 4'-9\" 1-1/2\" Ø HANDRAIL @ 34\" A.F.F. 4\" 3'-0\" FLOOR TO CEILING GLASS WALL DN 5 6 7 8 9 10 11 18. If below minimum, coordinate with Structural and Mechanical to raise ceiling or adjust ductwork/piping routing to achieve minimum 7'-6\" clear height.", "source": "code_check", "scores": {"constructability": 7, "cost": 6, "safety": 5, "schedule": 7, "downstream": 8}, "cost_low": 5000, "cost_high": 40000, "schedule_impact": "10-21 days"}, {"id": "CV030", "title": "Ceiling height 2'-0\" below 7'-6\" minimum for habitable space", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Code Violation", "severity": "High", "confidence": 0.75, "location": "OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling DARK", "sheets": ["425 Meridian Ave full set_Arch_p6"], "description": "Plans show ceiling height of 2'-0\" at OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling DARK (habitable space). Code minimum for this space type is 7'-6\". This may result in a code violation that requires structural or mechanical redesign to correct.", "recommended_action": "Verify ceiling height at OF ROAD ±0.00' N.G.V.D. +10.00' N.G.V.D. (BFE. + 2'-0\") +7.0' N.G.V.D. GRADE first floor ceiling DARK. If below minimum, coordinate with Structural and Mechanical to raise ceiling or adjust ductwork/piping routing to achieve minimum 7'-6\" clear height.", "source": "code_check", "scores": {"constructability": 7, "cost": 6, "safety": 5, "schedule": 7, "downstream": 8}, "cost_low": 5000, "cost_high": 40000, "schedule_impact": "10-21 days"}, {"id": "C007", "title": "Door Schedule NOA Numbers Listed as TBD — Missing Impact Certification", "disc_a": "Architectural", "disc_b": "Structural", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.88, "location": "All exterior doors and windows", "sheets": ["A2", "S1"], "description": "The window schedule on A2 lists ECO WINDOWS SYSTEMS as the manufacturer for all windows, but every NOA (Notice of Acceptance) number is listed as 'TBD' (To Be Determined). Similarly, the door schedule shows all exterior doors as impact resistant but without NOA numbers. This is a critical documentation gap for a project in Surfside, Florida (Miami-Dade County), which is in the High Velocity Hurricane Zone (HVHZ). Per FBC 2017 and Miami-Dade County requirements, all exterior glazing and doors must have valid NOA or Florida Product Approval numbers before permit issuance. The structural drawings reference wind pressures (zones 4 and 5 with values like NEG6 psf, POS5 psf) that the windows and doors must be rated to resist.", "recommended_action": "Obtain and document NOA numbers for all windows and exterior doors before permit submission. Verify that each product's NOA covers the design pressures shown on the architectural elevations (A3, A3). Submit product approval documentation to the building department. This is a permit-blocking issue in Miami-Dade County HVHZ.", "source": "vision", "scores": {"constructability": 3, "cost": 5, "safety": 8, "schedule": 7, "downstream": 6}, "cost_low": 2000, "cost_high": 15000, "schedule_impact": "14-30 days"}, {"id": "C002", "title": "Panel A Overloaded — Total Demand Exceeds Main Breaker Rating", "disc_a": "Electrical-Lighting", "disc_b": "Mechanical", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.85, "location": "First floor electrical panel area", "sheets": ["E1", "M1"], "description": "Per the electrical service calculations on E1, Panel A has a total connected load of 50.64 kW and Panel B has 13.30 kW, for a combined total of 63.94 kW. The demand calculation shows 51.57 kW / 240V = 214 Amps. The main service is 300 Amps. However, the Panel A calculations show total demand load of 31.57 kW at 240V = ~132 Amps, yet the panel is rated at 200 Amps. The mechanical schedule shows two split systems each with 10.00 KW heaters (20 KW total for A/C heaters at 100%), which are included in the load calc. The generator is listed at 60 KVA with a calculated load of 46.25 kW / 240V = 193 Amps, which is very close to the 200A panel capacity and leaves minimal margin. If any additional loads are added or if the pool pump load increases, the generator may be undersized.", "recommended_action": "Verify that the 300A main service and 60 KVA generator adequately serve all connected loads including pool pump, two A/C systems, and all household circuits. Confirm generator load shedding strategy is documented. Consider upsizing generator if pool pump and both A/C units must run simultaneously during outage.", "source": "vision", "scores": {"constructability": 4, "cost": 6, "safety": 5, "schedule": 4, "downstream": 7}, "cost_low": 3000, "cost_high": 12000, "schedule_impact": "5-7 days"}, {"id": "C013", "title": "Electrical Code Reference Mismatch — NEC 2014 vs FBC 2017", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Code Violation", "severity": "Medium", "confidence": 0.83, "location": "Entire project", "sheets": ["E1", "A5"], "description": "The electrical notes on E1 state 'COMPLY WITH THE N.E.C. 2014 AND STANDARD BUILDING CODE' and reference 'F.B.C. 2014 E.C. R4.' However, the plumbing drawings reference 'FBC 2017' for both plumbing and fuel gas codes, and the structural drawings reference FBC with a 2020 drawing date. The project appears to be designed under FBC 2017 (6th Edition), which adopts NEC 2017, not NEC 2014. Using the wrong code edition could result in non-compliance with current AFCI requirements (NEC 2017 expanded AFCI to kitchens and laundry rooms per 210.12), tamper-resistant receptacle requirements, and other updated provisions. The Surfside building department would require compliance with the code edition in effect at the time of permit application.", "recommended_action": "Update all electrical notes and code references from NEC 2014/FBC 2014 to NEC 2017/FBC 2017 (6th Edition) or the applicable code edition at time of permit. Review all electrical design for compliance with NEC 2017 changes, particularly expanded AFCI requirements in 210.12, updated GFCI requirements in 210.8, and any changes to service calculation methods.", "source": "vision", "scores": {"constructability": 3, "cost": 4, "safety": 6, "schedule": 4, "downstream": 5}, "cost_low": 2000, "cost_high": 8000, "schedule_impact": "5-10 days"}, {"id": "C008", "title": "Mechanical Condensate Drain Routing Through Structural Slab", "disc_a": "Mechanical", "disc_b": "Structural", "type": "Spatial Clash", "severity": "Medium", "confidence": 0.82, "location": "First floor slab, AHU locations", "sheets": ["M1", "S2"], "description": "The mechanical drawings M1 and M1 specify 'ALL CONDENSATE DRAIN PIPING TO BE SCHEDULE 40 TYPE II PVC' and show condensate drain lines running under the slab ('PVC PIPE-RUN UNDER SLAB, SEE FLOOR PLAN FOR LOCATION, SCH. 40 W/ SOLVENT WELD JOINTS, USE 4 OR 5\" PIPE AS REQUIRED'). The structural foundation plan S2 shows a 4\" concrete slab on grade over well compacted fill with 6 mil vapor barrier and W6x6-W1.4xW1.4 WWF reinforcement. The structural notes state that no pipes or conduits exceeding 1/3 the slab thickness (i.e., ~1.33\" for a 4\" slab) shall be embedded in the structural concrete slab without engineer approval. Running 4\" or 5\" PVC condensate drain pipes under or through a 4\" slab creates a significant conflict — the pipe diameter exceeds the slab thickness.", "recommended_action": "Coordinate with structural engineer to provide thickened slab sections or trenches at condensate drain routing locations. Alternatively, route condensate drains above slab to a floor drain or exterior discharge point. If under-slab routing is required, provide structural details showing how slab integrity is maintained around the larger pipe sleeves.", "source": "vision", "scores": {"constructability": 7, "cost": 4, "safety": 2, "schedule": 5, "downstream": 6}, "cost_low": 3000, "cost_high": 10000, "schedule_impact": "5-10 days"}, {"id": "T023", "title": "Material mismatch at walls across 2 disciplines", "disc_a": "Architectural", "disc_b": "Mechanical", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.8, "location": "walls", "sheets": ["425 Meridian Ave full set_Arch_p3", "A2", "425 Meridian Ave full set_Mech_p2", "A5", "R3", "M1", "425 Meridian Ave full set_Arch_p9"], "description": "Multiple disciplines specify different materials for walls: Architectural (425 Meridian Ave full set_Arch_p3, 425 Meridian Ave full set_Arch_p9, A2, A5, R3): CMU, Glass, Insulation, Steel, Wood; Mechanical (425 Meridian Ave full set_Mech_p2, M1): Concrete. These materials must be coordinated before bidding.", "recommended_action": "Confirm the correct material for walls with the design team. Update all conflicting disciplines' documents to match.", "source": "text_extraction", "scores": {"constructability": 5, "cost": 6, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 5000, "cost_high": 30000, "schedule_impact": "7-14 days"}, {"id": "T024", "title": "Material mismatch at floor across 2 disciplines", "disc_a": "Architectural", "disc_b": "Mechanical", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.8, "location": "floor", "sheets": ["M1", "425 Meridian Ave full set_Mech_p2", "A5", "425 Meridian Ave full set_Arch_p9"], "description": "Multiple disciplines specify different materials for floor: Architectural (425 Meridian Ave full set_Arch_p9, A5): Concrete; Mechanical (425 Meridian Ave full set_Mech_p2, M1): Concrete, PVC. These materials must be coordinated before bidding.", "recommended_action": "Confirm the correct material for floor with the design team. Update all conflicting disciplines' documents to match.", "source": "text_extraction", "scores": {"constructability": 5, "cost": 6, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 5000, "cost_high": 30000, "schedule_impact": "7-14 days"}, {"id": "C018", "title": "Condensate Drain Lines for A/C Air Handlers Not Shown on Plumbing Plans", "disc_a": "Mechanical", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.75, "location": "A/C closet locations, first and second floor", "sheets": ["M1", "P1"], "description": "The mechanical plans M1 and M1 show two split system air handlers (Unit 1 NEW and Unit 2 NEW, each 40,000 BTU/HR cooling, 33,500 BTU/HR sensible) installed in closet locations. The M1 A/C closet installation detail notes 'SECONDARY DRAIN PAN OF ANY INTERIOR A/C UNIT SHALL BE EQUIPPED WITH A WATER LEVEL DETECTION DEVICE (A.K.A. SINK FITTED INTO FAN CONTROL CIRCUIT THAT WILL SHUT OFF THE EQUIPMENT SERVED PRIOR TO OVERFLOW OF THE PAN.' The mechanical note also references 'CONDENSATE DRAIN PIPING TO BE SCHEDULE 40 TYPE 1 HIGH IMPACT PVC.' However, the plumbing plans P1 and P1 do not show condensate drain routing, condensate drain receptors, or connection points to the building drainage system. The plumbing general notes mention 'AIR CONDITIONING CONDENSATE DRAINS' as item 4 in scope, but no piping is drawn.", "recommended_action": "Add condensate drain piping from each air handler to the plumbing plans showing primary and secondary drain routing, trap details, and termination points. Per FBC, secondary condensate drains must terminate in a conspicuous location. Coordinate drain locations with structural penetrations through slabs/walls.", "source": "vision", "scores": {"constructability": 6, "cost": 4, "safety": 3, "schedule": 5, "downstream": 7}, "cost_low": 1500, "cost_high": 4000, "schedule_impact": "3-5 days"}, {"id": "C019", "title": "Structural Foundation Plan Shows Pool 'By Others' — No Coordination with Pool Structural Requirements", "disc_a": "Structural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.75, "location": "West side of property, pool area", "sheets": ["S2", "A1"], "description": "The structural foundation plan S2 labels the pool area as 'POOL (BY OTHERS)' and 'POOL DECK (BY OTHERS).' The architectural site plan A1 shows the pool as 14'x34' under separate permit. However, there is no indication of how the pool structure interfaces with the building foundation. The foundation plan shows continuous footings and grade beams near the pool area, but no detail for the transition between the building foundation and pool shell. Pool excavation adjacent to building foundations can undermine footings if not properly coordinated.", "recommended_action": "Provide a coordination note or detail showing minimum setback distance between pool shell excavation and building footings. Require pool contractor to submit structural plans for review by the building structural engineer before excavation. Add a note on S2 specifying that pool excavation shall not encroach within a 45-degree influence line from the bottom of adjacent footings.", "source": "vision", "scores": {"constructability": 7, "cost": 5, "safety": 8, "schedule": 3, "downstream": 6}, "cost_low": 2000, "cost_high": 8000, "schedule_impact": "5-10 days"}, {"id": "C020", "title": "A/C Condensing Units Missing Disconnect Switch and Dedicated Circuit Detail on Electrical Plan", "disc_a": "Mechanical", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.75, "location": "Exterior condensing unit locations", "sheets": ["M1", "E1"], "description": "The mechanical schedule on M1 specifies two split system condensing units (Unit 1 NEW and Unit 2 NEW) — both 240V/1P, manufacturer Rheem (or similar), CU model RHA1436AJA. The M1 detail shows an 'A/C CONDENSING UNIT' with items including '7. CONDUIT — POWER AND CONTROL.' However, the electrical plan E1 does not clearly show dedicated disconnect switches at the condensing unit locations or the specific circuit assignments for the condensing units on the panel schedule. Per NEC 440.14, a disconnecting means must be located within sight of the A/C equipment. The panel schedule lists 'A/C MASTER @ 100%' and 'A/C HEATER @ 100%' in the demand calculations but individual circuits for condensing units are not clearly identified.", "recommended_action": "Add dedicated 240V circuits for each condensing unit to the panel schedule with appropriate breaker sizing per equipment MCA (minimum circuit ampacity) and MOP (maximum overcurrent protection) ratings. Show disconnect switch locations on the electrical plan adjacent to each condensing unit per NEC 440.14.", "source": "vision", "scores": {"constructability": 5, "cost": 4, "safety": 7, "schedule": 4, "downstream": 6}, "cost_low": 1500, "cost_high": 4000, "schedule_impact": "3-5 days"}, {"id": "C022", "title": "Laundry Room Missing Floor Drain on Plumbing Plan", "disc_a": "Architectural", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.75, "location": "Laundry Room/Storage, first floor", "sheets": ["A2", "P1"], "description": "The architectural floor plan A2 shows a 'LAUNDRY ROOM STORAGE' on the first floor with washer/dryer locations. The electrical panel schedule lists washer machine circuits for both first and second floors. The plumbing plan P1 shows washer connections (hot/cold water and drain) but does not show a floor drain in the laundry room. Per Florida Building Code and standard practice, laundry rooms should have a floor drain to prevent water damage from washer overflow or leaks. The plumbing general notes (item 5) state 'ALL FLOOR DRAINS TO HAVE TRAP PRIMERS 1/2", "recommended_action": "Add a floor drain with trap primer connection in the laundry room on the plumbing plan P1. Size the drain per FBC requirements and connect to the nearest waste line. Also verify second floor laundry/washer location has appropriate overflow protection.", "source": "vision", "scores": {"constructability": 5, "cost": 3, "safety": 4, "schedule": 3, "downstream": 5}, "cost_low": 800, "cost_high": 2500, "schedule_impact": "2-3 days"}, {"id": "C001", "title": "Second Floor Area Discrepancy Between Architectural Sheets", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Low", "confidence": 0.98, "location": "Second floor / entire building", "sheets": ["A1", "A2"], "description": "The Interior & Exterior Door Schedule on A2 lists 'NOA' (Notice of Acceptance) as 'TBD' for nearly all doors and windows. For a project in Surfside, Florida 33154 (Miami-Dade County), all exterior doors and windows must have a valid Miami-Dade County NOA for product approval per the Florida Building Code High Velocity Hurricane Zone (HVHZ) requirements. The window schedule similarly shows manufacturer as 'ECO WINDOWS SYSTEMS' with NOA as 'TBD' for all entries. Without confirmed NOA numbers, the permit application may be rejected or delayed by the building department.", "recommended_action": "Reconcile the second floor area across all sheets to a single consistent value. Verify the correct area with the architect and update A1 and A2 to match. Confirm total building area for zoning compliance.", "source": "vision", "scores": {"constructability": 1, "cost": 1, "safety": 0, "schedule": 2, "downstream": 3}, "cost_low": 500, "cost_high": 2000, "schedule_impact": "2-3 days"}, {"id": "C003", "title": "Gas Water Heaters Listed on Electrical Panel Schedule as Circuits", "disc_a": "Electrical-Lighting", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Low", "confidence": 0.98, "location": "Utility/mechanical area, first and second floors", "sheets": ["E1", "P1"], "description": "The electrical panel schedule on E1 lists 'GAS INSTANT WATER HEATER #1' and 'GAS INSTANT WATER HEATER #2' as circuits on Panel A. The plumbing drawings (P1, P1) confirm these are gas-fired tankless water heaters (Rheem Prestige Series RTGH-95XELN-2, 199,900 BTU/H capacity). Gas tankless water heaters typically require only a 120V electrical connection for the electronic ignition and controls (approximately 100-150 watts), not a dedicated high-amperage circuit. The panel schedule should clarify the circuit sizing — if these are shown as 20A/240V circuits, they are oversized for gas units. This could indicate confusion between gas and electric water heater types during design.", "recommended_action": "Verify the circuit breaker size assigned to each gas water heater on the panel schedule. Gas tankless units typically need only a 15A/120V circuit for controls. Confirm the water heaters are indeed gas-fired (as shown on P1 and P1) and adjust panel schedule circuit sizing accordingly. Ensure gas piping is properly sized for both units per P1 gas riser diagram.", "source": "vision", "scores": {"constructability": 2, "cost": 2, "safety": 3, "schedule": 2, "downstream": 4}, "cost_low": 500, "cost_high": 2500, "schedule_impact": "1-2 days"}, {"id": "C011", "title": "Gas Piping Total BTU Calculation Discrepancy", "disc_a": "Plumbing", "disc_b": "Plumbing", "type": "Specification Mismatch", "severity": "Low", "confidence": 0.95, "location": "Gas service entry and distribution", "sheets": ["P1"], "description": "The gas plan P1 lists the following appliance loads: G1 Instant WH = 199,000 BTU-HR, G2 Instant WH = 199,900 BTU-HR, G3 Cook Top = 45,000 BTU-HR, G4 BBQ = 58,000 BTU-HR, with a stated total of 501,000 BTU-HR. However, adding the individual values: 199,000 + 199,900 + 45,000 + 58,000 = 501,900 BTU-HR, which is 900 BTU-HR more than stated. Additionally, the OCR text shows inconsistent BTU values for the water heaters — some references show 199,900 BTU and others show 199,000 BTU for the same units. The gas riser diagram and pipe sizing calculations depend on accurate total BTU load. The plumbing detail on P1 specifies the Rheem RTGH-95XELN-2 at 199,900 MBTU/H capacity, suggesting both water heaters should be 199,900 BTU-HR each, making the correct total 502,800 BTU-HR.", "recommended_action": "Reconcile all gas appliance BTU ratings across P1 and P1. Verify the correct model number and BTU rating for both water heaters. Recalculate the total gas load and verify the gas pipe sizing per FBC 2017 Fuel Gas Table 402.4(2) is adequate for the corrected total. Update the gas riser diagram accordingly.", "source": "vision", "scores": {"constructability": 2, "cost": 3, "safety": 5, "schedule": 2, "downstream": 4}, "cost_low": 500, "cost_high": 3000, "schedule_impact": "1-3 days"}, {"id": "C005", "title": "Exhaust Fan EF1 Electrical Circuit Not Identified on Panel Schedule", "disc_a": "Mechanical", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Low", "confidence": 0.94, "location": "Storage room / first floor", "sheets": ["E1", "M1"], "description": "The mechanical plans (M1, M1) show multiple exhaust fans labeled EF1 ('NUTONE' MODEL #LS5 50 CFM, 80 WATTS CEILING RECESSED, W.B.D. BUILT-IN) in bathrooms on both floors. The mechanical schedule also references duct smoke detectors, fire dampers, and smoke dampers. However, reviewing the electrical panel schedules on E1 and E1, there are no dedicated circuits listed for exhaust fans. The exhaust fans are typically hardwired and need to appear on the panel schedule. The electrical plan shows exhaust fan symbols but no circuit designation linking them to specific breakers.", "recommended_action": "Add a dedicated circuit for EF1 exhaust fan to the appropriate panel schedule. Verify wiring route from panel to EF1 location. Coordinate with mechanical engineer on whether EF1 requires a switched or continuous circuit and whether it needs to be interlocked with any other system.", "source": "vision", "scores": {"constructability": 3, "cost": 2, "safety": 2, "schedule": 2, "downstream": 4}, "cost_low": 800, "cost_high": 2500, "schedule_impact": "1-2 days"}, {"id": "C010", "title": "Pool Pump Electrical Circuit Shown But No Plumbing Pool Equipment Details", "disc_a": "Electrical-Lighting", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Low", "confidence": 0.82, "location": "Pool area, exterior", "sheets": ["E1", "A1", "P1"], "description": "The electrical panel schedule on E1 lists a 'POOL PUMP' circuit, and the electrical plan shows a pool pump connection near the pool area. The site plan A1 notes 'POOL UNDER SEPARATE PERMIT' and the structural plan S2 notes 'POOL (BY OTHERS)'. However, the plumbing plans P1 do not show any pool equipment, piping, or connections. While the pool is noted as under separate permit, the electrical plans already include a dedicated pool pump circuit. This creates a coordination gap — the electrical service is sized to include the pool pump load (included in the 63.94 kW total), but the plumbing/pool equipment scope is deferred. If the actual pool pump load differs from what was assumed in the electrical calculations, the panel and service sizing may need revision.", "recommended_action": "Confirm the assumed pool pump electrical load used in the service calculation matches the pool designer's equipment selection. Ensure the pool permit drawings reference the electrical service provisions on E1. Add a note on E1 clarifying the assumed pool pump load (HP/kW) so the pool designer can verify compatibility.", "source": "vision", "scores": {"constructability": 2, "cost": 3, "safety": 2, "schedule": 2, "downstream": 4}, "cost_low": 500, "cost_high": 3000, "schedule_impact": "2-5 days"}, {"id": "C004", "title": "Condensing Unit Pad Locations Not Shown on Site Plan", "disc_a": "Mechanical", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Low", "confidence": 0.8, "location": "Exterior of building, ground level", "sheets": ["M1", "A1"], "description": "The mechanical plan M1 shows two condensing units (for split systems 1 NEW and 2 NEW per the schedule) that must be located at grade level exterior to the building. The architectural site plan A1 does not show any equipment pads or condensing unit locations. The site plan shows tight setback conditions (5'-0\" minimum side setback) and concrete pavers with grass in the rear. Without coordinated pad locations, the condensing units may conflict with setback requirements, landscaping, or the pool area (noted as 'under separate permit'). The mechanical notes reference condensate discharge '6\" away from footing' and '12\" away from footing,' confirming ground-level placement.", "recommended_action": "Add condensing unit pad locations to the site plan A1. Verify that pad locations comply with Surfside's 5'-0\" minimum side setback and do not conflict with the pool deck, covered terrace, or concrete pavers. Coordinate with mechanical engineer for minimum clearance requirements around condensing units per manufacturer specifications.", "source": "vision", "scores": {"constructability": 5, "cost": 3, "safety": 1, "schedule": 4, "downstream": 5}, "cost_low": 1500, "cost_high": 5000, "schedule_impact": "3-5 days"}, {"id": "R031", "title": "Scope Change per SK1: 1/2\"(2FU) 2\"Ø STACK VTR", "disc_a": "Architectural", "disc_b": "Plumbing", "type": "Specification Mismatch", "severity": "Low", "confidence": 0.8, "location": "20-001 P1.pdf p1", "sheets": ["20-001 P1.pdf p1"], "description": "SK1 indicates a scope change affecting Unknown, Plumbing: 1/2\"(2FU) 2\"Ø STACK VTR. Verify all affected disciplines have been updated to reflect this change.", "recommended_action": "Review SK1 and confirm all disciplines reflect the scope change. Cross-check related sheets for coordination.", "source": "rfi_parser", "scores": {"constructability": 2, "cost": 4, "safety": 0, "schedule": 1, "downstream": 6}, "cost_low": 5600, "cost_high": 16400, "schedule_impact": "2 days"}, {"id": "C012", "title": "Dryer Exhaust Penetration Through CMU Wall — No Structural Sleeve Detail", "disc_a": "Mechanical", "disc_b": "Structural", "type": "Missing Coordination", "severity": "Low", "confidence": 0.79, "location": "Laundry room, first floor exterior wall", "sheets": ["M1", "S1"], "description": "The mechanical plan M1 shows a 4\" GMO (galvanized metal oval) dryer exhaust duct penetrating through the exterior wall at the laundry room with a weatherproof cap and backdraft damper. The note specifies '4\" GMO (260) THRU WALL FOR DRYER EXHAUST.' The exterior walls are 8\" CMU (concrete masonry units) per the architectural wall section A5 and structural details S1. The structural typical masonry details on S1 show reinforced CMU walls with horizontal joint reinforcement at 16\" O/C and vertical reinforcement. However, there is no structural detail for the dryer exhaust penetration through the CMU wall, including lintel requirements, reinforcement around the opening, or sleeve specifications. Per structural notes, all openings in masonry walls require proper headers and jamb reinforcement.", "recommended_action": "Provide a structural detail for the dryer exhaust penetration through the CMU wall. Include sleeve size, lintel/header requirements (if any), and any required reinforcement around the opening. Coordinate the penetration location to avoid vertical reinforcement bars in the CMU wall.", "source": "vision", "scores": {"constructability": 4, "cost": 2, "safety": 1, "schedule": 3, "downstream": 4}, "cost_low": 800, "cost_high": 3000, "schedule_impact": "2-3 days"}, {"id": "C006", "title": "Plumbing Vent Penetrations Through Structural Roof Not Detailed", "disc_a": "Plumbing", "disc_b": "Structural", "type": "Missing Coordination", "severity": "Low", "confidence": 0.77, "location": "Roof level, multiple vent stack locations", "sheets": ["P1", "S4"], "description": "The plumbing plans P1 and P1 show multiple vent-through-roof (VTR) penetrations for the sanitary vent system, including 3\" and 1-1/2\" stacks extending through the roof. The plumbing notes specify 'VENT LINES TO EXTEND 9\" MIN. ABOVE ROOF AND FLASH WITH LEAD.' The structural roof plan S4 shows pre-engineered wood trusses at 24\" O/C with 5/8\" CDX plywood sheathing. However, there are no structural details showing how plumbing vent penetrations are to be made through the roof diaphragm without compromising the structural integrity of the plywood sheathing or truss members. The structural notes prohibit pipes exceeding 1\" diameter from being embedded in structural concrete without approval, but roof penetrations through the wood truss/plywood system are not addressed.", "recommended_action": "Provide structural details for plumbing vent penetrations through the roof diaphragm. Show reinforcement or framing around penetrations in the plywood sheathing. Verify that no vent pipes pass through truss members. Coordinate penetration locations with truss manufacturer's shop drawings.", "source": "vision", "scores": {"constructability": 4, "cost": 2, "safety": 3, "schedule": 3, "downstream": 5}, "cost_low": 1000, "cost_high": 4000, "schedule_impact": "2-4 days"}, {"id": "C014", "title": "Kitchen Hood Exhaust Not Shown on Architectural Elevations or Roof Plan", "disc_a": "Mechanical", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Low", "confidence": 0.76, "location": "Kitchen area, exterior wall/roof", "sheets": ["M1", "A3", "A2"], "description": "The mechanical plan M1 shows a kitchen hood exhaust with notes stating 'KITCHEN HOOD SHALL BE EQUIPPED WITH BACKDRAFT DAMPERS & PROTECTED W/ CORROSION RESISTANT SCREEN' per FBC R3. The mechanical plan shows this exhaust terminating through the exterior wall or roof. However, the architectural elevations A3 and A3 do not show any kitchen exhaust vent termination on any building face. The roof plan A2 also does not indicate any kitchen exhaust penetration. This creates a coordination gap where the exhaust termination location, aesthetic treatment, and weatherproofing are not addressed architecturally.", "recommended_action": "Coordinate kitchen hood exhaust termination location between mechanical and architectural disciplines. Show the exhaust vent on the appropriate architectural elevation (A3 or A3) and/or roof plan (A2). Specify the exterior wall cap or roof cap finish to match the building aesthetic. Verify the exhaust termination meets FBC clearance requirements from windows, doors, and air intakes.", "source": "vision", "scores": {"constructability": 3, "cost": 2, "safety": 2, "schedule": 3, "downstream": 4}, "cost_low": 1000, "cost_high": 4000, "schedule_impact": "2-4 days"}, {"id": "C017", "title": "BBQ Gas Connection (96,000 BTU) Missing Electrical Outlet for Ignition", "disc_a": "Plumbing", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Low", "confidence": 0.75, "location": "Exterior west side near pool/covered terrace", "sheets": ["P1", "E1"], "description": "The gas plan P1 shows a BBQ appliance (G5) rated at 96,000 BTU/HR located on the exterior near the covered terrace/pool area. While the gas piping is shown routed to the BBQ location, the electrical plan E1 does not clearly show a weatherproof GFCI outlet at the BBQ location for electric ignition or rotisserie accessories. NEC 210.52(E) requires at least one receptacle outlet for the outdoor area, but a dedicated outlet near the built-in BBQ is standard practice.", "recommended_action": "Add a weatherproof GFCI receptacle outlet adjacent to the BBQ location on the electrical plan. Verify the outlet is on a 20A circuit and coordinate placement with the gas connection point.", "source": "vision", "scores": {"constructability": 3, "cost": 2, "safety": 4, "schedule": 2, "downstream": 3}, "cost_low": 300, "cost_high": 800, "schedule_impact": "1 day"}, {"id": "C021", "title": "Gas Cook Top 45,000 BTU on Gas Plan vs. Electrical Panel Lists Gas Cook Top Circuit", "disc_a": "Plumbing", "disc_b": "Electrical-Lighting", "type": "Specification Mismatch", "severity": "Low", "confidence": 0.75, "location": "Kitchen, first floor", "sheets": ["P1", "E1"], "description": "The gas plan P1 shows appliance G4 as 'COOK TOP' at 45,000 BTU/HR with gas piping routed to the kitchen. The electrical panel schedule on E1 lists circuit 20 as 'GAS COOK TOP' at 20A, 1P, 1,330W, #12 wire. This is consistent — gas cooktops require electrical power for ignition and controls. However, the Panel A calculations on E1 also list 'GAS COOK TOP' at 100W separately. The discrepancy between 1,330W on the panel schedule and 100W on the load calculation suggests the load calculation may be using the wrong wattage for the gas cooktop electrical connection, though this is a minor documentation inconsistency.", "recommended_action": "Verify the actual electrical load of the specified gas cooktop and reconcile the 100W listed in Panel A calculations with the 1,330W circuit on the panel schedule. Update the service calculation to use the correct wattage.", "source": "vision", "scores": {"constructability": 2, "cost": 2, "safety": 3, "schedule": 1, "downstream": 4}, "cost_low": 200, "cost_high": 500, "schedule_impact": "1 day"}, {"id": "N025", "title": "Mixed scales detected in Architectural plans", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "Low", "confidence": 0.6, "location": "Multiple sheets", "sheets": ["20-001 A-101_p1", "20-001 A-201_p1", "20-001 A-202_p1", "20-001 A-203_p1", "20-001 A-301_p1", "20-001 A-302_p1", "20-001 A-501_p1", "20-001 A-502_p1", "425 Meridian Ave full set_Arch_p1", "425 Meridian Ave full set_Arch_p3", "425 Meridian Ave full set_Arch_p4", "425 Meridian Ave full set_Arch_p5", "425 Meridian Ave full set_Arch_p6", "425 Meridian Ave full set_Arch_p7", "425 Meridian Ave full set_Arch_p9"], "description": "Architectural plans use 4 different scales: SCALE 1/8\"=1'-0\", SCALE 1/4\"=1'-0\", SCALE: 3/4\" = 1'-0\", SCALE 1/2\"=1'-0\". This may cause dimension confusion during construction.", "recommended_action": "Verify all scale notations are correct and consistent.", "source": "normalization", "scores": {"constructability": 3, "cost": 2, "safety": 1, "schedule": 2, "downstream": 4}, "cost_low": 0, "cost_high": 5000, "schedule_impact": "< 7 days"}, {"id": "C034", "title": "Missing Backwash Discharge for POOL PUMP — Civil scope gap", "disc_a": "Electrical", "disc_b": "Civil", "type": "Missing Coordination", "severity": "Low", "confidence": 0.45, "location": "P1", "sheets": ["P1"], "description": "POOL PUMP found on Electrical plans (sheet P1) but no corresponding backwash discharge found on Civil plans. Pool filter backwash requires discharge routing to storm/sanitary. Civil discipline not found in plan set.", "recommended_action": "Verify Civil plans include backwash discharge for POOL PUMP. Issue RFI if missing.", "source": "scope_completeness", "scores": {"constructability": 4, "cost": 3, "safety": 3, "schedule": 5, "downstream": 4}, "cost_low": 5200, "cost_high": 15300, "schedule_impact": "10 days"}]};
+const STAGES = [{"pct": 3, "text": "Loading plan set (25 sheets)...", "log": "Loaded Meridian Residence plan set — 25 construction documents"}, {"pct": 6, "text": "Classifying sheet disciplines...", "log": "Identified 5 disciplines: Architectural, Electrical, Mechanical, Plumbing, Structural"}, {"pct": 12, "text": "Rendering architectural plans...", "log": "Architectural: extracting floor plans, elevations, details"}, {"pct": 18, "text": "Processing structural sheets...", "log": "Structural: extracting framing, foundations, shear walls"}, {"pct": 26, "text": "Extracting MEP elements...", "log": "MEP: identifying equipment, panels, circuits, fixtures"}, {"pct": 52, "text": "Running cross-discipline conflict detection...", "log": "Comparing elements across 14 discipline pairs"}, {"pct": 60, "text": "Checking code compliance...", "log": "⚠ Detecting building-code + accessibility issues"}, {"pct": 68, "text": "Detecting spatial clashes...", "log": "⚠ Scanning for geometric conflicts between disciplines"}, {"pct": 75, "text": "Checking MEP coordination gaps...", "log": "⚠ Identifying missing equipment circuits, routing conflicts"}, {"pct": 82, "text": "Scoring severity (50-point model)...", "log": "Scored 34 conflicts: 1 Critical, 9 High, 10 Medium, 14 Low"}, {"pct": 92, "text": "Estimating cost and schedule impacts...", "log": "Total cost exposure: $100,700 – $487,100"}, {"pct": 100, "text": "Analysis complete!", "log": "Report generated — 34 conflicts across 14 discipline pairs"}];
+const RENDER_CAP = 9999;
+
+let analysisComplete = false;
+init();
+
+function toggleTheme(){
+  const isDark = !document.body.classList.contains('light-theme');
+  if(isDark){
+    document.body.classList.add('light-theme');
+    localStorage.setItem('flikt-theme','light');
+    document.getElementById('theme-icon').textContent='\u{1F319}';
+  } else {
+    document.body.classList.remove('light-theme');
+    localStorage.setItem('flikt-theme','dark');
+    document.getElementById('theme-icon').textContent='\u{2600}\u{FE0F}';
+  }
+}
+
+function loadTheme(){
+  const saved = localStorage.getItem('flikt-theme');
+  if(saved === 'light'){
+    document.body.classList.add('light-theme');
+    document.getElementById('theme-icon').textContent='\u{1F319}';
+  } else {
+    document.getElementById('theme-icon').textContent='\u{2600}\u{FE0F}';
+  }
+}
+
+loadTheme();
+
+function updateNavLocks(){
+  document.querySelectorAll('.nav button').forEach(b=>{
+    const label = b.textContent.toLowerCase();
+    if(!analysisComplete && (label.includes('results') || label.includes('report'))){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    const view = b.dataset.view;
+    if(!analysisComplete && (view==='results' || view==='report')){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+}
+
+function init(){
+  const p=DATA.project, s=DATA.summary;
+  document.getElementById('proj-name').textContent=p.name_long || p.name;
+  document.getElementById('proj-addr').textContent=p.address;
+  document.getElementById('proj-type').textContent=p.type;
+  document.getElementById('proj-value').textContent=p.construction_value_display || ('$'+(p.construction_value||0).toLocaleString());
+  document.getElementById('proj-sheets').textContent=p.total_sheets+' sheets';
+  const dl=document.getElementById('disc-list');
+  Object.entries(p.disciplines).forEach(([name,sheets])=>{
+    const n = (sheets && sheets.length) || 0;
+    const cnt = n > 0 ? `<span class="count">${n}</span>` : '';
+    dl.innerHTML+=`<span class="disc-tag">${name}${cnt}</span>`;
+  });
+  document.getElementById('rm-proj').textContent=p.name;
+  document.getElementById('rm-count').textContent=s.total_conflicts;
+  document.getElementById('rm-cost').textContent='$'+s.cost_low.toLocaleString()+' \u2013 $'+s.cost_high.toLocaleString();
+  updateNavLocks();
+}
+
+function showView(id){
+  if(!analysisComplete && (id==='results'||id==='report')) return;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>{
+    if(b.textContent.toLowerCase().includes(id==='dashboard'?'dashboard':id==='progress'?'analysis':id))
+      b.classList.add('active');
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===id);
+  });
+  if(id==='results'&&!document.getElementById('conflict-list').innerHTML) buildResults();
+}
+
+function startAnalysis(){
+  showView('progress');
+  let i=0;
+  const run=()=>{
+    if(i>=STAGES.length){
+      analysisComplete=true;
+      updateNavLocks();
+      setTimeout(()=>showView('results'),800);
+      return;
+    }
+    const s=STAGES[i];
+    document.getElementById('pct').textContent=s.pct+'%';
+    document.getElementById('pbar').style.width=s.pct+'%';
+    document.getElementById('stage').textContent=s.text;
+    const log=document.getElementById('log');
+    const cls=s.log.startsWith('\u26A0')?'log-line highlight':'log-line';
+    log.innerHTML+=`<div class="${cls}"><span class="time">${new Date().toLocaleTimeString()}</span>${s.log}</div>`;
+    log.scrollTop=log.scrollHeight;
+    i++;
+    setTimeout(run, 500+Math.random()*900);
+  };
+  run();
+}
+
+const SEVERITY_ORDER = {Critical:0, High:1, Medium:2, Low:3};
+function sortedConflicts(){
+  return DATA.conflicts.slice().sort((a,b)=>{
+    const sa = SEVERITY_ORDER[a.severity]??99, sb=SEVERITY_ORDER[b.severity]??99;
+    if(sa!==sb) return sa-sb;
+    return (b.cost_high||0)-(a.cost_high||0);
+  });
+}
+
+function buildResults(){
+  const s=DATA.summary;
+  document.getElementById('summary-row').innerHTML=`
+    <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
+    <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
+    <div class="stat-box stat-high"><div class="num">${s.high}</div><div class="lbl">High</div></div>
+    <div class="stat-box stat-medium"><div class="num">${s.medium}</div><div class="lbl">Medium</div></div>
+    <div class="stat-box stat-low"><div class="num">${s.low}</div><div class="lbl">Low</div></div>`;
+  document.getElementById('summary-row2').innerHTML=`
+    <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} \u2013 $${s.cost_high.toLocaleString()}</div></div>
+    <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
+
+  const severities=['All','Critical','High','Medium','Low'];
+  document.getElementById('filters').innerHTML=severities.map(sv=>
+    `<button class="filter-btn ${sv==='All'?'active':''}" onclick="filterConflicts('${sv}',this)">${sv}</button>`
+  ).join('');
+
+  renderConflicts('All');
+}
+
+let currentFilter='All';
+function filterConflicts(sev,btn){
+  currentFilter=sev;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderConflicts(sev);
+}
+
+function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
+
+function renderConflicts(severity){
+  const sorted = sortedConflicts();
+  const filtered = severity==='All' ? sorted : sorted.filter(c=>c.severity===severity);
+  const visible = filtered.slice(0, RENDER_CAP);
+  const hidden = filtered.length - visible.length;
+
+  const list=document.getElementById('conflict-list');
+  list.innerHTML=visible.map(c=>{
+    const dims=['constructability','cost','safety','schedule','downstream'];
+    const scoresHTML=dims.map(d=>{
+      const v=(c.scores||{})[d]||0;
+      return `<div class="score-dim">
+        <div class="dim-label">${d.slice(0,6)}</div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div>
+        <div class="dim-val" style="color:${scoreColor(v)}">${v}/10</div>
+      </div>`;
+    }).join('');
+
+    const neBadge = c.ne_validated ? '<span class="ne-badge">&check; NE-VALIDATED</span>' : '';
+    const sheetsStr = Array.isArray(c.sheets)?c.sheets.join(', '):(c.sheets||'');
+
+    return `<div class="conflict-card" onclick="this.classList.toggle('expanded')">
+      <div class="cc-header">
+        <span class="sev-badge sev-${c.severity}">${c.severity}</span>
+        <span class="cc-title">${escapeHtml(c.title)}</span>
+        ${neBadge}
+        <span class="cc-id">${c.id}</span>
+        <span class="cc-chevron">\u25BC</span>
+      </div>
+      <div class="cc-body">
+        <div class="cc-meta">
+          <div class="cc-meta-item"><span class="k">Disciplines:</span> ${escapeHtml(c.disc_a||'')} \u2194 ${escapeHtml(c.disc_b||'')}</div>
+          <div class="cc-meta-item"><span class="k">Type:</span> ${escapeHtml(c.type||'')}</div>
+          <div class="cc-meta-item"><span class="k">Location:</span> ${escapeHtml(c.location||'')}</div>
+          <div class="cc-meta-item"><span class="k">Sheets:</span> ${escapeHtml(sheetsStr)}</div>
+        </div>
+        <div class="cc-desc">${escapeHtml(c.description||'')}</div>
+        <div class="scores-grid">${scoresHTML}</div>
+        <div class="cc-impact">
+          <div class="impact-box"><span class="ib-label">Cost Exposure:</span> $${(c.cost_low||0).toLocaleString()} \u2013 $${(c.cost_high||0).toLocaleString()}</div>
+          <div class="impact-box"><span class="ib-label">Schedule Impact:</span> ${escapeHtml(c.schedule_impact||'')}</div>
+        </div>
+        <div class="cc-action"><strong>Recommended Action:</strong> ${escapeHtml(c.recommended_action||'')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const notice = document.getElementById('truncated-notice');
+  if(hidden > 0){
+    notice.innerHTML=`<div class="truncated-notice"><strong>Showing top ${visible.length} of ${filtered.length} conflicts</strong> by severity. <a href="FliktAI_Meridian_Residence_Report.pdf" download>Download the full PDF report</a> to see all ${DATA.summary.total_conflicts} findings.</div>`;
+  } else {
+    notice.innerHTML='';
+  }
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+</script>
+</body>
+</html>

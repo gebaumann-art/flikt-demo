@@ -3,27 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flikt.AI — Plan Conflict & Coordination</title>
-
-<!-- Open Graph / iMessage / Social Previews -->
-<meta name="description" content="AI-powered plan conflict detection for multifamily, residential, and commercial construction. See real coordination issues found across 8+ disciplines.">
+<title>Flikt.AI &mdash; Plan Conflict &amp; Coordination Demo</title>
+<meta name="description" content="AI-powered plan conflict detection for multifamily, commercial, and residential construction. Real coordination issues found across disciplines, anonymized for demo.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Flikt.AI — Demo: Plan Conflict Detection">
-<meta property="og:description" content="AI-powered plan conflict detection for multifamily, residential, and commercial construction. See real coordination issues found across 8+ disciplines.">
-<meta property="og:url" content="https://gebaumann-art.github.io/flikt-demo/">
+<meta property="og:title" content="Flikt.AI &mdash; Plan Conflict Detection Demo">
+<meta property="og:description" content="AI-powered plan conflict detection. Real coordination issues found across 10 disciplines.">
+<meta property="og:url" content="https://flikt.ai/demo/">
 <meta property="og:site_name" content="Flikt.AI">
-<meta property="og:image" content="https://gebaumann-art.github.io/flikt-demo/og_final_demo.png">
+<meta property="og:image" content="og_final_demo.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:type" content="image/png">
-
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Flikt.AI — Demo: Plan Conflict Detection">
-<meta name="twitter:description" content="AI-powered plan conflict detection. See real coordination issues found across disciplines.">
-<meta name="twitter:image" content="https://gebaumann-art.github.io/flikt-demo/og_final_demo.png">
-
-<!-- Favicon -->
+<meta name="twitter:title" content="Flikt.AI &mdash; Plan Conflict Detection Demo">
+<meta name="twitter:description" content="AI-powered plan conflict detection. Real coordination issues across disciplines.">
+<meta name="twitter:image" content="og_final_demo.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -34,23 +28,19 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-
-/* Header */
 .header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
 display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
 .logo span{color:var(--amber)}
-
-/* Hero */
+.header-right{display:flex;align-items:center;gap:12px}
+.real-ai-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+color:var(--amber);background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.3);
+padding:5px 10px;border-radius:14px}
 .hero{text-align:center;margin:48px 32px 12px}
 .hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
-.hero p{color:var(--text-muted);font-size:16px;max-width:560px;margin:0 auto}
-
-/* Projects Grid */
-.projects{max-width:1080px;margin:32px auto;padding:0 32px;display:flex;flex-direction:column;gap:24px}
-.projects-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-
-/* Project Card */
+.hero p{color:var(--text-muted);font-size:16px;max-width:620px;margin:0 auto}
+.projects{max-width:1200px;margin:32px auto;padding:0 32px;display:flex;flex-direction:column;gap:24px}
+.projects-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
 padding:28px 28px 24px;transition:all .25s ease;cursor:pointer;position:relative;overflow:hidden;
 display:flex;flex-direction:column}
@@ -59,139 +49,121 @@ box-shadow:0 8px 32px rgba(232,160,32,0.12)}
 .project-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
 background:var(--amber);transform:scaleX(0);transition:transform .25s ease}
 .project-card:hover::after{transform:scaleX(1)}
-
-/* Featured card — horizontal layout */
 .project-card.featured{flex-direction:row;gap:36px;align-items:center;padding:32px 36px}
 .featured .card-left{flex:1;min-width:0}
 .featured .card-right{flex:0 0 340px;display:flex;flex-direction:column;gap:14px}
-
-.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.card-header h2{font-size:18px;font-weight:700;color:var(--amber);line-height:1.3}
+.card-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px 12px}
+.card-header h2{font-size:18px;font-weight:700;color:var(--amber);line-height:1.3;flex:1;min-width:0}
+.featured .card-header{flex-direction:column;align-items:flex-start}
 .featured .card-header h2{font-size:22px}
-.card-type{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+.card-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
 color:var(--text-muted);background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:4px;
-white-space:nowrap;margin-left:12px;flex-shrink:0}
-
+white-space:normal;flex-shrink:0;max-width:100%}
 .card-address{font-size:13px;color:var(--text-muted);margin-bottom:16px}
-
 .card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 .card-stat{text-align:center;padding:10px 6px;background:rgba(255,255,255,0.03);border-radius:8px}
-.card-stat .num{font-size:20px;font-weight:800}
+.card-stat .num{font-size:18px;font-weight:800}
 .card-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:2px}
 .featured .card-stat .num{font-size:24px}
 .featured .card-stats{margin-bottom:0}
-
 .disciplines-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
 .disc-tag{background:var(--navy);padding:3px 10px;border-radius:14px;font-size:11px;
 border:1px solid var(--border);color:var(--text-muted)}
-
 .card-cta{color:var(--amber);font-size:13px;font-weight:700;transition:all .25s ease;margin-top:auto}
 .project-card:hover .card-cta{transform:translateX(4px)}
 .featured .card-cta{font-size:14px}
-
-/* Footer */
 .footer{text-align:center;padding:48px 32px 32px;color:var(--text-muted);font-size:12px}
-
-/* Responsive */
-@media(max-width:768px){
-.projects-row{grid-template-columns:1fr}
+@media(max-width:960px){
+.projects-row{grid-template-columns:1fr 1fr}
 .project-card.featured{flex-direction:column;padding:28px 28px 24px}
 .featured .card-right{flex:auto}
-.featured .card-header h2{font-size:18px}
+.featured .card-header h2{font-size:20px}
+}
+@media(max-width:640px){
+.projects-row{grid-template-columns:1fr}
 }
 @media(max-width:480px){
 .projects{padding:0 16px}
 .hero{margin:32px 16px 8px}
 .hero h1{font-size:24px}
-.card-stats{grid-template-columns:repeat(3,1fr);gap:6px}
 }
 </style>
 </head>
 <body>
 <div class="header">
   <div class="logo">FLIKT<span>.AI</span></div>
+  <div class="header-right">
+    <span class="real-ai-badge">Real AI analysis</span>
+  </div>
 </div>
 
 <div class="hero">
   <h1>AI-Powered Plan Coordination</h1>
-  <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework.</p>
+  <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework. Every conflict below comes from a real pipeline run &mdash; project identities anonymized.</p>
 </div>
 
 <div class="projects">
 
-  <!-- Lakewood Residences (Multifamily) — Featured -->
-  <a href="lakewood.html" class="project-card featured">
+  <a href="eastside-lofts.html" class="project-card featured">
     <div class="card-left">
       <div class="card-header">
-        <h2>Lakewood Residences</h2>
-        <span class="card-type">Multifamily &mdash; 288 Units</span>
+        <h2>Eastside Lofts</h2>
+        <span class="card-type">Multifamily New Construction — 320 Units</span>
       </div>
-      <div class="card-address">450 Lakewood Blvd, Winter Park, FL 32789</div>
-      <div class="disciplines-list">
-        <span class="disc-tag">Architectural</span>
-        <span class="disc-tag">Structural</span>
-        <span class="disc-tag">Mechanical</span>
-        <span class="disc-tag">Electrical</span>
-        <span class="disc-tag">Plumbing</span>
-        <span class="disc-tag">Fire Protection</span>
-        <span class="disc-tag">Civil</span>
-        <span class="disc-tag">Landscape</span>
-      </div>
+      <div class="card-address">1850 Eastside Blvd, San Antonio, TX 78215</div>
+      <div class="disciplines-list"><span class="disc-tag">Civil</span><span class="disc-tag">Mechanical</span><span class="disc-tag">Structural</span><span class="disc-tag">Architectural</span><span class="disc-tag">Plumbing</span><span class="disc-tag">Fire Protection</span><span class="disc-tag">Electrical</span><span class="disc-tag">Specifications</span><span class="disc-tag">Landscape</span><span class="disc-tag">Interior Design</span></div>
       <div class="card-cta">Run Analysis &rarr;</div>
     </div>
     <div class="card-right">
       <div class="card-stats">
-        <div class="card-stat"><div class="num">$38M</div><div class="lbl">Construction Value</div></div>
-        <div class="card-stat"><div class="num">38</div><div class="lbl">Total Sheets</div></div>
-        <div class="card-stat"><div class="num">8</div><div class="lbl">Disciplines</div></div>
+        <div class="card-stat"><div class="num">$42M</div><div class="lbl">Construction Value</div></div>
+        <div class="card-stat"><div class="num">811</div><div class="lbl">Total Sheets</div></div>
+        <div class="card-stat"><div class="num">10</div><div class="lbl">Disciplines</div></div>
       </div>
     </div>
   </a>
 
   <div class="projects-row">
-    <!-- Oceanview Residence -->
-    <a href="oceanview.html" class="project-card">
+    <a href="metro-salon.html" class="project-card">
       <div class="card-header">
-        <h2>Oceanview Residence</h2>
-        <span class="card-type">New Construction</span>
+        <h2>Metro Salon Studios</h2>
+        <span class="card-type">Commercial Tenant Fit-Out</span>
       </div>
-      <div class="card-address">123 Oceanview Drive, Surfside, FL 33154</div>
+      <div class="card-address">400 Metro Center Blvd, Suite 112, Maitland, FL 32751</div>
       <div class="card-stats">
-        <div class="card-stat"><div class="num">$2.8M</div><div class="lbl">Construction Value</div></div>
-        <div class="card-stat"><div class="num">48</div><div class="lbl">Total Sheets</div></div>
-        <div class="card-stat"><div class="num">7</div><div class="lbl">Disciplines</div></div>
-      </div>
-      <div class="disciplines-list">
-        <span class="disc-tag">Architectural</span>
-        <span class="disc-tag">Structural</span>
-        <span class="disc-tag">Electrical</span>
-        <span class="disc-tag">Mechanical</span>
-        <span class="disc-tag">Plumbing</span>
-        <span class="disc-tag">Civil</span>
-        <span class="disc-tag">Landscape</span>
-      </div>
-      <div class="card-cta">Run Analysis &rarr;</div>
-    </a>
-
-    <!-- Harbor Club -->
-    <a href="harbor-club.html" class="project-card">
-      <div class="card-header">
-        <h2>Harbor Club</h2>
-        <span class="card-type">Community Renovation</span>
-      </div>
-      <div class="card-address">100 Harbor Club Blvd, Miami Beach, FL 33139</div>
-      <div class="card-stats">
-        <div class="card-stat"><div class="num">$1.5M</div><div class="lbl">Construction Value</div></div>
-        <div class="card-stat"><div class="num">42</div><div class="lbl">Total Sheets</div></div>
+        <div class="card-stat"><div class="num">$285K</div><div class="lbl">Value</div></div>
+        <div class="card-stat"><div class="num">7</div><div class="lbl">Sheets</div></div>
         <div class="card-stat"><div class="num">5</div><div class="lbl">Disciplines</div></div>
       </div>
-      <div class="disciplines-list">
-        <span class="disc-tag">Architectural</span>
-        <span class="disc-tag">Structural</span>
-        <span class="disc-tag">Electrical</span>
-        <span class="disc-tag">Landscape</span>
-        <span class="disc-tag">Civil</span>
+      <div class="disciplines-list"><span class="disc-tag">Architectural</span><span class="disc-tag">Mechanical</span><span class="disc-tag">Civil</span><span class="disc-tag">Electrical</span><span class="disc-tag">Plumbing</span></div>
+      <div class="card-cta">Run Analysis &rarr;</div>
+    </a>
+    <a href="the-atrium.html" class="project-card">
+      <div class="card-header">
+        <h2>The Atrium</h2>
+        <span class="card-type">Multifamily Common Area Renovation</span>
       </div>
+      <div class="card-address">2500 Bayshore Drive, Miami Beach, FL 33140</div>
+      <div class="card-stats">
+        <div class="card-stat"><div class="num">$1.2M</div><div class="lbl">Value</div></div>
+        <div class="card-stat"><div class="num">4</div><div class="lbl">Sheets</div></div>
+        <div class="card-stat"><div class="num">4</div><div class="lbl">Disciplines</div></div>
+      </div>
+      <div class="disciplines-list"><span class="disc-tag">Architectural</span><span class="disc-tag">Electrical</span><span class="disc-tag">Mechanical</span><span class="disc-tag">Plumbing</span></div>
+      <div class="card-cta">Run Analysis &rarr;</div>
+    </a>
+    <a href="meridian-residence.html" class="project-card">
+      <div class="card-header">
+        <h2>Meridian Residence</h2>
+        <span class="card-type">Single Family New Construction</span>
+      </div>
+      <div class="card-address">425 Meridian Ave, Surfside, FL 33154</div>
+      <div class="card-stats">
+        <div class="card-stat"><div class="num">$3.2M</div><div class="lbl">Value</div></div>
+        <div class="card-stat"><div class="num">25</div><div class="lbl">Sheets</div></div>
+        <div class="card-stat"><div class="num">5</div><div class="lbl">Disciplines</div></div>
+      </div>
+      <div class="disciplines-list"><span class="disc-tag">Architectural</span><span class="disc-tag">Electrical</span><span class="disc-tag">Mechanical</span><span class="disc-tag">Plumbing</span><span class="disc-tag">Structural</span></div>
       <div class="card-cta">Run Analysis &rarr;</div>
     </a>
   </div>
