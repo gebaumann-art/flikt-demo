@@ -13,7 +13,7 @@ into the repo for reproducibility.
 |------|------|
 | `build_demo.py` | Orchestrator. Loads 4 `results.json` → filters → anonymizes → writes HTMLs + PDFs. |
 | `anonymization_rules.py` | Per-project scrub patterns, sheet normalization, firm-name heuristics, leak scanner. |
-| `gc_filter.py` | NE Construction dispositions applied to Eastside Lofts only (drops ~74 FPs/disputes, flags NE-validated TPs). |
+| `gc_filter.py` | GC dispositions applied to Eastside Lofts only (drops ~74 FPs/disputes). |
 | `page_template.py` | HTML template for per-project pages, filled by `build_demo.py`. |
 | `cloudflare_worker.js` | Worker script that proxies `flikt.ai/demo/*` → GitHub Pages. Deploy via Cloudflare dashboard. |
 
@@ -45,16 +45,19 @@ Canonical mappings (see handoff `~/FLIKT/Session Handoffs/FliktAI_Demo_Refresh_H
 
 ## GC filter (Eastside only)
 
-Drives off `~/FLIKT/Analysis/NE_Feedback_Analysis_S112.pdf`. Drops:
-- ~22 civil/arch index-conflation FPs (NE confirmed sheets ARE listed in arch index)
+Drives off the S112 feedback review. Drops:
+- ~22 civil/arch index-conflation FPs (sheets are listed in the arch index, not civil)
 - 10+ phantom/hallucinated sheets (A813, P1, L9, F-8, FB-7, RC-1, etc.)
 - ~5 spec-referenced conflicts with no actual spec-section citation
 - A-001 / A-002 "index missing from index" logical-inversion bug
 - 8 substantive disputes (CV508, N467, N471, GEO525, GEO527, N457, N463, N465, T460)
 - 2 amendment-citation corrections (C376/C377 → text patched, not dropped)
-- 6 NE-confirmed TPs promoted with `ne_validated: true` flag (renders a "✓ NE-VALIDATED" badge)
 
 Expected result: 509 raw → ~435 kept.
+
+**No reviewer-identifying metadata** is attached to output conflicts. An
+earlier iteration tagged validated TPs with a credibility badge, but that
+badge exposed the reviewer's identity and was removed.
 
 ## Leak detection
 
@@ -78,10 +81,8 @@ WordPress at `flikt.ai/` is untouched.
 
 When a new `results.json` lands for any of the 4 source projects, simply re-run
 `build_demo.py`. The anonymization rules and GC filter are data-independent —
-they apply whatever patterns match the new content. The `ne_validated` flag
-only promotes IDs that still exist after filtering; if NE's validated IDs
-aren't in the new run, the badge disappears cleanly.
+they apply whatever patterns match the new content.
 
-If NE reviews a different project, extend `NE_VALIDATED_IDS` and the various
-drop-lists in `gc_filter.py` and gate them on `source_key` the same way the
-current filters gate on Eastside only.
+If a future review covers a different project, extend the drop-lists in
+`gc_filter.py` and gate them on `source_key` the same way the current filters
+gate on Eastside only.

@@ -502,7 +502,6 @@ def main() -> int:
                 f"spec_markup={len(r['dropped_spec_markup_missing'])}, "
                 f"index_inversion={len(r['dropped_index_inversion'])}, "
                 f"disputed={len(r['dropped_disputed'])}); "
-                f"ne_validated={len(r['ne_validated'])}, "
                 f"n471_deduped={len(r['n471_deduped'])}"
             )
 

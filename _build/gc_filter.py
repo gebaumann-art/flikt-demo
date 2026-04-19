@@ -1,17 +1,18 @@
-"""NE Construction GC disposition filter for the Eastside Lofts demo.
+"""GC disposition filter for the Eastside Lofts demo.
 
-Drives off NE_Feedback_Analysis_S112.pdf (Apr 16, 2026).
-Three filters stack on the 509-conflict Parkway Lofts source set:
+Drives off the S112 feedback review. Three filters stack on the raw
+509-conflict source set:
 
-  1. Drop NE-confirmed False Positives (~35): civil/arch index conflation,
+  1. Drop confirmed False Positives (~35): civil/arch index conflation,
      phantom sheets, spec-markup-missing, A-001/A-002 index-inversion bug.
-  2. Drop NE-confirmed substantive Disputes (8): CV508, N467, N471, GEO525,
-     GEO527, N457, N463, N465, T460. C376/C377 are corrected rather than dropped.
-  3. Presentation-layer N471 dedup: truncate any >10 repeated sheet refs in
-     a single field to the first 10 unique entries plus "(and N more)".
+  2. Drop substantive Disputes (8): CV508, N467, N471, GEO525, GEO527,
+     N457, N463, N465, T460. C376/C377 are corrected rather than dropped.
+  3. Presentation-layer N471 dedup: truncate any >10 repeated sheet refs
+     in a single field to the first 10 unique entries plus "(and N more)".
 
-After filtering, the 6 NE-confirmed True Positives carry a `ne_validated: true`
-flag so the HTML can render a credibility badge.
+Note: earlier versions of this filter also tagged validated TPs with a
+badge, but that badge reveals the reviewer's identity and has been removed
+to keep the demo fully anonymized.
 """
 import re
 from typing import Dict, List, Tuple
@@ -56,10 +57,6 @@ AMENDMENT_CORRECTION_REPLACEMENTS: List[Tuple[str, str]] = [
     (r"NEC only", "FBC Chapter 11 referenced"),
     (r"cites NEC only", "cites FBC Chapter 11"),
 ]
-
-# --- Promote filter: NE-confirmed True Positives ---
-NE_VALIDATED_IDS = {"C001", "C005", "C006", "C008", "EXH-1", "N473", "N475"}
-
 
 def _references_any_sheet(conflict: Dict, sheet_set: set) -> bool:
     """Return True if conflict references any sheet in the given set (sheets[] or inline text)."""
@@ -163,7 +160,6 @@ def filter_and_annotate(conflicts: List[Dict]) -> Tuple[List[Dict], Dict]:
         "dropped_disputed": [],
         "corrected_amendment": [],
         "n471_deduped": [],
-        "ne_validated": [],
     }
 
     for c in conflicts:
@@ -203,12 +199,6 @@ def filter_and_annotate(conflicts: List[Dict]) -> Tuple[List[Dict], Dict]:
         if cid in AMENDMENT_CORRECTION_IDS:
             c = apply_corrections(c)
             report["corrected_amendment"].append(cid)
-
-        # Promote: NE-validated TPs
-        if cid in NE_VALIDATED_IDS:
-            c = dict(c)
-            c["ne_validated"] = True
-            report["ne_validated"].append(cid)
 
         # Filter 3: N471-style dedup
         original_sheet_count = len(c.get("sheets", []) or [])

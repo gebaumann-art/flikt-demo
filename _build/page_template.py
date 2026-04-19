@@ -108,8 +108,6 @@ margin-bottom:16px;overflow:hidden;transition:all .2s}}
 .sev-High{{background:var(--high)}}
 .sev-Medium{{background:var(--medium)}}
 .sev-Low{{background:var(--low)}}
-.ne-badge{{background:rgba(22,163,74,0.15);color:var(--low);border:1px solid var(--low);
-padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.5px}}
 .cc-title{{font-size:14px;font-weight:700;flex:1;min-width:200px}}
 .cc-id{{font-size:11px;color:var(--text-muted)}}
 .cc-chevron{{color:var(--text-muted);transition:transform .2s;font-size:18px}}
@@ -458,14 +456,12 @@ function renderConflicts(severity){{
       </div>`;
     }}).join('');
 
-    const neBadge = c.ne_validated ? '<span class="ne-badge">&check; NE-VALIDATED</span>' : '';
     const sheetsStr = Array.isArray(c.sheets)?c.sheets.join(', '):(c.sheets||'');
 
     return `<div class="conflict-card" onclick="this.classList.toggle('expanded')">
       <div class="cc-header">
         <span class="sev-badge sev-${{c.severity}}">${{c.severity}}</span>
         <span class="cc-title">${{escapeHtml(c.title)}}</span>
-        ${{neBadge}}
         <span class="cc-id">${{c.id}}</span>
         <span class="cc-chevron">\u25BC</span>
       </div>
