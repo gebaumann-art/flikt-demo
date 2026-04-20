@@ -253,7 +253,7 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Flikt.AI &mdash; Plan Conflict Detection Demo">
 <meta property="og:description" content="AI-powered plan conflict detection. Real coordination issues found across 10 disciplines.">
-<meta property="og:url" content="https://flikt.ai/demo/">
+<meta property="og:url" content="https://demo.flikt.ai/">
 <meta property="og:site_name" content="Flikt.AI">
 <meta property="og:image" content="og_final_demo.png">
 <meta property="og:image:width" content="1200">
