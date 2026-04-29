@@ -344,7 +344,7 @@ border:1px solid var(--border);color:var(--text-muted)}
 
 <div class="hero">
   <h1>AI-Powered Plan Coordination</h1>
-  <p>Upload construction plans. Detect conflicts in minutes. Save thousands in rework. Every conflict below comes from a real pipeline run &mdash; project identities anonymized.</p>
+  <p>Upload construction plans. Detect coordination conflicts. Save thousands in rework. Every conflict below comes from a real pipeline run &mdash; project identities anonymized.</p>
 </div>
 
 <div class="projects">
