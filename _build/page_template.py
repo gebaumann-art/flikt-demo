@@ -495,6 +495,11 @@ function escapeHtml(s){{
   return String(s||'').replace(/[&<>"']/g, c => ({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}})[c]);
 }}
 </script>
+
+<div style="text-align:center;padding:20px 16px 88px;color:var(--text-muted);font-size:11px;border-top:1px solid var(--border);margin-top:32px">
+  Flikt.AI &middot; &copy; 2026 &middot; Patents Pending
+</div>
+
 </body>
 </html>
 """
