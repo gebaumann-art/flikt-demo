@@ -1,0 +1,17 @@
+# Gitleaks config for the Flikt.AI demo repo (static site + Cloudflare Worker).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Project-specific allowlist (paths + known false positives)"
+
+paths = [
+    '''\.gitleaksignore$''',
+    '''\.gitleaks\.toml$''',
+    '''node_modules/''',
+]
+
+regexes = [
+    '''sk-test-[A-Za-z0-9]{4,}''',
+    '''sk-fake-[A-Za-z0-9]{4,}''',
+]
