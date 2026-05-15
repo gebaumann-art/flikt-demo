@@ -25,7 +25,16 @@ from typing import Dict, List, Tuple
 PROJECT_RULES: Dict[str, Dict] = {
     "eastside_lofts": {
         "scrub": [
-            # Parkway Lofts -> Eastside Lofts
+            # S180 refresh: source is Millenium Apartments (M2 at Millenia).
+            # Anonymized address is San Antonio, TX -- so Maitland would be
+            # a cross-ref leak. Scrub defensively.
+            (r"\bMillenium\s+Apartments[_ ]?run\d+\b", "Eastside_Lofts_run1"),
+            (r"\bMillen+ium\s+Apartments\b", "Eastside Lofts"),
+            (r"\bM2[_ ]at[_ ]Millenia\b", "the project"),
+            (r"\bMillenia\b", "the project area"),
+            (r"\bMillen+ium\b", "the site"),
+            (r"\bMaitland\b", "the city"),
+            # Legacy Parkway rules (harmless when not present in source):
             (r"\bParkway[_ ]Lofts[_ ]Demo[_ ]S\d+\b", "Eastside_Lofts"),
             (r"\bParkway Lofts\b", "Eastside Lofts"),
             (r"\bParkway\b", "the site"),
@@ -36,6 +45,8 @@ PROJECT_RULES: Dict[str, Dict] = {
             (r"\bCorinth\b", "the site"),
         ],
         "leaks": [
+            r"\bMillenium\b", r"\bMillennium\b", r"\bMillenia\b",
+            r"\bMaitland\b",
             r"\bParkway\b", r"\b1671\b", r"\bCorinth\b",
         ],
         "project": {
@@ -50,7 +61,9 @@ PROJECT_RULES: Dict[str, Dict] = {
     },
     "metro_salon_studios": {
         "scrub": [
-            # 400N Salon Lofts -> Metro Salon Studios
+            # S180 refresh: source name is "Salon Lofts S180_run1".
+            (r"\bSalon\s+Lofts\s+S\d+(?:_run\d+)?\b", "Metro Salon Studios"),
+            # Legacy 400N source variants:
             (r"\b400N[_ ]Salon[_ ]Lofts\b", "Metro Salon Studios"),
             (r"\b400N Salon Lofts\b", "Metro Salon Studios"),
             (r"\b400 North Salon Lofts\b", "Metro Salon Studios"),
@@ -97,16 +110,37 @@ PROJECT_RULES: Dict[str, Dict] = {
     },
     "meridian_residence": {
         "scrub": [
+            # S180 refresh: source is 9332 Carlyle Ave (single-family
+            # renovation & addition). Conflict sheets contain raw filenames
+            # like "0bcb3cc9_Greenblatt-Itenberg-E4.pdf" -- normalize those to
+            # the bare sheet code first, then scrub residual identifiers.
+            (r"\b[a-f0-9]{8}_Greenblatt[-_]Itenberg[-_]([A-Za-z][A-Za-z0-9.\-]*?)(?:_p\d+)?\.(?:pdf|jpg|jpeg|png)\b",
+             r"\1"),
+            (r"\b[a-f0-9]{8}_Greenblatt[-_]Itenberg(?:_[A-Za-z_]+)?\.(?:pdf|jpg|jpeg|png)\b",
+             "the architect's reference"),
+            (r"\b9332[_ ]Carlyle[_ ]run\d+\b", "Meridian_Residence_run1"),
+            (r"\b9332\s*Carlyle\s*Ave\b", "425 Meridian Ave"),
+            (r"\b9332\s*Carlyle\b", "Meridian Residence"),
+            (r"\bGreenblatt[-_ ]Itenberg\s+Residence\b", "the residence"),
+            (r"\bGreenblatt[-_ ]Itenberg\b", "the architect"),
+            (r"\bGreenblatt\b", "the architect"),
+            (r"\bItenberg\b", "the architect"),
+            (r"\bCarlyle\s+Ave(?:nue)?\b", "Meridian Ave"),
+            (r"\bCarlyle\b", "the residence"),
+            (r"\b9332\b", "425"),
+            # Legacy Abbott rules (harmless when not present in source):
             (r"\b9272[_ ]Abbott[_ ]Ave[_ ]Construction[_ ]Documents\b", "Meridian_Residence"),
             (r"\b9272 Abbott Ave\b", "425 Meridian Ave"),
             (r"\b9272\s*Abbott\b", "the residence"),
             (r"\bAbbott Ave\b", "Meridian Ave"),
             (r"\bAbbott\b", "the residence"),
             (r"\b9272\b", "425"),
-            # Surfside + Miami-Dade: KEEP -- anonymized address is Surfside,
-            # which is in Miami-Dade County, per handoff §3.4.
+            # Surfside + Miami-Dade + Florida: KEEP -- anonymized address is
+            # Surfside, FL (Miami-Dade County), so these are not leaks.
         ],
         "leaks": [
+            r"\bGreenblatt\b", r"\bItenberg\b",
+            r"\bCarlyle\b", r"\b9332\b",
             r"\bAbbott\b", r"\b9272\b",
         ],
         "project": {

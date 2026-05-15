@@ -47,32 +47,41 @@ from page_template import PAGE_TEMPLATE  # noqa: E402
 
 PROJECTS = [
     {
+        # S180 refresh: source is Millenium Apartments (M2 at Millenia) run on
+        # the current S180 production pipeline. 703 sheets, 14 disciplines,
+        # 160 conflicts (11 C / 80 H / 59 M / 10 L), ~$1.18M-$3.45M exposure.
         "source_key": "eastside_lofts",
-        "source_dir": "Parkway_Lofts_Demo_S110_20260415_1849",
+        "source_dir": "Millenium_Apartments_S180_run1",
         "slug": "eastside-lofts",
         "pdf_name": "FliktAI_Eastside_Lofts_Report.pdf",
-        "apply_gc_filter": True,
-        "render_cap": 100,  # Top 100 by severity
+        "apply_gc_filter": False,  # Source already filtered upstream in S180
+        "render_cap": 100,         # Top 100 by severity (large set)
     },
     {
+        # S180 refresh: same Salon Lofts source as before, but on the current
+        # S180 pipeline. 25 sheets, 4 disciplines, 44 conflicts (8 C / 15 H).
         "source_key": "metro_salon_studios",
-        "source_dir": "400N_Salon_Lofts",
+        "source_dir": "Salon_Lofts_S180_run1",
         "slug": "metro-salon",
         "pdf_name": "FliktAI_Metro_Salon_Studios_Report.pdf",
         "apply_gc_filter": False,
         "render_cap": 9999,
     },
     {
+        # S180 refresh: L'Hermitage S173 phase1 consensus run (F1=0.919).
+        # 31 sheets, 5 disciplines, 29 conflicts (5 C / 11 H), $145K-$322K.
         "source_key": "the_atrium",
-        "source_dir": "La_Hermitage_Lobby_5Run",
+        "source_dir": "LHermitage_S173_phase1",
         "slug": "the-atrium",
         "pdf_name": "FliktAI_The_Atrium_Report.pdf",
         "apply_gc_filter": False,
         "render_cap": 9999,
     },
     {
+        # S180 refresh: 9332 Carlyle (luxury single-family renovation & addition).
+        # 64 sheets, 7 disciplines, 44 conflicts (4 C / 21 H), $91K-$216K.
         "source_key": "meridian_residence",
-        "source_dir": "9272_Abbott_Ave_Construction_Documents",
+        "source_dir": "Carlyle_S180_run1",
         "slug": "meridian-residence",
         "pdf_name": "FliktAI_Meridian_Residence_Report.pdf",
         "apply_gc_filter": False,
@@ -80,7 +89,7 @@ PROJECTS = [
     },
 ]
 
-REPORT_DATE = "April 19, 2026"
+REPORT_DATE = "May 14, 2026"
 
 # --- Discipline-pair + summary recomputation ---------------------------------
 
