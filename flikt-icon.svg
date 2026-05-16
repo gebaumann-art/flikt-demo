@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Flikt.AI overlap-detection mark">
+  <rect x="45" y="45" width="80" height="80" fill="none" stroke="#E8A020" stroke-width="10" stroke-linejoin="miter"/>
+  <rect x="75" y="75" width="80" height="80" fill="none" stroke="#E8A020" stroke-width="10" stroke-linejoin="miter"/>
+  <circle cx="100" cy="100" r="14" fill="#E8A020"/>
+</svg>

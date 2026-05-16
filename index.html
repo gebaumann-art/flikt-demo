@@ -30,7 +30,8 @@ background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 .header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
 display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
+.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;letter-spacing:.2px;color:white}
+.logo-icon{height:32px;width:32px;display:block;flex-shrink:0}
 .logo span{color:var(--amber)}
 .header-right{display:flex;align-items:center;gap:12px}
 .real-ai-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
@@ -91,7 +92,10 @@ border:1px solid var(--border);color:var(--text-muted)}
 </head>
 <body>
 <div class="header">
-  <div class="logo">FLIKT<span>.AI</span></div>
+  <a href="index.html" class="logo" aria-label="Flikt.AI home">
+    <img src="flikt-icon.svg" alt="" class="logo-icon">
+    Flikt<span>.AI</span>
+  </a>
   <div class="header-right">
     <span class="real-ai-badge">Real AI analysis</span>
   </div>

@@ -26,7 +26,8 @@ display:flex;align-items:center;justify-content:space-between;position:sticky;to
 .header-left{display:flex;align-items:center;gap:20px}
 .back-link{color:var(--text-muted);font-size:13px;font-weight:600;transition:color .2s}
 .back-link:hover{color:var(--amber)}
-.logo{font-size:22px;font-weight:800;letter-spacing:1px;color:white}
+.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;letter-spacing:.2px;color:white;text-decoration:none}
+.logo-icon{height:32px;width:32px;display:block;flex-shrink:0}
 .logo span{color:var(--amber)}
 .theme-toggle{background:none;border:1px solid var(--amber);color:var(--amber);
 padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
@@ -165,7 +166,10 @@ body{padding-bottom:72px}
 <div class="header">
   <div class="header-left">
     <a href="index.html" class="back-link">&larr; Back to Projects</a>
-    <div class="logo">FLIKT<span>.AI</span></div>
+    <a href="index.html" class="logo" aria-label="Flikt.AI home">
+      <img src="flikt-icon.svg" alt="" class="logo-icon">
+      Flikt<span>.AI</span>
+    </a>
   </div>
   <div style="display:flex;gap:12px;align-items:center">
     <div class="nav">
