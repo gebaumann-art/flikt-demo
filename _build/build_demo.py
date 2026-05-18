@@ -274,12 +274,22 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
 <meta name="twitter:image" content="og_final_demo.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+(function(){try{var s=localStorage.getItem('flikt-theme');
+if(!s){s=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+document.documentElement.setAttribute('data-theme',s)}catch(e){}})();
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--navy:#1B2A4A;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
---critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;--bg:#0F1723;--card:#1A2540;
---card-hover:#223050;--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+:root{--navy:#0a1929;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
+--critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;
+--bg:#F5F7FA;--card:#FFFFFF;--card-hover:#F8FAFC;
+--text:#0F172A;--text-muted:#64748B;--border:#E2E8F0;
+--chip-bg:#F1F5F9;--stat-bg:#F8FAFC}
+:root[data-theme="dark"]{--bg:#0F1723;--card:#1A2540;--card-hover:#223050;
+--text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55;
+--chip-bg:#0a1929;--stat-bg:rgba(255,255,255,0.03)}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 .header{background:var(--navy-dark);border-bottom:2px solid var(--amber);padding:12px 32px;
@@ -292,6 +302,15 @@ display:flex;align-items:center;justify-content:space-between;position:sticky;to
 .real-ai-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
 color:var(--amber);background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.3);
 padding:5px 10px;border-radius:14px}
+.theme-toggle{background:transparent;border:1px solid rgba(255,255,255,0.18);
+border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+cursor:pointer;color:#fff;transition:background .15s ease,border-color .15s ease;padding:0}
+.theme-toggle:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.35)}
+.theme-toggle svg{width:16px;height:16px;display:block}
+.theme-toggle .sun{display:none}
+.theme-toggle .moon{display:block}
+:root[data-theme="dark"] .theme-toggle .sun{display:block}
+:root[data-theme="dark"] .theme-toggle .moon{display:none}
 .hero{text-align:center;margin:48px 32px 12px}
 .hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
 .hero p{color:var(--text-muted);font-size:16px;max-width:620px;margin:0 auto}
@@ -313,17 +332,17 @@ background:var(--amber);transform:scaleX(0);transition:transform .25s ease}
 .featured .card-header{flex-direction:column;align-items:flex-start}
 .featured .card-header h2{font-size:22px}
 .card-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
-color:var(--text-muted);background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:4px;
+color:var(--text-muted);background:var(--chip-bg);padding:4px 10px;border-radius:4px;
 white-space:normal;flex-shrink:0;max-width:100%}
 .card-address{font-size:13px;color:var(--text-muted);margin-bottom:16px}
 .card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.card-stat{text-align:center;padding:10px 6px;background:rgba(255,255,255,0.03);border-radius:8px}
+.card-stat{text-align:center;padding:10px 6px;background:var(--stat-bg);border-radius:8px}
 .card-stat .num{font-size:18px;font-weight:800}
 .card-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:2px}
 .featured .card-stat .num{font-size:24px}
 .featured .card-stats{margin-bottom:0}
 .disciplines-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
-.disc-tag{background:var(--navy);padding:3px 10px;border-radius:14px;font-size:11px;
+.disc-tag{background:var(--chip-bg);padding:3px 10px;border-radius:14px;font-size:11px;
 border:1px solid var(--border);color:var(--text-muted)}
 .card-cta{color:var(--amber);font-size:13px;font-weight:700;transition:all .25s ease;margin-top:auto}
 .project-card:hover .card-cta{transform:translateX(4px)}
@@ -353,6 +372,10 @@ border:1px solid var(--border);color:var(--text-muted)}
   </a>
   <div class="header-right">
     <span class="real-ai-badge">Real AI analysis</span>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" onclick="(function(){var r=document.documentElement;var n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('flikt-theme',n)}catch(e){}})()">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
   </div>
 </div>
 
