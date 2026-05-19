@@ -569,18 +569,18 @@ def main() -> int:
     landing_path.write_text(landing, encoding="utf-8")
     print(f"  wrote index.html ({len(landing):,} bytes)")
 
-    # --- Phase 4: generate PDFs ---
-    print()
-    for data in all_data:
-        try:
-            pdf_path = generate_pdf_for_project(data)
-            size = pdf_path.stat().st_size
-            print(f"  generated {pdf_path.name} ({size:,} bytes)")
-        except Exception as e:
-            print(f"  PDF ERROR for {data['cfg']['slug']}: {e}", file=sys.stderr)
-            import traceback
-            traceback.print_exc()
-            return 3
+    # --- Phase 4: PDF generation (DISABLED S181 — Greg removed PDF downloads
+    # from demo. Function kept for easy revert; just re-enable this block).
+    # for data in all_data:
+    #     try:
+    #         pdf_path = generate_pdf_for_project(data)
+    #         size = pdf_path.stat().st_size
+    #         print(f"  generated {pdf_path.name} ({size:,} bytes)")
+    #     except Exception as e:
+    #         print(f"  PDF ERROR for {data['cfg']['slug']}: {e}", file=sys.stderr)
+    #         import traceback
+    #         traceback.print_exc()
+    #         return 3
 
     print()
     print("=" * 70)

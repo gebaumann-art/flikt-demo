@@ -488,10 +488,6 @@ a:hover{{color:#B97D0F}}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           Copy Link
         </button>
-        <a class="action-btn primary" href="{PDF_FILENAME}" download title="Download PDF report">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          PDF Report
-        </a>
       </div>
     </div>
   </div>
@@ -549,11 +545,7 @@ a:hover{{color:#B97D0F}}
       <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
     </div>
     <div style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="{PDF_FILENAME}" download class="btn btn-primary">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download PDF Report
-      </a>
-      <button class="btn btn-outline" onclick="showView('results')">
+      <button class="btn btn-primary" onclick="showView('results')">
         Back to Results
       </button>
     </div>
@@ -789,9 +781,13 @@ function renderConflicts(severity){{
     const da = c.disc_a || '', db = c.disc_b || '';
     const pairTag = (da && db) ? `${{discAbbrev(da)}} ↔ ${{discAbbrev(db)}}` : '';
     const snippet = (c.description || '').slice(0, 180);
+    // FIX-S181: HTML-encode embedded quotes so JSON.stringify(...) values
+    // can't terminate the outer onclick="..." attribute prematurely.
+    const sheetsAttr = JSON.stringify(sheetsStr).replace(/"/g, '&quot;');
+    const titleAttr  = JSON.stringify(c.title || '').replace(/"/g, '&quot;');
 
     return `<div class="conflict-card" data-sev="${{c.severity}}" data-idx="${{idx}}"
-      onclick="selectConflict(${{idx}}, ${{JSON.stringify(sheetsStr)}}, ${{JSON.stringify(c.title || '')}}); this.classList.toggle('expanded')">
+      onclick="selectConflict(${{idx}}, ${{sheetsAttr}}, ${{titleAttr}}); this.classList.toggle('expanded')">
       <div class="cc-header">
         <div class="cc-left-col">
           <span class="sev-badge sev-${{c.severity}}">${{c.severity}}</span>
@@ -826,7 +822,7 @@ function renderConflicts(severity){{
 
   const notice = document.getElementById('truncated-notice');
   if(hidden > 0){{
-    notice.innerHTML=`<div class="truncated-notice"><strong>Showing top ${{visible.length}} of ${{filtered.length}} conflicts</strong> by severity. <a href="{PDF_FILENAME}" download>Download the full PDF report</a> to see all ${{DATA.summary.total_conflicts}} findings.</div>`;
+    notice.innerHTML=`<div class="truncated-notice"><strong>Showing top ${{visible.length}} of ${{filtered.length}} conflicts</strong> by severity. Contact <a href="mailto:hello@flikt.ai">hello@flikt.ai</a> to run Flikt.AI on your project and see all ${{DATA.summary.total_conflicts}} findings.</div>`;
   }} else {{
     notice.innerHTML='';
   }}
