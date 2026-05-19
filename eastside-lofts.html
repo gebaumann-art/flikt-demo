@@ -229,22 +229,28 @@ a:hover{color:#B97D0F}
 .findings-col{min-width:0}
 .viewer-col{min-width:0;position:sticky;top:88px}
 
-/* Conflict cards — portal report-view style */
+/* Conflict cards — portal report-view style (S181 redesign to match live portal) */
 .conflict-card{
-  background:var(--card);border:1px solid var(--border);border-left-width:4px;
-  border-radius:10px;margin-bottom:10px;overflow:hidden;transition:all .15s;cursor:pointer
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:14px;overflow:hidden;transition:border-color .15s, box-shadow .15s
 }
-.conflict-card:hover{border-color:var(--border-strong);transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,23,42,0.06)}
+.conflict-card:hover{border-color:var(--border-strong);box-shadow:0 4px 14px rgba(15,23,42,0.06)}
 .conflict-card.active{box-shadow:0 0 0 2px var(--amber);border-color:var(--amber)}
-.conflict-card[data-sev="Critical"]{background:linear-gradient(180deg,var(--critical-tint) 0%,var(--card) 60%);border-left-color:var(--critical)}
-.conflict-card[data-sev="High"]{background:linear-gradient(180deg,var(--high-tint) 0%,var(--card) 60%);border-left-color:var(--high)}
-.conflict-card[data-sev="Medium"]{background:linear-gradient(180deg,var(--medium-tint) 0%,var(--card) 60%);border-left-color:var(--medium)}
-.conflict-card[data-sev="Low"]{background:linear-gradient(180deg,var(--low-tint) 0%,var(--card) 60%);border-left-color:var(--low)}
-.cc-header{padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
-.cc-left-col{display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:80px}
+
+/* Severity-tinted title bar (top of card) */
+.cc-titlebar{
+  display:flex;align-items:flex-start;gap:10px;padding:14px 16px 12px 16px;
+  cursor:pointer;border-bottom:1px solid var(--border)
+}
+.conflict-card[data-sev="Critical"] .cc-titlebar{background:var(--critical-tint);border-bottom-color:var(--critical-border)}
+.conflict-card[data-sev="High"]     .cc-titlebar{background:var(--high-tint);border-bottom-color:var(--high-border)}
+.conflict-card[data-sev="Medium"]   .cc-titlebar{background:var(--medium-tint);border-bottom-color:var(--medium-border)}
+.conflict-card[data-sev="Low"]      .cc-titlebar{background:var(--low-tint);border-bottom-color:var(--low-border)}
+
+.cc-tb-left{display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:64px}
 .sev-badge{
-  padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;color:#fff;
-  letter-spacing:.3px;text-align:center
+  padding:3px 10px;border-radius:6px;font-size:10.5px;font-weight:800;color:#fff;
+  letter-spacing:.3px;text-align:center;text-transform:uppercase
 }
 .sev-Critical{background:var(--critical)}
 .sev-High{background:var(--high)}
@@ -254,40 +260,96 @@ a:hover{color:#B97D0F}
   background:var(--navy);color:#fff;padding:2px 8px;border-radius:5px;
   font-size:10.5px;font-weight:700;letter-spacing:.2px;text-align:center
 }
-.cc-body-col{flex:1;min-width:0}
-.cc-row-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
-.cc-title{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.35}
-.cc-index{font-size:11px;color:var(--text-soft);font-weight:600;white-space:nowrap;flex-shrink:0}
-.cc-snippet{font-size:12.5px;color:var(--text-muted);line-height:1.45;margin-top:2px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cc-chevron{color:var(--text-soft);font-size:12px;flex-shrink:0;transition:transform .2s;margin-top:4px}
-.conflict-card.expanded .cc-chevron{transform:rotate(180deg)}
-.cc-body{display:none;padding:0 14px 14px 14px;border-top:1px solid rgba(15,23,42,0.05);margin-top:6px;padding-top:12px}
-.conflict-card.expanded .cc-body{display:block}
-.cc-meta{
-  display:grid;grid-template-columns:1fr 1fr;gap:6px;background:rgba(15,23,42,0.03);
-  padding:10px;border-radius:8px;margin-bottom:10px
+.cc-tb-main{flex:1;min-width:0}
+.cc-tb-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}
+.cc-index{font-size:11.5px;color:var(--text-soft);font-weight:600;white-space:nowrap;flex-shrink:0}
+
+/* Title text colored to match severity */
+.cc-title{font-size:14.5px;font-weight:700;line-height:1.35;letter-spacing:-0.005em}
+.conflict-card[data-sev="Critical"] .cc-title{color:#7C2D12}
+.conflict-card[data-sev="High"]     .cc-title{color:#9A3412}
+.conflict-card[data-sev="Medium"]   .cc-title{color:#854D0E}
+.conflict-card[data-sev="Low"]      .cc-title{color:#14532D}
+
+.cc-chevron{color:var(--text-soft);font-size:12px;flex-shrink:0;transition:transform .2s;margin-top:6px}
+.conflict-card.collapsed .cc-chevron{transform:rotate(180deg)}
+
+/* Action buttons row (Good find / Bad find / Draft RFI) */
+.cc-actions{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 16px;
+  border-bottom:1px solid var(--border)
 }
-.cc-meta-item{font-size:11.5px;color:var(--text)}
-.cc-meta-item .k{color:var(--text-muted);font-weight:600;margin-right:4px}
-.cc-desc{font-size:12.5px;color:var(--text);margin-bottom:12px;line-height:1.55}
-.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.cc-action-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--card);color:var(--text);border:1px solid var(--border);
+  border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;font-family:inherit;
+  cursor:pointer;transition:border-color .15s, background .15s
+}
+.cc-action-btn:hover{border-color:var(--border-strong);background:var(--bg)}
+.cc-action-btn svg{width:14px;height:14px;flex-shrink:0}
+.cc-action-btn.good svg{color:var(--low)}
+.cc-action-btn.bad svg{color:var(--critical)}
+.cc-action-btn.rfi svg{color:var(--navy)}
+
+/* Body section — always visible (collapsible via chevron) */
+.cc-body{padding:14px 16px 16px 16px}
+.conflict-card.collapsed .cc-body,
+.conflict-card.collapsed .cc-actions{display:none}
+
+/* Metadata strip */
+.cc-meta-strip{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:11.5px;color:var(--text-muted);margin-bottom:6px;font-weight:500
+}
+.cc-meta-strip .sep{color:var(--text-soft)}
+.cc-meta-strip .tag{
+  text-transform:uppercase;letter-spacing:.5px;font-size:10.5px;font-weight:700;
+  color:var(--text-muted)
+}
+.cc-cost-inline{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
+
+.cc-section-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.6px;color:var(--text-muted);
+  text-transform:uppercase;margin-bottom:6px
+}
+.cc-desc{font-size:13px;color:var(--text);margin-bottom:16px;line-height:1.6}
+
+/* Cost Exposure + Schedule Impact 2-col metric cards */
+.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.impact-box{
+  background:var(--bg);padding:12px 14px;border-radius:8px;
+  border:1px solid var(--border);font-size:12.5px
+}
+.impact-box .ib-label{
+  font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--text-muted);
+  text-transform:uppercase;margin-bottom:4px;display:block
+}
+.impact-box .ib-value{font-size:14px;font-weight:700;color:var(--text)}
+
+/* Recommended Action — blue tint (matches real portal) */
+.cc-action{
+  background:#EFF6FF;border:1px solid #BFDBFE;
+  border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.55;color:#1E3A8A
+}
+.cc-action .cc-section-label{color:#1E40AF;margin-bottom:6px}
+.cc-action strong{color:#1E3A8A;font-weight:700}
+
+/* Scores grid (kept, smaller, less prominent) */
+.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
 .score-dim{text-align:center}
 .score-dim .dim-label{font-size:9.5px;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;letter-spacing:.3px}
 .score-bar-bg{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
 .score-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
 .score-dim .dim-val{font-size:10.5px;font-weight:700;margin-top:2px}
-.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.impact-box{
-  background:rgba(15,23,42,0.03);padding:9px 12px;border-radius:6px;
-  border-left:3px solid var(--amber);font-size:11.5px
-}
-.impact-box .ib-label{font-weight:700;color:var(--text)}
-.cc-action{
-  background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.25);
-  border-radius:8px;padding:10px 14px;font-size:11.5px;line-height:1.55;color:var(--text)
-}
-.cc-action strong{color:#B97D0F}
+
+/* Dark mode overrides */
+:root[data-theme="dark"] .cc-action{background:#0F1F3A;border-color:#1E40AF;color:#BFDBFE}
+:root[data-theme="dark"] .cc-action .cc-section-label,
+:root[data-theme="dark"] .cc-action strong{color:#93C5FD}
+:root[data-theme="dark"] .conflict-card[data-sev="Critical"] .cc-title{color:#FCA5A5}
+:root[data-theme="dark"] .conflict-card[data-sev="High"]     .cc-title{color:#FDBA74}
+:root[data-theme="dark"] .conflict-card[data-sev="Medium"]   .cc-title{color:#FCD34D}
+:root[data-theme="dark"] .conflict-card[data-sev="Low"]      .cc-title{color:#86EFAC}
 .truncated-notice{
   padding:14px;margin-top:14px;background:rgba(232,160,32,0.08);
   border:1px solid rgba(232,160,32,0.25);border-radius:8px;text-align:center;
@@ -299,39 +361,128 @@ a:hover{color:#B97D0F}
 /* Sheet viewer (right pane) */
 .sheet-viewer{
   background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04);
-  display:flex;flex-direction:column;min-height:520px
+  box-shadow:0 1px 2px rgba(15,23,42,0.04);
+  display:flex;flex-direction:column;min-height:560px;overflow:hidden
 }
-.viewer-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:14px
+
+/* Sheet tabs row (top of viewer) */
+.sheet-tabs{
+  display:flex;align-items:center;gap:2px;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  padding:8px 8px 0 8px;overflow-x:auto;scrollbar-width:thin
 }
-.viewer-title{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
-.viewer-sheet-id{font-size:11px;color:var(--text-muted);font-family:ui-monospace,monospace}
+.sheet-tabs::-webkit-scrollbar{height:6px}
+.sheet-tabs::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+.sheet-tab{
+  display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  background:transparent;border:1px solid transparent;border-bottom:none;
+  border-radius:8px 8px 0 0;padding:8px 14px;cursor:pointer;
+  font-family:inherit;font-size:12px;font-weight:600;color:var(--text-muted);
+  max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color .15s, background .15s
+}
+.sheet-tab:hover{color:var(--text);background:var(--card)}
+.sheet-tab.active{
+  background:var(--card);color:var(--text);
+  border-color:var(--border);border-bottom:1px solid var(--card);
+  margin-bottom:-1px;position:relative;z-index:1
+}
+.sheet-tab .dot{
+  width:6px;height:6px;border-radius:50%;background:transparent;flex-shrink:0
+}
+.sheet-tab.active .dot{background:var(--amber)}
+
+/* Pinned conflict pill (below tabs) */
+.viewer-pinned{
+  display:none;align-items:center;gap:8px;
+  background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;
+  margin:10px 14px 0 14px;padding:6px 8px 6px 12px;
+  font-size:12px;color:#78350F;font-weight:600
+}
+.viewer-pinned.visible{display:inline-flex;align-self:flex-start;max-width:calc(100% - 28px)}
+.viewer-pinned .dot{
+  width:8px;height:8px;border-radius:50%;background:var(--critical);flex-shrink:0
+}
+.viewer-pinned .pin-text{
+  flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.viewer-pinned .pin-close{
+  background:transparent;border:none;color:#78350F;cursor:pointer;
+  font-size:14px;line-height:1;padding:2px 4px;border-radius:4px;font-family:inherit
+}
+.viewer-pinned .pin-close:hover{background:rgba(120,53,15,0.1)}
+:root[data-theme="dark"] .viewer-pinned{background:#3D2F0A;border-color:#854D0E;color:#FCD34D}
+:root[data-theme="dark"] .viewer-pinned .pin-close{color:#FCD34D}
+
+/* Sheet image canvas */
 .viewer-canvas{
-  flex:1;background:repeating-linear-gradient(45deg,var(--canvas-stripe-a),var(--canvas-stripe-a) 12px,var(--canvas-stripe-b) 12px,var(--canvas-stripe-b) 24px);
-  border:1px dashed var(--border-strong);border-radius:8px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px;text-align:center;position:relative;overflow:hidden;min-height:380px
+  flex:1;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;position:relative;overflow:hidden;min-height:440px
 }
+.viewer-canvas .sheet-img{
+  max-width:100%;max-height:100%;width:auto;height:auto;
+  box-shadow:0 4px 24px rgba(15,23,42,0.12);background:#fff;
+  border:1px solid var(--border)
+}
+.viewer-canvas .empty-state{text-align:center;color:var(--text-muted);padding:32px}
+.viewer-canvas .empty-state h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.viewer-canvas .empty-state p{font-size:12.5px;max-width:280px;line-height:1.55;margin:0 auto}
 .viewer-canvas .viewer-icon{
-  width:60px;height:60px;border-radius:14px;background:var(--navy);
-  display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  width:54px;height:54px;border-radius:14px;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
   box-shadow:0 4px 14px rgba(10,25,41,0.18)
 }
-.viewer-canvas .viewer-icon svg{width:32px;height:32px;color:var(--amber)}
-.viewer-canvas h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
-.viewer-canvas p{font-size:12.5px;color:var(--text-muted);max-width:280px;line-height:1.55}
+.viewer-canvas .viewer-icon svg{width:28px;height:28px;color:var(--amber)}
+
 .viewer-pin{
-  position:absolute;width:24px;height:24px;border-radius:50%;
+  position:absolute;width:22px;height:22px;border-radius:50%;
   background:var(--critical);border:3px solid #fff;
   box-shadow:0 2px 8px rgba(220,38,38,0.4),0 0 0 4px rgba(220,38,38,0.2);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;
+  pointer-events:none;z-index:2
 }
 .viewer-footnote{
-  font-size:11px;color:var(--text-soft);text-align:center;margin-top:12px;
-  padding-top:10px;border-top:1px solid var(--border)
+  font-size:11px;color:var(--text-soft);text-align:center;
+  padding:8px 14px;border-top:1px solid var(--border);background:var(--bg)
 }
+
+/* Disabled toolbar buttons (PDF Report / Excel Report / RFI Documents) */
+.action-btn.disabled{
+  opacity:0.5;cursor:not-allowed;background:var(--card);
+  color:var(--text-muted)
+}
+.action-btn.disabled:hover{border-color:var(--border);background:var(--card)}
+.action-btn.disabled.dark-fill{
+  background:var(--navy);color:#fff;border-color:var(--navy);opacity:0.45
+}
+
+/* Discipline-pair accordion (matches real portal's "Conflicts by discipline pair" bar) */
+.disc-accordion{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  margin:8px 0 18px 0;overflow:hidden
+}
+.disc-acc-header{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;
+  font-size:13px;color:var(--text);user-select:none
+}
+.disc-acc-header:hover{background:var(--bg)}
+.disc-acc-header .acc-title{font-weight:700;letter-spacing:-0.01em}
+.disc-acc-header .acc-sep{color:var(--text-soft)}
+.disc-acc-header .acc-detail{color:var(--text-muted);font-size:12.5px}
+.disc-acc-header .acc-chev{margin-left:auto;color:var(--text-soft);transition:transform .2s;font-size:14px}
+.disc-accordion.open .acc-chev{transform:rotate(180deg)}
+.disc-acc-body{
+  display:none;padding:0 16px 14px 16px;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px
+}
+.disc-accordion.open .disc-acc-body{display:grid}
+.disc-acc-row{
+  display:flex;justify-content:space-between;font-size:12px;
+  padding:5px 0;border-bottom:1px solid var(--border)
+}
+.disc-acc-row .pair{color:var(--text);font-weight:500}
+.disc-acc-row .cnt{color:var(--amber);font-weight:700}
 
 /* ============ Report view ============ */
 .report-preview{text-align:center;margin:32px 0}
@@ -475,6 +626,18 @@ a:hover{color:#B97D0F}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           Copy Link
         </button>
+        <button class="action-btn disabled dark-fill" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          PDF Report
+        </button>
+        <button class="action-btn disabled dark-fill" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+          Excel Report
+        </button>
+        <button class="action-btn disabled" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          RFI Documents
+        </button>
       </div>
     </div>
   </div>
@@ -483,8 +646,16 @@ a:hover{color:#B97D0F}
   <div class="summary-row" id="summary-row"></div>
   <div class="summary-row2" id="summary-row2"></div>
 
-  <!-- Discipline pair strip -->
-  <div class="disc-pair-strip" id="disc-pair-strip"></div>
+  <!-- Discipline-pair accordion (collapsed by default) -->
+  <div class="disc-accordion" id="disc-accordion" onclick="this.classList.toggle('open')">
+    <div class="disc-acc-header">
+      <span class="acc-title">Conflicts by discipline pair</span>
+      <span class="acc-sep">&middot;</span>
+      <span class="acc-detail" id="disc-acc-detail">&mdash;</span>
+      <span class="acc-chev">&#9662;</span>
+    </div>
+    <div class="disc-acc-body" id="disc-acc-body" onclick="event.stopPropagation()"></div>
+  </div>
 
   <!-- Filters -->
   <div class="filters" id="filters"></div>
@@ -497,18 +668,23 @@ a:hover{color:#B97D0F}
     </div>
     <div class="viewer-col">
       <div class="sheet-viewer">
-        <div class="viewer-header">
-          <div class="viewer-title" id="viewer-title">Sheet Preview</div>
-          <div class="viewer-sheet-id" id="viewer-sheet-id">&mdash;</div>
+        <div class="sheet-tabs" id="sheet-tabs"></div>
+        <div class="viewer-pinned" id="viewer-pinned">
+          <span class="dot"></span>
+          <span class="pin-text" id="pin-text"></span>
+          <button class="pin-close" type="button" onclick="dismissPinned()" aria-label="Dismiss">&times;</button>
         </div>
         <div class="viewer-canvas" id="viewer-canvas">
-          <div class="viewer-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div class="empty-state" id="viewer-empty">
+            <div class="viewer-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h3>Select a conflict to view its sheet</h3>
+            <p>Click any conflict on the left to load the relevant sheet. Sheet images shown are demo placeholders.</p>
           </div>
-          <h3>Sheet preview</h3>
-          <p id="viewer-placeholder-text">Select a conflict to see its location. Real sheet renderings available in the customer portal &mdash; request a live walkthrough at <a href="mailto:hello@flikt.ai">hello@flikt.ai</a>.</p>
+          <img class="sheet-img" id="sheet-img" alt="" style="display:none"/>
         </div>
-        <div class="viewer-footnote">Sheet images are redacted in this public demo. Full sheet rendering is available in the live customer portal.</div>
+        <div class="viewer-footnote">Sheet images are demo placeholders. Full PDF rendering with pan/zoom is available in the live customer portal.</div>
       </div>
     </div>
   </div>
@@ -699,12 +875,20 @@ function buildResults(){
     <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} – $${s.cost_high.toLocaleString()}</div></div>
     <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
 
-  // Discipline pair strip
-  const pairs = discPairCounts(DATA.conflicts).slice(0, 8);
-  const strip = document.getElementById('disc-pair-strip');
-  strip.innerHTML = `<span class="strip-label">By Pair:</span>` + pairs.map(([k,v])=>
-    `<span class="disc-pair-chip">${escapeHtml(k)} <span class="pair-count">${v}</span></span>`
-  ).join('');
+  // Discipline-pair accordion (header + collapsed list)
+  const allPairs = discPairCounts(DATA.conflicts);
+  const accDetail = document.getElementById('disc-acc-detail');
+  const accBody = document.getElementById('disc-acc-body');
+  if(allPairs.length){
+    const [topKey, topVal] = allPairs[0];
+    accDetail.innerHTML = `${allPairs.length} pairs &middot; top: <strong>${escapeHtml(topKey)}</strong> (${topVal})`;
+    accBody.innerHTML = allPairs.map(([k,v])=>
+      `<div class="disc-acc-row"><span class="pair">${escapeHtml(k)}</span><span class="cnt">${v}</span></div>`
+    ).join('');
+  } else {
+    accDetail.textContent = 'No discipline pairs detected.';
+    accBody.innerHTML = '';
+  }
 
   const severities=['All','Critical','High','Medium','Low'];
   document.getElementById('filters').innerHTML=severities.map(sv=>
@@ -724,26 +908,122 @@ function filterConflicts(sev,btn){
 
 function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
 
+/* === Sheet viewer helpers === */
+
+// Map a sheet name to one of the 6 placeholder SVGs based on its discipline prefix.
+// Cryptic hashed names like "96cd51a1_A1.21-..." get stripped and matched on the first letter.
+function sheetSvgFor(sheetName){
+  const cleaned = (sheetName||'').replace(/^[a-f0-9]{6,8}_/i, '');
+  const first = (cleaned[0]||'X').toUpperCase();
+  // Discipline letter → SVG. Default to arch.
+  const map = {
+    A: 'sheets/demo_arch_01.svg',
+    P: 'sheets/demo_plumb_01.svg',
+    E: 'sheets/demo_elec_01.svg',
+    S: 'sheets/demo_struc_01.svg',
+    M: 'sheets/demo_mech_01.svg',
+    C: 'sheets/demo_civil_01.svg',
+    G: 'sheets/demo_arch_01.svg',  // G = General (architectural)
+    L: 'sheets/demo_civil_01.svg', // L = Landscape (civil-ish)
+    F: 'sheets/demo_elec_01.svg',  // F = Fire (electrical-ish)
+  };
+  return map[first] || 'sheets/demo_arch_01.svg';
+}
+
+// Clean sheet name for display: strip hash prefix and _pN suffix, truncate.
+function cleanSheetLabel(sheetName, maxLen){
+  let s = String(sheetName||'').replace(/^[a-f0-9]{6,8}_/i, '').replace(/_p\d+$/, '');
+  // Replace common separators for readability
+  s = s.replace(/_/g, ' ').replace(/-Rev\.\d+/i, '');
+  if(maxLen && s.length > maxLen) s = s.slice(0, maxLen) + '…';
+  return s;
+}
+
+// Parse the sheets list (comma-separated string or array) into an array of distinct names.
+function parseSheets(sheets){
+  if(Array.isArray(sheets)) return sheets.filter(Boolean);
+  if(typeof sheets === 'string') return sheets.split(',').map(s=>s.trim()).filter(Boolean);
+  return [];
+}
+
+let currentSheets = [];
+let currentSheetIdx = 0;
+let currentPinIdx = 0;
+
+function renderSheetTabs(sheets, activeIdx){
+  const wrap = document.getElementById('sheet-tabs');
+  if(!sheets || !sheets.length){
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.innerHTML = sheets.map((s, i)=>{
+    const label = cleanSheetLabel(s, 18);
+    const titleAttr = String(s||'').replace(/"/g, '&quot;');
+    return `<button class="sheet-tab ${i===activeIdx?'active':''}" type="button" title="${titleAttr}" onclick="selectSheet(${i})">
+      <span class="dot"></span>${escapeHtml(label)}
+    </button>`;
+  }).join('');
+}
+
+function selectSheet(idx){
+  currentSheetIdx = idx;
+  // Update active tab
+  document.querySelectorAll('.sheet-tab').forEach((t, i)=>t.classList.toggle('active', i===idx));
+  // Swap sheet image
+  const name = currentSheets[idx];
+  const img = document.getElementById('sheet-img');
+  const empty = document.getElementById('viewer-empty');
+  const canvas = document.getElementById('viewer-canvas');
+  if(name){
+    img.src = sheetSvgFor(name);
+    img.alt = cleanSheetLabel(name, 60);
+    img.style.display = 'block';
+    if(empty) empty.style.display = 'none';
+    // Move pin to deterministic position based on conflict idx
+    const existingPin = canvas.querySelector('.viewer-pin');
+    if(existingPin) existingPin.remove();
+    const pinX = 20 + (currentPinIdx * 37) % 60;
+    const pinY = 25 + (currentPinIdx * 53) % 50;
+    const pin = document.createElement('div');
+    pin.className = 'viewer-pin';
+    pin.style.left = pinX + '%';
+    pin.style.top = pinY + '%';
+    pin.textContent = '!';
+    pin.title = 'Approximate conflict location';
+    canvas.appendChild(pin);
+  }
+}
+
+function dismissPinned(){
+  document.getElementById('viewer-pinned').classList.remove('visible');
+}
+
 function selectConflict(idx, sheets, title){
   document.querySelectorAll('.conflict-card').forEach(c=>c.classList.remove('active'));
   const card = document.querySelector(`.conflict-card[data-idx="${idx}"]`);
-  if(card) card.classList.add('active');
-  // Update viewer pane
-  document.getElementById('viewer-title').textContent = title || 'Sheet Preview';
-  document.getElementById('viewer-sheet-id').textContent = sheets || '—';
-  const canvas = document.getElementById('viewer-canvas');
-  // Place a pin in a deterministic position based on idx
-  const pinX = 20 + (idx * 37) % 60;
-  const pinY = 25 + (idx * 53) % 50;
-  const existingPin = canvas.querySelector('.viewer-pin');
-  if(existingPin) existingPin.remove();
-  const pin = document.createElement('div');
-  pin.className = 'viewer-pin';
-  pin.style.left = pinX + '%';
-  pin.style.top = pinY + '%';
-  pin.textContent = '!';
-  pin.title = 'Conflict location (approximate)';
-  canvas.appendChild(pin);
+  if(card){
+    card.classList.add('active');
+    // Smoothly scroll the right pane sheet viewer into view on small screens
+    if(window.innerWidth < 960){
+      document.querySelector('.viewer-col').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+  // Render the sheet tabs from this conflict's sheets array
+  currentSheets = parseSheets(sheets);
+  currentPinIdx = idx;
+  renderSheetTabs(currentSheets, 0);
+  if(currentSheets.length){
+    selectSheet(0);
+  } else {
+    document.getElementById('sheet-img').style.display = 'none';
+    const empty = document.getElementById('viewer-empty');
+    if(empty) empty.style.display = 'block';
+  }
+  // Pinned conflict pill above the viewer
+  const pinned = document.getElementById('viewer-pinned');
+  const pinText = document.getElementById('pin-text');
+  pinText.textContent = (title || 'Conflict').slice(0, 80);
+  pinned.classList.add('visible');
 }
 
 function renderConflicts(severity){
@@ -767,42 +1047,65 @@ function renderConflicts(severity){
     const sheetsStr = Array.isArray(c.sheets)?c.sheets.join(', '):(c.sheets||'');
     const da = c.disc_a || '', db = c.disc_b || '';
     const pairTag = (da && db) ? `${discAbbrev(da)} ↔ ${discAbbrev(db)}` : '';
-    const snippet = (c.description || '').slice(0, 180);
     // FIX-S181: HTML-encode embedded quotes so JSON.stringify(...) values
     // can't terminate the outer onclick="..." attribute prematurely.
     const sheetsAttr = JSON.stringify(sheetsStr).replace(/"/g, '&quot;');
     const titleAttr  = JSON.stringify(c.title || '').replace(/"/g, '&quot;');
+    const costRange = `$${(c.cost_low||0).toLocaleString()} – $${(c.cost_high||0).toLocaleString()}`;
+    const typeLabel = String(c.type||'').replace(/_/g,' ').toUpperCase();
+    const location  = c.location || '';
 
-    return `<div class="conflict-card" data-sev="${c.severity}" data-idx="${idx}"
-      onclick="selectConflict(${idx}, ${sheetsAttr}, ${titleAttr}); this.classList.toggle('expanded')">
-      <div class="cc-header">
-        <div class="cc-left-col">
+    return `<div class="conflict-card" data-sev="${c.severity}" data-idx="${idx}">
+      <div class="cc-titlebar" onclick="selectConflict(${idx}, ${sheetsAttr}, ${titleAttr}); this.parentElement.classList.toggle('collapsed')">
+        <div class="cc-tb-left">
           <span class="sev-badge sev-${c.severity}">${c.severity}</span>
           ${pairTag ? `<span class="disc-pair-tag">${pairTag}</span>` : ''}
         </div>
-        <div class="cc-body-col">
-          <div class="cc-row-top">
+        <div class="cc-tb-main">
+          <div class="cc-tb-top">
             <div class="cc-title">${escapeHtml(c.title)}</div>
             <div class="cc-index">#${idx+1}</div>
           </div>
-          <div class="cc-snippet">${escapeHtml(snippet)}</div>
         </div>
-        <span class="cc-chevron">▼</span>
+        <span class="cc-chevron">&#9650;</span>
+      </div>
+      <div class="cc-actions" onclick="event.stopPropagation()">
+        <button class="cc-action-btn good" type="button" title="Mark as a good find (demo — read-only)" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          Good find
+        </button>
+        <button class="cc-action-btn bad" type="button" title="Mark as a bad find (demo — read-only)" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>
+          Bad find
+        </button>
+        <button class="cc-action-btn rfi" type="button" title="Draft an RFI (demo — read-only)" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Draft RFI
+        </button>
       </div>
       <div class="cc-body">
-        <div class="cc-meta">
-          <div class="cc-meta-item"><span class="k">Disciplines:</span> ${escapeHtml(da)} ↔ ${escapeHtml(db)}</div>
-          <div class="cc-meta-item"><span class="k">Type:</span> ${escapeHtml(c.type||'')}</div>
-          <div class="cc-meta-item"><span class="k">Location:</span> ${escapeHtml(c.location||'')}</div>
-          <div class="cc-meta-item"><span class="k">Sheets:</span> ${escapeHtml(sheetsStr)}</div>
+        <div class="cc-meta-strip">
+          <span class="tag">${escapeHtml(typeLabel)}</span>
+          ${location ? `<span class="sep">|</span><span>${escapeHtml(location)}</span>` : ''}
         </div>
+        <div class="cc-cost-inline">${costRange}</div>
+        <div class="cc-section-label">Description</div>
         <div class="cc-desc">${escapeHtml(c.description||'')}</div>
         <div class="scores-grid">${scoresHTML}</div>
         <div class="cc-impact">
-          <div class="impact-box"><span class="ib-label">Cost Exposure:</span> $${(c.cost_low||0).toLocaleString()} – $${(c.cost_high||0).toLocaleString()}</div>
-          <div class="impact-box"><span class="ib-label">Schedule Impact:</span> ${escapeHtml(c.schedule_impact||'')}</div>
+          <div class="impact-box">
+            <span class="ib-label">Cost Exposure</span>
+            <span class="ib-value">${costRange}</span>
+          </div>
+          <div class="impact-box">
+            <span class="ib-label">Schedule Impact</span>
+            <span class="ib-value">${escapeHtml(c.schedule_impact||'—')}</span>
+          </div>
         </div>
-        <div class="cc-action"><strong>Recommended Action:</strong> ${escapeHtml(c.recommended_action||'')}</div>
+        <div class="cc-action">
+          <div class="cc-section-label">Recommended Action</div>
+          ${escapeHtml(c.recommended_action||'')}
+        </div>
       </div>
     </div>`;
   }).join('');

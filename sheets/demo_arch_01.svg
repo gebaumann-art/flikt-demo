@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet">
+<defs>
+  <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M40 0 L0 0 0 40" fill="none" stroke="#E2E8F0" stroke-width="0.5"/>
+  </pattern>
+  <pattern id="grid-major" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+    <path d="M200 0 L0 0 0 200" fill="none" stroke="#CBD5E1" stroke-width="0.8"/>
+  </pattern>
+</defs>
+
+<!-- Page background -->
+<rect width="1200" height="900" fill="#FCFCFD"/>
+<!-- Light grid (faint) -->
+<rect width="1200" height="900" fill="url(#grid)" opacity="0.6"/>
+<rect width="1200" height="900" fill="url(#grid-major)" opacity="0.45"/>
+
+<!-- Outer border -->
+<rect x="20" y="20" width="1160" height="860" fill="none" stroke="#0F172A" stroke-width="2"/>
+<!-- Inner drawing border -->
+<rect x="40" y="40" width="1120" height="820" fill="none" stroke="#0F172A" stroke-width="0.8"/>
+
+
+<!-- Architectural floor plan -->
+<g transform="translate(80, 110)">
+  <!-- Outer building outline -->
+  <rect x="0" y="0" width="720" height="540" fill="none" stroke="#0F172A" stroke-width="2.5"/>
+  <!-- Interior walls -->
+  <line x1="280" y1="0" x2="280" y2="320" stroke="#0F172A" stroke-width="1.8"/>
+  <line x1="0" y1="320" x2="720" y2="320" stroke="#0F172A" stroke-width="1.8"/>
+  <line x1="280" y1="180" x2="540" y2="180" stroke="#0F172A" stroke-width="1.4"/>
+  <line x1="540" y1="0" x2="540" y2="180" stroke="#0F172A" stroke-width="1.4"/>
+  <line x1="100" y1="320" x2="100" y2="540" stroke="#0F172A" stroke-width="1.4"/>
+  <line x1="380" y1="320" x2="380" y2="540" stroke="#0F172A" stroke-width="1.4"/>
+  <line x1="380" y1="430" x2="720" y2="430" stroke="#0F172A" stroke-width="1.4"/>
+  <!-- Door swings (quarter arcs) -->
+  <path d="M 60 320 A 40 40 0 0 0 100 280" fill="none" stroke="#64748B" stroke-width="0.8"/>
+  <path d="M 280 100 A 40 40 0 0 1 320 60" fill="none" stroke="#64748B" stroke-width="0.8"/>
+  <path d="M 380 380 A 40 40 0 0 0 420 340" fill="none" stroke="#64748B" stroke-width="0.8"/>
+  <!-- Room labels -->
+  <text x="140" y="160" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">LIVING</text>
+  <text x="140" y="178" fill="#94A3B8" font-family="Inter, sans-serif" font-size="8">L-101  18&#39;-4&#34;</text>
+  <text x="400" y="100" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">KITCHEN</text>
+  <text x="400" y="118" fill="#94A3B8" font-family="Inter, sans-serif" font-size="8">K-102  14&#39;-2&#34;</text>
+  <text x="600" y="100" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">DINING</text>
+  <text x="600" y="118" fill="#94A3B8" font-family="Inter, sans-serif" font-size="8">D-103</text>
+  <text x="400" y="260" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">CORRIDOR</text>
+  <text x="40" y="430" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">BR-1</text>
+  <text x="200" y="430" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">BATH</text>
+  <text x="450" y="380" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">BR-2</text>
+  <text x="450" y="490" fill="#475569" font-family="Inter, sans-serif" font-size="11" font-weight="600">MECH</text>
+  <!-- Dimension callouts -->
+  <line x1="0" y1="-20" x2="720" y2="-20" stroke="#64748B" stroke-width="0.5" stroke-dasharray="2 2"/>
+  <text x="360" y="-26" text-anchor="middle" fill="#64748B" font-family="Inter, sans-serif" font-size="10">42&#39;-8&#34;</text>
+  <!-- North arrow -->
+  <g transform="translate(680, 60)">
+    <circle cx="0" cy="0" r="22" fill="none" stroke="#0F172A" stroke-width="0.8"/>
+    <polygon points="0,-18 6,8 0,2 -6,8" fill="#0F172A"/>
+    <text x="0" y="-26" text-anchor="middle" fill="#0F172A" font-family="Inter, sans-serif" font-size="9" font-weight="700">N</text>
+  </g>
+</g>
+
+
+<!-- Title block (bottom-right) -->
+<g transform="translate(820, 720)">
+  <rect width="340" height="140" fill="#FFFFFF" stroke="#0F172A" stroke-width="1.2"/>
+  <!-- Header bar -->
+  <rect width="340" height="26" fill="#0a1929"/>
+  <text x="12" y="18" fill="#E8A020" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6">FLIKT.AI &#x2014; DEMO SHEET</text>
+  <!-- Inner grid: project/sheet/date/scale -->
+  <line x1="0" y1="26" x2="340" y2="26" stroke="#0F172A" stroke-width="0.8"/>
+  <line x1="0" y1="62" x2="340" y2="62" stroke="#0F172A" stroke-width="0.5"/>
+  <line x1="0" y1="98" x2="340" y2="98" stroke="#0F172A" stroke-width="0.5"/>
+  <line x1="170" y1="62" x2="170" y2="140" stroke="#0F172A" stroke-width="0.5"/>
+  <text x="10" y="42" fill="#64748B" font-family="Inter, sans-serif" font-size="8" letter-spacing="0.5">PROJECT</text>
+  <text x="10" y="56" fill="#0F172A" font-family="Inter, sans-serif" font-size="11" font-weight="600">Demo Coordination Set</text>
+  <text x="10" y="78" fill="#64748B" font-family="Inter, sans-serif" font-size="8" letter-spacing="0.5">SHEET</text>
+  <text x="10" y="92" fill="#0F172A" font-family="Inter, sans-serif" font-size="13" font-weight="700">A-201</text>
+  <text x="10" y="114" fill="#64748B" font-family="Inter, sans-serif" font-size="8" letter-spacing="0.5">TITLE</text>
+  <text x="10" y="128" fill="#0F172A" font-family="Inter, sans-serif" font-size="9" font-weight="600">FLOOR PLAN — LEVEL 1</text>
+  <text x="180" y="78" fill="#64748B" font-family="Inter, sans-serif" font-size="8" letter-spacing="0.5">DATE</text>
+  <text x="180" y="92" fill="#0F172A" font-family="Inter, sans-serif" font-size="10" font-weight="600">2026-05-14</text>
+  <text x="180" y="114" fill="#64748B" font-family="Inter, sans-serif" font-size="8" letter-spacing="0.5">SCALE</text>
+  <text x="180" y="128" fill="#0F172A" font-family="Inter, sans-serif" font-size="10" font-weight="600">AS NOTED</text>
+</g>
+
+<!-- DEMO watermark (large, diagonal, very light) -->
+<g transform="translate(600 450) rotate(-22)">
+  <text x="0" y="0" text-anchor="middle" fill="#E2E8F0" opacity="0.55" font-family="Inter, sans-serif" font-size="180" font-weight="900" letter-spacing="20">DEMO</text>
+</g>
+
+<!-- Sheet label (top-right) -->
+<g transform="translate(1100, 50)">
+  <rect x="-60" y="-22" width="60" height="28" fill="#0a1929"/>
+  <text x="-30" y="-3" text-anchor="middle" fill="#E8A020" font-family="Inter, sans-serif" font-size="14" font-weight="700">A-201</text>
+</g>
+
+<!-- Discipline tag (top-left) -->
+<g transform="translate(50, 50)">
+  <rect width="160" height="28" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="0.8"/>
+  <text x="80" y="19" text-anchor="middle" fill="#0F172A" font-family="Inter, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2">ARCHITECTURAL</text>
+</g>
+</svg>
