@@ -94,19 +94,64 @@ border:1px solid var(--border);color:var(--text-muted)}
 .project-card:hover .card-cta{transform:translateX(4px)}
 .featured .card-cta{font-size:14px}
 .footer{text-align:center;padding:48px 32px 32px;color:var(--text-muted);font-size:12px}
+
+/* ============ Section headers (Customer Case Study / Try the Demo) ============ */
+.section-header{max-width:1200px;margin:36px auto 0;padding:0 32px;
+display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.section-header h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--amber)}
+.section-header h2.muted{color:var(--text-muted)}
+.section-header .sub{font-size:13px;color:var(--text-muted)}
+
+/* ============ Customer case study card ============ */
+.case-studies{max-width:1200px;margin:14px auto 0;padding:0 32px;display:flex;flex-direction:column;gap:18px}
+.case-study-card{
+background:var(--card);border:1px solid var(--border);border-radius:14px;
+padding:24px 28px;display:grid;grid-template-columns:170px 1fr 300px;gap:26px;
+align-items:center;cursor:pointer;transition:all .25s ease;
+position:relative;overflow:hidden;text-decoration:none;color:inherit}
+.case-study-card:hover{border-color:var(--amber);transform:translateY(-3px);
+box-shadow:0 8px 32px rgba(232,160,32,0.12)}
+.case-study-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+background:var(--amber);transform:scaleX(0);transition:transform .25s ease}
+.case-study-card:hover::after{transform:scaleX(1)}
+.case-study-logo{
+width:170px;height:110px;display:flex;align-items:center;justify-content:center;
+background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;flex-shrink:0}
+.case-study-logo img{max-width:100%;max-height:100%;display:block;object-fit:contain}
+.case-study-body{min-width:0}
+.case-study-eyebrow{font-size:10.5px;font-weight:700;text-transform:uppercase;
+letter-spacing:.08em;color:var(--amber);margin-bottom:8px}
+.case-study-body h2{font-size:21px;font-weight:700;color:var(--text);line-height:1.3;
+letter-spacing:-0.01em;margin-bottom:6px}
+.case-study-body .meta{font-size:13px;color:var(--text-muted);margin-bottom:10px}
+.case-study-cta{color:var(--amber);font-size:13px;font-weight:700;display:inline-block;transition:all .25s ease}
+.case-study-card:hover .case-study-cta{transform:translateX(4px)}
+.case-study-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.case-study-stat{text-align:center;padding:10px 6px;background:var(--stat-bg);border-radius:8px;
+border:1px solid var(--border)}
+.case-study-stat .num{font-size:20px;font-weight:800;color:var(--amber);letter-spacing:-0.01em;line-height:1.1}
+.case-study-stat .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;
+color:var(--text-muted);margin-top:3px;font-weight:600}
+
 @media(max-width:960px){
 .projects-row{grid-template-columns:1fr 1fr}
 .project-card.featured{flex-direction:column;padding:28px 28px 24px}
 .featured .card-right{flex:auto}
 .featured .card-header h2{font-size:20px}
+.case-study-card{grid-template-columns:1fr;text-align:center;gap:18px}
+.case-study-logo{margin:0 auto}
+.case-study-stats{max-width:420px;margin:0 auto}
 }
 @media(max-width:640px){
 .projects-row{grid-template-columns:1fr}
 }
 @media(max-width:480px){
 .projects{padding:0 16px}
+.case-studies{padding:0 16px}
+.section-header{padding:0 16px}
 .hero{margin:32px 16px 8px}
 .hero h1{font-size:24px}
+.case-study-stats{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -128,6 +173,35 @@ border:1px solid var(--border);color:var(--text-muted)}
 <div class="hero">
   <h1>AI-Powered Plan Coordination</h1>
   <p>Upload construction plans. Detect coordination conflicts. Save thousands in rework. Every conflict below comes from a real pipeline run &mdash; project identities anonymized.</p>
+</div>
+
+<div class="section-header">
+  <h2>Customer Case Study</h2>
+  <div class="sub">A real customer, real money, real outcome &mdash; published with the GC's permission.</div>
+</div>
+
+<div class="case-studies">
+  <a href="case-study-south-florida.html" class="case-study-card" aria-label="Read the South Florida case study">
+    <div class="case-study-logo">
+      <img src="rose_logo.png" alt="Rose Remodeling and Construction, LLC">
+    </div>
+    <div class="case-study-body">
+      <div class="case-study-eyebrow">South Florida &middot; Single-Family Residence</div>
+      <h2>How Flikt.AI caught a $10,000 Structural / HVAC clash the field team missed</h2>
+      <div class="meta">General Contractor: Rose Remodeling and Construction, LLC &middot; Jeffrey R. Rose, President</div>
+      <div class="case-study-cta">Read the case study &rarr;</div>
+    </div>
+    <div class="case-study-stats">
+      <div class="case-study-stat"><div class="num">$10K+</div><div class="lbl">Field overrun</div></div>
+      <div class="case-study-stat"><div class="num">2+ wks</div><div class="lbl">Schedule slip</div></div>
+      <div class="case-study-stat"><div class="num">78%</div><div class="lbl">Confidence</div></div>
+    </div>
+  </a>
+</div>
+
+<div class="section-header">
+  <h2 class="muted">Try the Demo</h2>
+  <div class="sub">Run plan coordination on these anonymized real projects.</div>
 </div>
 
 <div class="projects">
