@@ -42,14 +42,16 @@ from anonymization_rules import (  # noqa: E402
 )
 from gc_filter import filter_and_annotate  # noqa: E402
 from page_template import PAGE_TEMPLATE  # noqa: E402
+from current_gates import apply_current_gates, print_report  # noqa: E402
 
 # --- Source configuration ----------------------------------------------------
 
 PROJECTS = [
     {
-        # S180 refresh: source is Millenium Apartments (M2 at Millenia) run on
-        # the current S180 production pipeline. 703 sheets, 14 disciplines,
-        # 160 conflicts (11 C / 80 H / 59 M / 10 L), ~$1.18M-$3.45M exposure.
+        # Millenium Apartments (M2 at Millenia), 703 sheets / 14 disciplines.
+        # S336: no post-S180 cached run exists for this fixture, so the S180
+        # source is retained and cleaned by current_gates. Re-running it is the
+        # one refresh here that would cost API money — flagged, not done.
         "source_key": "eastside_lofts",
         "source_dir": "Millenium_Apartments_S180_run1",
         "slug": "eastside-lofts",
@@ -57,29 +59,38 @@ PROJECTS = [
         "apply_gc_filter": False,  # Source already filtered upstream in S180
         "render_cap": 100,         # Top 100 by severity (large set)
     },
+    # ------------------------------------------------------------------
+    # Metro Salon Studios (source: Salon Lofts) was RETIRED 2026-07-31.
+    #
+    # It was repointed to the 2026-07-14 cached run, which is correct,
+    # current-pipeline output — but at that precision the project yields only
+    # 17 conflicts / 1 Critical. That is honest and it is not a data problem;
+    # it simply no longer carries enough volume to work as a demo. Greg's call.
+    #
+    # Its anonymization rules are deliberately RETAINED in
+    # anonymization_rules.py under "metro_salon_studios" so the project can be
+    # restored by re-adding the config block below. Nothing else references it.
+    #
+    #   {"source_key": "metro_salon_studios",
+    #    "source_dir": "smoke_test_salon_lofts",
+    #    "slug": "metro-salon",
+    #    "pdf_name": "FliktAI_Metro_Salon_Studios_Report.pdf",
+    #    "apply_gc_filter": False, "render_cap": 9999},
+    # ------------------------------------------------------------------
     {
-        # S180 refresh: same Salon Lofts source as before, but on the current
-        # S180 pipeline. 25 sheets, 4 disciplines, 44 conflicts (8 C / 15 H).
-        "source_key": "metro_salon_studios",
-        "source_dir": "Salon_Lofts_S180_run1",
-        "slug": "metro-salon",
-        "pdf_name": "FliktAI_Metro_Salon_Studios_Report.pdf",
-        "apply_gc_filter": False,
-        "render_cap": 9999,
-    },
-    {
-        # S180 refresh: L'Hermitage S173 phase1 consensus run (F1=0.919).
-        # 31 sheets, 5 disciplines, 29 conflicts (5 C / 11 H), $145K-$322K.
+        # S336 refresh (2026-07-31): repointed from LHermitage_S173_phase1 to
+        # the 2026-06-20 cached run (73 vs 76 sheets, 29 -> 22 conflicts).
         "source_key": "the_atrium",
-        "source_dir": "LHermitage_S173_phase1",
+        "source_dir": "smoke_test_lhermitage",
         "slug": "the-atrium",
         "pdf_name": "FliktAI_The_Atrium_Report.pdf",
         "apply_gc_filter": False,
         "render_cap": 9999,
     },
     {
-        # S180 refresh: 9332 Carlyle (luxury single-family renovation & addition).
-        # 64 sheets, 7 disciplines, 44 conflicts (4 C / 21 H), $91K-$216K.
+        # 9332 Carlyle (luxury single-family renovation & addition), 7 disciplines.
+        # S336: smoke_test_carlyle predates this run (2026-05-11 vs 05-15), so the
+        # S180 source is retained and cleaned by current_gates.
         "source_key": "meridian_residence",
         "source_dir": "Carlyle_S180_run1",
         "slug": "meridian-residence",
@@ -89,7 +100,7 @@ PROJECTS = [
     },
 ]
 
-REPORT_DATE = "May 14, 2026"
+REPORT_DATE = "July 31, 2026"
 
 # --- Discipline-pair + summary recomputation ---------------------------------
 
@@ -196,6 +207,13 @@ def process_project(cfg: Dict) -> Dict:
     gc_report = None
     if cfg["apply_gc_filter"]:
         conflicts, gc_report = filter_and_annotate(conflicts)
+
+    # S336: replay CURRENT production FP + severity gates over the cached
+    # source. Two of the four sources predate ~150 sessions of precision work;
+    # this keeps the public demo from advertising findings (and Critical
+    # counts) the product would no longer emit. See _build/current_gates.py.
+    conflicts, gate_report = apply_current_gates(conflicts, label=cfg["slug"])
+    print_report(gate_report)
 
     # Anonymize every conflict
     anonymized = [anonymize_conflict(c, source_key) for c in conflicts]

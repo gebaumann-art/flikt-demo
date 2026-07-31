@@ -36,10 +36,10 @@ document.documentElement.setAttribute('data-theme',s)}}catch(e){{}}}})();
 *{{margin:0;padding:0;box-sizing:border-box}}
 :root{{
   --navy:#0a1929;--navy-2:#13243a;--amber:#E8A020;--amber-light:#F5C96B;
-  --critical:#DC2626;--critical-tint:#FEF2F2;--critical-border:#FECACA;
-  --high:#EA580C;--high-tint:#FFF7ED;--high-border:#FED7AA;
-  --medium:#D97706;--medium-tint:#FFFBEB;--medium-border:#FDE68A;
-  --low:#16A34A;--low-tint:#F0FDF4;--low-border:#BBF7D0;
+  --critical:#DC2626;--critical-tint:#FEE2E2;--critical-border:#FCA5A5;
+  --high:#EA580C;--high-tint:#FFEDD5;--high-border:#FDBA74;
+  --medium:#D97706;--medium-tint:#FEF3C7;--medium-border:#FCD34D;
+  --low:#16A34A;--low-tint:#DCFCE7;--low-border:#86EFAC;
   --bg:#F5F7FA;--card:#FFFFFF;--text:#0F172A;--text-muted:#64748B;--text-soft:#94A3B8;
   --border:#E2E8F0;--border-strong:#CBD5E1;
   --canvas-stripe-a:#FAFCFF;--canvas-stripe-b:#F3F6FB
@@ -152,7 +152,7 @@ a:hover{{color:#B97D0F}}
 .progress-stage{{color:var(--text-muted);font-size:14px;margin:6px 0}}
 .activity-log{{
   background:var(--card);border:1px solid var(--border);border-radius:10px;
-  padding:16px;margin-top:28px;text-align:left;max-height:240px;overflow-y:auto;
+  padding:16px;margin-top:28px;text-align:left;height:240px;overflow-y:auto;
   font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11.5px;line-height:1.55
 }}
 .log-line{{padding:2px 0;color:var(--text-muted)}}
@@ -277,12 +277,12 @@ a:hover{{color:#B97D0F}}
 .cc-tb-top{{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}}
 .cc-index{{font-size:11.5px;color:var(--text-soft);font-weight:600;white-space:nowrap;flex-shrink:0}}
 
-/* Title text colored to match severity */
+/* Title text colored to match severity (matches live customer portal) */
 .cc-title{{font-size:14.5px;font-weight:700;line-height:1.35;letter-spacing:-0.005em}}
-.conflict-card[data-sev="Critical"] .cc-title{{color:#7C2D12}}
-.conflict-card[data-sev="High"]     .cc-title{{color:#9A3412}}
-.conflict-card[data-sev="Medium"]   .cc-title{{color:#854D0E}}
-.conflict-card[data-sev="Low"]      .cc-title{{color:#14532D}}
+.conflict-card[data-sev="Critical"] .cc-title{{color:#991B1B}}
+.conflict-card[data-sev="High"]     .cc-title{{color:#C2410C}}
+.conflict-card[data-sev="Medium"]   .cc-title{{color:#A16207}}
+.conflict-card[data-sev="Low"]      .cc-title{{color:#15803D}}
 
 .cc-chevron{{color:var(--text-soft);font-size:12px;flex-shrink:0;transition:transform .2s;margin-top:6px}}
 .conflict-card.collapsed .cc-chevron{{transform:rotate(180deg)}}
@@ -469,6 +469,13 @@ a:hover{{color:#B97D0F}}
 .action-btn.disabled.dark-fill{{
   background:var(--navy);color:#fff;border-color:var(--navy);opacity:0.45
 }}
+/* S336: the disabled export buttons explained themselves only via a `title`
+   tooltip, which never fires on touch. On a phone they read as three dead
+   buttons. Show the explanation as visible text instead. */
+.export-note{{
+  flex-basis:100%;margin:2px 0 0;font-size:11.5px;line-height:1.4;
+  color:var(--text-soft)
+}}
 
 /* Discipline-pair accordion (matches real portal's "Conflicts by discipline pair" bar) */
 .disc-accordion{{
@@ -651,6 +658,7 @@ a:hover{{color:#B97D0F}}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           RFI Documents
         </button>
+        <p class="export-note">PDF, Excel and RFI export are available in the full portal.</p>
       </div>
     </div>
   </div>
@@ -1012,15 +1020,31 @@ function dismissPinned(){{
 }}
 
 function selectConflict(idx, sheets, title){{
-  document.querySelectorAll('.conflict-card').forEach(c=>c.classList.remove('active'));
   const card = document.querySelector(`.conflict-card[data-idx="${{idx}}"]`);
-  if(card){{
-    card.classList.add('active');
-    // Smoothly scroll the right pane sheet viewer into view on small screens
-    if(window.innerWidth < 960){{
-      document.querySelector('.viewer-col').scrollIntoView({{behavior:'smooth', block:'start'}});
-    }}
+  if(!card) return;
+  const wasOpen = !card.classList.contains('collapsed');
+
+  // Accordion: collapse + deactivate every card, then re-open this one (unless it
+  // was already open, in which case the user just clicked to close it).
+  document.querySelectorAll('.conflict-card').forEach(c=>{{
+    c.classList.remove('active');
+    c.classList.add('collapsed');
+  }});
+
+  if(wasOpen){{
+    // User clicked an already-open card: leave it closed, clear pinned pill.
+    document.getElementById('viewer-pinned').classList.remove('visible');
+    return;
   }}
+
+  // Expand this card and mark active.
+  card.classList.add('active');
+  card.classList.remove('collapsed');
+  // Smoothly scroll the right pane sheet viewer into view on small screens
+  if(window.innerWidth < 960){{
+    document.querySelector('.viewer-col').scrollIntoView({{behavior:'smooth', block:'start'}});
+  }}
+
   // Render the sheet tabs from this conflict's sheets array
   currentSheets = parseSheets(sheets);
   currentPinIdx = idx;
@@ -1032,10 +1056,10 @@ function selectConflict(idx, sheets, title){{
     const empty = document.getElementById('viewer-empty');
     if(empty) empty.style.display = 'block';
   }}
+
   // Pinned conflict pill above the viewer
   const pinned = document.getElementById('viewer-pinned');
-  const pinText = document.getElementById('pin-text');
-  pinText.textContent = (title || 'Conflict').slice(0, 80);
+  document.getElementById('pin-text').textContent = (title || 'Conflict').slice(0, 80);
   pinned.classList.add('visible');
 }}
 
@@ -1068,8 +1092,8 @@ function renderConflicts(severity){{
     const typeLabel = String(c.type||'').replace(/_/g,' ').toUpperCase();
     const location  = c.location || '';
 
-    return `<div class="conflict-card" data-sev="${{c.severity}}" data-idx="${{idx}}">
-      <div class="cc-titlebar" onclick="selectConflict(${{idx}}, ${{sheetsAttr}}, ${{titleAttr}}); this.parentElement.classList.toggle('collapsed')">
+    return `<div class="conflict-card collapsed" data-sev="${{c.severity}}" data-idx="${{idx}}">
+      <div class="cc-titlebar" onclick="selectConflict(${{idx}}, ${{sheetsAttr}}, ${{titleAttr}})">
         <div class="cc-tb-left">
           <span class="sev-badge sev-${{c.severity}}">${{c.severity}}</span>
           ${{pairTag ? `<span class="disc-pair-tag">${{pairTag}}</span>` : ''}}

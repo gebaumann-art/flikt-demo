@@ -18,6 +18,14 @@ import re
 from typing import Dict, List, Tuple
 
 
+# Discipline abbreviations used in the_atrium source PDF filenames.
+_ATRIUM_DISC = {
+    "mechanical": "Mechanical", "mech": "Mechanical",
+    "plumbing": "Plumbing", "plum": "Plumbing",
+    "electrical": "Electrical", "elec": "Electrical",
+}
+
+
 # ---------------------------------------------------------------------------
 # Per-project anonymization rule sets
 # ---------------------------------------------------------------------------
@@ -61,6 +69,14 @@ PROJECT_RULES: Dict[str, Dict] = {
     },
     "metro_salon_studios": {
         "scrub": [
+            # S336: the 2026-07-14 source carries the raw spec PDF filename in
+            # `spec_refs` ("Pages from 20.01.13 SL Maitland - Revision 2 - MEP",
+            # where SL = Salon Lofts). Not rendered by the card template, but it
+            # sits in the page's embedded JSON and is readable via view-source.
+            # Collapse to the neutral document label. Runs first so the later
+            # name scrubs never see a half-mangled filename.
+            (r"\bPages[_ ]?from[_ ]?[\d.]+[_ ]?SL[_ ]?Maitland[_ \-]*"
+             r"Revision[_ \-]*\d*[_ \-]*MEP\b", "MEP Drawings"),
             # S180 refresh: source name is "Salon Lofts S180_run1".
             (r"\bSalon\s+Lofts\s+S\d+(?:_run\d+)?\b", "Metro Salon Studios"),
             # Legacy 400N source variants:
@@ -88,6 +104,19 @@ PROJECT_RULES: Dict[str, Dict] = {
     },
     "the_atrium": {
         "scrub": [
+            # S336: the 2026-06-20 source cites whole source PDFs as sheet refs
+            # (e.g. "BHE - 250305 - L'Hermitage - Plumbing - 2025.10.28_p3").
+            # Collapse those to a neutral discipline document label BEFORE the
+            # name scrubs run, so the result reads as a document rather than as
+            # a mangled filename. Mapping to a real sheet number would be
+            # fabrication, so it stays a document label.
+            (r"\b(?:BHE\s*[-–]\s*)?\d{6}\s*[-–]\s*L['’]?Hermitage\s*[-–]\s*"
+             r"(Mechanical|Mech|Plumbing|Plum|Electrical|Elec)\b[^,;)\]]*",
+             lambda m: f"{_ATRIUM_DISC[m.group(1).lower()]} Drawings"),
+            (r"\bBHE\s+L['’]?hermitage\s+"
+             r"(Mechanical|Mech|Plumbing|Plum|Electrical|Elec)\b[^,;)\]]*",
+             lambda m: f"{_ATRIUM_DISC[m.group(1).lower()]} Drawings"),
+            (r"\bBHE\b\s*[-–]?\s*", ""),
             (r"\bLa[_ ]Hermitage[_ ]Lobby[_ ]Terminal\b", "The Atrium Lobby"),
             (r"\bLa[_ ]Hermitage[_ ]Lobby\b", "The Atrium Lobby"),
             (r"\bLa[_ ]Hermitage\b", "The Atrium"),
@@ -97,6 +126,8 @@ PROJECT_RULES: Dict[str, Dict] = {
         ],
         "leaks": [
             r"\bHermitage\b", r"\bPenthouse\b",
+            # S336: engineering-firm initials embedded in source PDF filenames.
+            r"\bBHE\b",
         ],
         "project": {
             "id": "demo-the-atrium",
@@ -224,8 +255,15 @@ def anonymize_text(text: str, source_key: str) -> str:
     return out
 
 
+# S336: sheet refs the pipeline minted from a source PDF filename rather than
+# from a real title block — they render on a card as a meaningless citation
+# (e.g. a bare "Page"). Dropped from the demo's display only; the underlying
+# id-minting bug is tracked separately and is NOT fixed here.
+_JUNK_SHEET_REFS = frozenset({"page", "pages", "sheet", "sheets", "pdf", "n/a", "none"})
+
+
 def anonymize_sheet_list(sheets: List[str], source_key: str) -> List[str]:
-    """Normalize each sheet ref, dropping empties and deduping."""
+    """Normalize each sheet ref, dropping empties, junk refs, and duplicates."""
     if not sheets:
         return sheets
     out = []
@@ -234,6 +272,8 @@ def anonymize_sheet_list(sheets: List[str], source_key: str) -> List[str]:
             out.append(s)
             continue
         stripped = s.strip()
+        if stripped.lower().strip(".- ") in _JUNK_SHEET_REFS:
+            continue
         m = SHEET_PATTERN.match(stripped)
         if m and m.end() == len(stripped):
             out.append(_collapse_sheet(m))
@@ -243,14 +283,41 @@ def anonymize_sheet_list(sheets: List[str], source_key: str) -> List[str]:
     return [x for x in out if x and not (x in seen or seen.add(x))]
 
 
+# Structural/enum fields whose values are machine tokens, not prose. Scrubbing
+# these would corrupt them (e.g. the sheet-ref collapser would rewrite an id
+# like "C001"). Everything NOT listed here gets scrubbed.
+NEVER_SCRUB_KEYS = frozenset({
+    "id", "severity", "conflict_type", "type_normalized", "status",
+    "disc_a", "disc_b", "confidence", "display_id",
+})
+
+
+def _anonymize_any(value, source_key: str, key: str | None = None):
+    """Recursively anonymize every string reachable inside a conflict.
+
+    S336: this replaced a fixed six-key allowlist. The allowlist silently
+    missed `source_sheet_bboxes[].sheet`, which carries the raw source PDF
+    filename — so the real customer name reached the rendered page JSON on a
+    public site. Any newly-added string field would have leaked the same way.
+    Defaulting to scrub-everything means a new field fails closed.
+    """
+    if key in NEVER_SCRUB_KEYS:
+        return value
+    if isinstance(value, str):
+        return anonymize_text(value, source_key)
+    if isinstance(value, list):
+        return [_anonymize_any(v, source_key, key) for v in value]
+    if isinstance(value, dict):
+        return {k: _anonymize_any(v, source_key, k) for k, v in value.items()}
+    return value
+
+
 def anonymize_conflict(conflict: Dict, source_key: str) -> Dict:
     """Anonymize every string field on a conflict. Preserves numerics, flags, scores."""
-    c = dict(conflict)
-    for key in ("title", "description", "recommended_action", "location", "source", "type"):
-        if key in c and isinstance(c[key], str):
-            c[key] = anonymize_text(c[key], source_key)
-    if "sheets" in c and isinstance(c["sheets"], list):
-        c["sheets"] = anonymize_sheet_list(c["sheets"], source_key)
+    c = {k: _anonymize_any(v, source_key, k) for k, v in conflict.items()}
+    # Sheet lists get the dedicated normalizer (dedupes + drops empties).
+    if isinstance(conflict.get("sheets"), list):
+        c["sheets"] = anonymize_sheet_list(conflict["sheets"], source_key)
     return c
 
 
