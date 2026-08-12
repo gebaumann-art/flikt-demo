@@ -20,6 +20,9 @@
 <meta name="twitter:image" content="og_final_demo.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
 (function(){try{var s=localStorage.getItem('flikt-theme');
 if(!s){s=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
@@ -28,9 +31,10 @@ document.documentElement.setAttribute('data-theme',s)}catch(e){}})();
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--navy:#0a1929;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
---critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;
+--critical:#B91C1C;--high:#C2410C;--medium:#A16207;--low:#15803D;
 --bg:#F5F7FA;--card:#FFFFFF;--card-hover:#F8FAFC;
 --text:#0F172A;--text-muted:#64748B;--border:#E2E8F0;
+--mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
 --chip-bg:#F1F5F9;--stat-bg:#F8FAFC}
 :root[data-theme="dark"]{--bg:#0F1723;--card:#1A2540;--card-hover:#223050;
 --text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55;
@@ -45,7 +49,7 @@ display:flex;align-items:center;justify-content:space-between;position:sticky;to
 .logo-wm{color:white;white-space:nowrap}
 .logo-accent{color:var(--amber)}
 .header-right{display:flex;align-items:center;gap:12px}
-.real-ai-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+.real-ai-badge{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.6px;
 color:var(--amber);background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.3);
 padding:5px 10px;border-radius:14px}
 .theme-toggle{background:transparent;border:1px solid rgba(255,255,255,0.18);
@@ -57,8 +61,8 @@ cursor:pointer;color:#fff;transition:background .15s ease,border-color .15s ease
 .theme-toggle .moon{display:block}
 :root[data-theme="dark"] .theme-toggle .sun{display:block}
 :root[data-theme="dark"] .theme-toggle .moon{display:none}
-.hero{text-align:center;margin:48px 32px 12px}
-.hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.hero{text-align:center;margin:56px 32px 16px}
+.hero h1{font-size:44px;font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
 .hero p{color:var(--text-muted);font-size:16px;max-width:620px;margin:0 auto}
 .projects{max-width:1200px;margin:32px auto;padding:0 32px;display:flex;flex-direction:column;gap:24px}
 .projects-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -77,14 +81,14 @@ background:var(--amber);transform:scaleX(0);transition:transform .25s ease}
 .card-header h2{font-size:18px;font-weight:700;color:var(--amber);line-height:1.3;flex:1;min-width:0}
 .featured .card-header{flex-direction:column;align-items:flex-start}
 .featured .card-header h2{font-size:22px}
-.card-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+.card-type{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.6px;
 color:var(--text-muted);background:var(--chip-bg);padding:4px 10px;border-radius:4px;
 white-space:normal;flex-shrink:0;max-width:100%}
 .card-address{font-size:13px;color:var(--text-muted);margin-bottom:16px}
 .card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 .card-stat{text-align:center;padding:10px 6px;background:var(--stat-bg);border-radius:8px}
 .card-stat .num{font-size:18px;font-weight:800}
-.card-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:2px}
+.card-stat .lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);margin-top:2px}
 .featured .card-stat .num{font-size:24px}
 .featured .card-stats{margin-bottom:0}
 .disciplines-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
@@ -132,21 +136,21 @@ border:1px solid var(--border);color:var(--text-muted)}
 
 <div class="projects">
 
-  <a href="eastside-lofts.html" class="project-card featured">
+  <a href="cypress-bend.html" class="project-card featured">
     <div class="card-left">
       <div class="card-header">
-        <h2>Eastside Lofts</h2>
-        <span class="card-type">Multifamily New Construction — 320 Units</span>
+        <h2>Cypress Bend Apartments</h2>
+        <span class="card-type">Multifamily New Construction — Garden Style</span>
       </div>
-      <div class="card-address">1850 Eastside Blvd, San Antonio, TX 78215</div>
-      <div class="disciplines-list"><span class="disc-tag">Mechanical</span><span class="disc-tag">Plumbing</span><span class="disc-tag">Structural</span><span class="disc-tag">Electrical</span><span class="disc-tag">Architectural</span><span class="disc-tag">Landscape</span><span class="disc-tag">Civil</span><span class="disc-tag">Low Voltage</span><span class="disc-tag">Signage</span><span class="disc-tag">Fire Protection</span><span class="disc-tag">Interior Design</span><span class="disc-tag">Kitchen</span><span class="disc-tag">Fire Alarm</span><span class="disc-tag">Telecom</span></div>
+      <div class="card-address">4200 Cypress Bend Dr, Round Rock, TX 78665</div>
+      <div class="disciplines-list"><span class="disc-tag">Architectural</span><span class="disc-tag">Landscape</span><span class="disc-tag">Civil</span><span class="disc-tag">Electrical</span><span class="disc-tag">Mechanical</span><span class="disc-tag">Plumbing</span><span class="disc-tag">Fire Protection</span><span class="disc-tag">Structural</span><span class="disc-tag">Interior Design</span><span class="disc-tag">Low Voltage</span></div>
       <div class="card-cta">Run Analysis &rarr;</div>
     </div>
     <div class="card-right">
       <div class="card-stats">
-        <div class="card-stat"><div class="num">$42M</div><div class="lbl">Construction Value</div></div>
-        <div class="card-stat"><div class="num">703</div><div class="lbl">Total Sheets</div></div>
-        <div class="card-stat"><div class="num">14</div><div class="lbl">Disciplines</div></div>
+        <div class="card-stat"><div class="num">$36.5M</div><div class="lbl">Construction Value</div></div>
+        <div class="card-stat"><div class="num">329</div><div class="lbl">Total Sheets</div></div>
+        <div class="card-stat"><div class="num">10</div><div class="lbl">Disciplines</div></div>
       </div>
     </div>
   </a>

@@ -31,6 +31,34 @@ _ATRIUM_DISC = {
 # ---------------------------------------------------------------------------
 
 PROJECT_RULES: Dict[str, Dict] = {
+    "cypress_bend": {
+        "scrub": [
+            # S347 (2026-08-12): source is Sunny Cove (smoke_test_sunny_cove,
+            # 2026-06-21 run) — cleared for public use by Greg 2026-08-04
+            # (sample-report selection), anonymized here anyway per demo
+            # convention. The source is nearly identifier-free: no addresses,
+            # no firm names, no city names. Only the internal run label and
+            # the "Bld V3" building prefix on permit-check document refs.
+            (r"\bsmoke[_ ]?test[_ ]?sunny[_ ]?cove\b", "Cypress Bend"),
+            (r"\bSunny[_ ]?Cove\b", "Cypress Bend"),
+            # "Bld V3 Apartments Elec Permit Check" -> "Apartments Elec Permit Check"
+            (r"\bBld[ _]?V3\b[ _]*", ""),
+            (r"\bV3[ _\-]+", ""),
+            (r"\bV3\b", ""),
+        ],
+        "leaks": [
+            r"\bSunny\b", r"\bCove\b", r"\bV3\b",
+        ],
+        "project": {
+            "id": "demo-cypress-bend",
+            "name": "Cypress Bend Apartments",
+            "name_long": "Cypress Bend Apartments — Garden-Style Multifamily",
+            "address": "4200 Cypress Bend Dr, Round Rock, TX 78665",
+            "type": "Multifamily New Construction — Garden Style",
+            "construction_value": 36_500_000,
+            "construction_value_display": "$36,500,000",
+        },
+    },
     "eastside_lofts": {
         "scrub": [
             # S180 refresh: source is Millenium Apartments (M2 at Millenia).

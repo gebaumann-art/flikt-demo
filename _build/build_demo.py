@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Flikt.AI demo page builder.
 
-Loads 4 real results.json files -> applies GC filter (Eastside only) ->
-anonymizes -> regenerates 4 HTML pages + 4 PDF reports + landing index.html.
+Loads the configured real results.json files -> replays current FP/severity
+gates -> anonymizes -> regenerates the per-project HTML pages + landing
+index.html.
 
 Usage:
   cd ~/FLIKT/Plan\\ Sets\\ Copy/demo-portal && python3 _build/build_demo.py
@@ -48,17 +49,43 @@ from current_gates import apply_current_gates, print_report  # noqa: E402
 
 PROJECTS = [
     {
-        # Millenium Apartments (M2 at Millenia), 703 sheets / 14 disciplines.
-        # S336: no post-S180 cached run exists for this fixture, so the S180
-        # source is retained and cleaned by current_gates. Re-running it is the
-        # one refresh here that would cost API money — flagged, not done.
-        "source_key": "eastside_lofts",
-        "source_dir": "Millenium_Apartments_S180_run1",
-        "slug": "eastside-lofts",
-        "pdf_name": "FliktAI_Eastside_Lofts_Report.pdf",
-        "apply_gc_filter": False,  # Source already filtered upstream in S180
-        "render_cap": 100,         # Top 100 by severity (large set)
+        # S347 (2026-08-12): NEW featured project. Source is Sunny Cove
+        # (smoke_test_sunny_cove, run 2026-06-21) — a current-era pipeline run,
+        # cleared for public use by Greg 2026-08-04 during sample-report
+        # selection. 329 sheets / 10 disciplines / 45 conflicts. Replaces
+        # Eastside Lofts as the featured card (see retirement block below).
+        "source_key": "cypress_bend",
+        "source_dir": "smoke_test_sunny_cove",
+        "slug": "cypress-bend",
+        "pdf_name": "FliktAI_Cypress_Bend_Report.pdf",
+        "apply_gc_filter": False,
+        "render_cap": 9999,
     },
+    # ------------------------------------------------------------------
+    # Eastside Lofts (source: Millenium Apartments S180) was RETIRED
+    # 2026-08-12 (S347, Greg's call).
+    #
+    # The source was frozen 2026-05-15 and no post-S180 cached run exists;
+    # even after current_gates cleanup it advertised ~2x the volume the
+    # current pipeline emits, and refreshing the 703-sheet fixture is the
+    # one path that costs API money. Rather than pay to refresh a demo
+    # fixture, the featured slot moved to Sunny Cove (above), which has a
+    # genuine current-era cached run.
+    #
+    # Its anonymization rules are RETAINED in anonymization_rules.py under
+    # "eastside_lofts" so it can be restored — after a paid re-run — by
+    # re-adding this block:
+    #
+    #   {"source_key": "eastside_lofts",
+    #    "source_dir": "Millenium_Apartments_S180_run1",  # <- replace with fresh run
+    #    "slug": "eastside-lofts",
+    #    "pdf_name": "FliktAI_Eastside_Lofts_Report.pdf",
+    #    "apply_gc_filter": False, "render_cap": 100},
+    #
+    # eastside-lofts.html on the live site is now a redirect stub to
+    # index.html (old shared links must not 404); the retired page itself
+    # is archived in ~/FLIKT/Deprecated/.
+    # ------------------------------------------------------------------
     # ------------------------------------------------------------------
     # Metro Salon Studios (source: Salon Lofts) was RETIRED 2026-07-31.
     #
@@ -100,7 +127,7 @@ PROJECTS = [
     },
 ]
 
-REPORT_DATE = "July 31, 2026"
+REPORT_DATE = "August 12, 2026"
 
 # --- Discipline-pair + summary recomputation ---------------------------------
 
@@ -292,6 +319,9 @@ LANDING_TEMPLATE = r"""<!DOCTYPE html>
 <meta name="twitter:image" content="og_final_demo.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
 (function(){try{var s=localStorage.getItem('flikt-theme');
 if(!s){s=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
@@ -300,9 +330,10 @@ document.documentElement.setAttribute('data-theme',s)}catch(e){}})();
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--navy:#0a1929;--navy-dark:#141F36;--amber:#E8A020;--amber-light:#F5C96B;
---critical:#DC2626;--high:#EA580C;--medium:#D97706;--low:#16A34A;
+--critical:#B91C1C;--high:#C2410C;--medium:#A16207;--low:#15803D;
 --bg:#F5F7FA;--card:#FFFFFF;--card-hover:#F8FAFC;
 --text:#0F172A;--text-muted:#64748B;--border:#E2E8F0;
+--mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
 --chip-bg:#F1F5F9;--stat-bg:#F8FAFC}
 :root[data-theme="dark"]{--bg:#0F1723;--card:#1A2540;--card-hover:#223050;
 --text:#E8ECF1;--text-muted:#8896A8;--border:#2A3A55;
@@ -317,7 +348,7 @@ display:flex;align-items:center;justify-content:space-between;position:sticky;to
 .logo-wm{color:white;white-space:nowrap}
 .logo-accent{color:var(--amber)}
 .header-right{display:flex;align-items:center;gap:12px}
-.real-ai-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+.real-ai-badge{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.6px;
 color:var(--amber);background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.3);
 padding:5px 10px;border-radius:14px}
 .theme-toggle{background:transparent;border:1px solid rgba(255,255,255,0.18);
@@ -329,8 +360,8 @@ cursor:pointer;color:#fff;transition:background .15s ease,border-color .15s ease
 .theme-toggle .moon{display:block}
 :root[data-theme="dark"] .theme-toggle .sun{display:block}
 :root[data-theme="dark"] .theme-toggle .moon{display:none}
-.hero{text-align:center;margin:48px 32px 12px}
-.hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+.hero{text-align:center;margin:56px 32px 16px}
+.hero h1{font-size:44px;font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
 .hero p{color:var(--text-muted);font-size:16px;max-width:620px;margin:0 auto}
 .projects{max-width:1200px;margin:32px auto;padding:0 32px;display:flex;flex-direction:column;gap:24px}
 .projects-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -349,14 +380,14 @@ background:var(--amber);transform:scaleX(0);transition:transform .25s ease}
 .card-header h2{font-size:18px;font-weight:700;color:var(--amber);line-height:1.3;flex:1;min-width:0}
 .featured .card-header{flex-direction:column;align-items:flex-start}
 .featured .card-header h2{font-size:22px}
-.card-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+.card-type{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.6px;
 color:var(--text-muted);background:var(--chip-bg);padding:4px 10px;border-radius:4px;
 white-space:normal;flex-shrink:0;max-width:100%}
 .card-address{font-size:13px;color:var(--text-muted);margin-bottom:16px}
 .card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 .card-stat{text-align:center;padding:10px 6px;background:var(--stat-bg);border-radius:8px}
 .card-stat .num{font-size:18px;font-weight:800}
-.card-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:2px}
+.card-stat .lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);margin-top:2px}
 .featured .card-stat .num{font-size:24px}
 .featured .card-stats{margin-bottom:0}
 .disciplines-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
@@ -486,7 +517,7 @@ def build_grid_card(data: Dict) -> str:
 
 
 def build_landing_html(projects: List[Dict]) -> str:
-    featured = build_featured_card(projects[0])  # Eastside
+    featured = build_featured_card(projects[0])  # Cypress Bend (Sunny Cove)
     grid = "\n    ".join(build_grid_card(p) for p in projects[1:])
     return LANDING_TEMPLATE.replace("{FEATURED_CARD}", featured).replace("{GRID_CARDS}", grid)
 

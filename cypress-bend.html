@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cypress Bend Apartments &mdash; Flikt.AI Plan Analysis</title>
+<meta property="og:title" content="Cypress Bend Apartments &mdash; Flikt.AI Plan Analysis">
+<meta property="og:description" content="AI-powered plan coordination demo. Real conflict data, anonymized project details.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og_final_demo.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function(){try{var s=localStorage.getItem('flikt-theme');
+if(!s){s=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+document.documentElement.setAttribute('data-theme',s)}catch(e){}})();
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0a1929;--navy-2:#13243a;--amber:#E8A020;--amber-light:#F5C96B;
+  --critical:#B91C1C;--critical-tint:#FEF2F2;--critical-border:#FECACA;
+  --high:#C2410C;--high-tint:#FFF7ED;--high-border:#FED7AA;
+  --medium:#A16207;--medium-tint:#FEFCE8;--medium-border:#FDE68A;
+  --low:#15803D;--low-tint:#F0FDF4;--low-border:#BBF7D0;
+  --bg:#F5F7FA;--card:#FFFFFF;--text:#0F172A;--text-muted:#64748B;--text-soft:#94A3B8;
+  --border:#E2E8F0;--border-strong:#CBD5E1;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --canvas-stripe-a:#FAFCFF;--canvas-stripe-b:#F3F6FB
+}
+:root[data-theme="dark"]{
+  --bg:#0F1723;--card:#1A2540;
+  --text:#E8ECF1;--text-muted:#A0AEC0;--text-soft:#7C8B9F;
+  --border:#2A3A55;--border-strong:#3A4A65;
+  --critical:#F87171;--critical-tint:#2A1616;--critical-border:#4A2222;
+  --high:#FB923C;--high-tint:#2A1F12;--high-border:#4A3318;
+  --medium:#FACC15;--medium-tint:#2A2512;--medium-border:#4A4018;
+  --low:#4ADE80;--low-tint:#122A1B;--low-border:#1E4A2E;
+  --canvas-stripe-a:#13243A;--canvas-stripe-b:#1A2540
+}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.5;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden
+}
+a{color:var(--amber);text-decoration:none;transition:color .2s}
+a:hover{color:#B97D0F}
+
+/* ============ Header / Navbar ============ */
+.header{
+  background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:14px 32px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100
+}
+.header-left{display:flex;align-items:center;gap:20px}
+.back-link{
+  color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;transition:color .2s
+}
+.back-link:hover{color:var(--amber)}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;letter-spacing:.1px;color:#fff}
+.logo-icon{height:30px;width:30px;display:block;flex-shrink:0}
+.logo-wm{color:#fff;white-space:nowrap}
+.logo-accent{color:var(--amber)}
+.nav{display:flex;gap:4px}
+.nav button{
+  background:transparent;border:1px solid transparent;
+  color:rgba(255,255,255,0.65);padding:7px 14px;border-radius:6px;cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:600;transition:all .2s
+}
+.nav button:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav button.active{color:var(--navy);background:var(--amber)}
+.nav button.locked{opacity:0.35;cursor:not-allowed;pointer-events:none}
+.header-right{display:flex;align-items:center;gap:10px}
+.theme-toggle{
+  background:transparent;border:1px solid rgba(255,255,255,0.18);border-radius:8px;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:#fff;transition:background .15s ease,border-color .15s ease;padding:0
+}
+.theme-toggle:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.35)}
+.theme-toggle svg{width:15px;height:15px;display:block}
+.theme-toggle .sun{display:none}
+.theme-toggle .moon{display:block}
+:root[data-theme="dark"] .theme-toggle .sun{display:block}
+:root[data-theme="dark"] .theme-toggle .moon{display:none}
+
+/* ============ View container ============ */
+.view{display:none;padding:24px 32px 48px;max-width:1280px;margin:0 auto}
+.view.active{display:block}
+
+/* ============ Dashboard view ============ */
+.dash-hero{text-align:center;margin:44px 0 32px;padding:0 8px}
+.dash-hero h1{font-size:42px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.1}
+.dash-hero p{color:var(--text-muted);font-size:16px;max-width:600px;margin:0 auto}
+.project-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:28px 32px;margin:24px 0;box-shadow:0 1px 2px rgba(15,23,42,0.04)
+}
+.project-card h2{font-size:22px;font-weight:700;letter-spacing:-0.01em;margin-bottom:18px;color:var(--text)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.meta-item{padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)}
+.meta-item .label{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.8px;font-weight:500}
+.meta-item .value{font-size:17px;font-weight:700;margin-top:4px;color:var(--text)}
+.disciplines-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.disc-tag{
+  background:var(--bg);padding:4px 12px;border-radius:14px;font-size:12px;
+  border:1px solid var(--border);color:var(--text);font-weight:500
+}
+.disc-tag .count{color:var(--amber);font-weight:700;margin-left:4px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:8px;
+  font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;border:1px solid transparent;
+  transition:all .2s
+}
+.btn-primary{background:var(--amber);color:var(--navy)}
+.btn-primary:hover{background:#D38F12;transform:translateY(-1px);box-shadow:0 6px 16px rgba(232,160,32,0.3)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border-strong)}
+.btn-outline:hover{background:var(--bg);border-color:var(--text-muted)}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.center-btn{text-align:center;margin:28px 0}
+
+/* ============ Progress view ============ */
+.progress-container{max-width:680px;margin:60px auto;text-align:center}
+.progress-container h2{font-size:22px;font-weight:700;margin-bottom:24px;letter-spacing:-0.01em}
+.progress-bar-wrap{
+  background:var(--border);border-radius:12px;height:16px;overflow:hidden;margin:18px 0
+}
+.progress-bar{
+  background:linear-gradient(90deg,var(--amber),var(--amber-light));
+  height:100%;border-radius:12px;transition:width .3s ease;width:0%
+}
+.progress-pct{font-size:44px;font-weight:800;color:var(--amber);margin:14px 0;letter-spacing:-0.02em}
+.progress-stage{color:var(--text-muted);font-size:14px;margin:6px 0}
+.activity-log{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:16px;margin-top:28px;text-align:left;height:240px;overflow-y:auto;
+  font-family:var(--mono);font-size:11.5px;line-height:1.55
+}
+.log-line{padding:2px 0;color:var(--text-muted)}
+.log-line .time{color:var(--amber);margin-right:8px;font-weight:600}
+.log-line.highlight{color:var(--text);font-weight:500}
+
+/* ============ Results view (portal report-view) ============ */
+.report-hero{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:24px 28px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04)
+}
+.report-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+.report-hero-title{flex:1;min-width:240px}
+.report-hero-title h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;color:var(--text);line-height:1.2}
+.report-hero-title .addr{color:var(--text-muted);font-size:14px;margin-top:6px}
+.action-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.action-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--card);color:var(--text);border:1px solid var(--border);
+  padding:7px 12px;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:600;
+  cursor:pointer;transition:all .15s
+}
+.action-btn:hover{background:var(--bg);border-color:var(--border-strong)}
+.action-btn.primary{background:var(--amber);color:var(--navy);border-color:var(--amber)}
+.action-btn.primary:hover{background:#D38F12;border-color:#D38F12}
+.action-btn svg{width:14px;height:14px}
+
+/* Stats summary row (above two-column) */
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px}
+.stat-box{
+  padding:14px 12px;border-radius:10px;text-align:center;
+  background:var(--card);border:1px solid var(--border)
+}
+.stat-box .num{font-size:28px;font-weight:800;letter-spacing:-0.02em}
+.stat-box .lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;margin-top:4px;color:var(--text-muted);font-weight:500}
+.stat-total .num{color:var(--text)}
+.stat-critical .num{color:var(--critical)}
+.stat-high .num{color:var(--high)}
+.stat-medium .num{color:var(--medium)}
+.stat-low .num{color:var(--low)}
+.stat-critical{border-top:3px solid var(--critical)}
+.stat-high{border-top:3px solid var(--high)}
+.stat-medium{border-top:3px solid var(--medium)}
+.stat-low{border-top:3px solid var(--low)}
+.summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:10px;margin-bottom:18px}
+.stat-cost{
+  background:var(--card);border:1px solid var(--border);
+  padding:14px 18px;border-radius:10px;text-align:center
+}
+.stat-cost .num{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
+.stat-cost .lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);font-weight:500;margin-bottom:4px}
+.stat-pairs{
+  background:var(--navy);color:#fff;padding:14px 18px;border-radius:10px;text-align:center;
+  border:1px solid var(--navy)
+}
+.stat-pairs .num{font-size:20px;font-weight:700;color:var(--amber)}
+.stat-pairs .lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,0.7);font-weight:500;margin-bottom:4px}
+
+/* Discipline pair strip (collapsed) */
+.disc-pair-strip{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px
+}
+.disc-pair-strip .strip-label{
+  font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);
+  font-weight:500;margin-right:4px
+}
+.disc-pair-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--bg);border:1px solid var(--border);
+  padding:4px 10px;border-radius:14px;font-size:11.5px;font-weight:600;color:var(--text)
+}
+.disc-pair-chip .pair-count{color:var(--amber);font-weight:700}
+
+/* Filters */
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{
+  background:var(--card);border:1px solid var(--border);color:var(--text-muted);
+  padding:7px 14px;border-radius:8px;cursor:pointer;
+  font-family:inherit;font-size:12px;font-weight:600;transition:all .2s
+}
+.filter-btn:hover{border-color:var(--border-strong);color:var(--text)}
+.filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* Two-column body */
+.report-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.findings-col{min-width:0}
+.viewer-col{min-width:0;position:sticky;top:88px}
+
+/* Conflict cards — portal report-view style (S181 redesign to match live portal) */
+.conflict-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  margin-bottom:14px;overflow:hidden;transition:border-color .15s, box-shadow .15s
+}
+.conflict-card:hover{border-color:var(--border-strong);box-shadow:0 4px 14px rgba(15,23,42,0.06)}
+.conflict-card.active{box-shadow:0 0 0 2px var(--amber);border-color:var(--amber)}
+
+/* Neutral title bar; severity carried by the card's left edge + badge (S347 restyle) */
+.cc-titlebar{
+  display:flex;align-items:flex-start;gap:10px;padding:14px 16px 12px 16px;
+  cursor:pointer;border-bottom:1px solid var(--border)
+}
+.conflict-card[data-sev="Critical"]{border-left:3px solid var(--critical)}
+.conflict-card[data-sev="High"]     {border-left:3px solid var(--high)}
+.conflict-card[data-sev="Medium"]   {border-left:3px solid var(--medium)}
+.conflict-card[data-sev="Low"]      {border-left:3px solid var(--low)}
+
+.cc-tb-left{display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:64px}
+.sev-badge{
+  font-family:var(--mono);padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;
+  letter-spacing:.4px;text-align:center;text-transform:uppercase;border:1px solid transparent
+}
+.sev-Critical{background:var(--critical-tint);color:var(--critical);border-color:var(--critical-border)}
+.sev-High{background:var(--high-tint);color:var(--high);border-color:var(--high-border)}
+.sev-Medium{background:var(--medium-tint);color:var(--medium);border-color:var(--medium-border)}
+.sev-Low{background:var(--low-tint);color:var(--low);border-color:var(--low-border)}
+.disc-pair-tag{
+  font-family:var(--mono);background:var(--navy);color:#fff;padding:2px 8px;border-radius:5px;
+  font-size:10px;font-weight:600;letter-spacing:.2px;text-align:center
+}
+.cc-tb-main{flex:1;min-width:0}
+.cc-tb-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}
+.cc-index{font-family:var(--mono);font-size:11px;color:var(--text-soft);font-weight:500;white-space:nowrap;flex-shrink:0}
+
+/* Title text neutral ink; severity lives in the badge + left edge (S347 restyle) */
+.cc-title{font-size:14.5px;font-weight:700;line-height:1.35;letter-spacing:-0.005em;color:var(--text)}
+
+.cc-chevron{color:var(--text-soft);font-size:12px;flex-shrink:0;transition:transform .2s;margin-top:6px}
+.conflict-card.collapsed .cc-chevron{transform:rotate(180deg)}
+
+/* Action buttons row (Good find / Bad find / Draft RFI) */
+.cc-actions{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 16px;
+  border-bottom:1px solid var(--border)
+}
+.cc-action-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--card);color:var(--text);border:1px solid var(--border);
+  border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;font-family:inherit;
+  cursor:pointer;transition:border-color .15s, background .15s
+}
+.cc-action-btn:hover{border-color:var(--border-strong);background:var(--bg)}
+.cc-action-btn svg{width:14px;height:14px;flex-shrink:0}
+.cc-action-btn.good svg{color:var(--low)}
+.cc-action-btn.bad svg{color:var(--critical)}
+.cc-action-btn.rfi svg{color:var(--navy)}
+
+/* Body section — always visible (collapsible via chevron) */
+.cc-body{padding:14px 16px 16px 16px}
+.conflict-card.collapsed .cc-body,
+.conflict-card.collapsed .cc-actions{display:none}
+
+/* Metadata strip */
+.cc-meta-strip{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:11.5px;color:var(--text-muted);margin-bottom:6px;font-weight:500
+}
+.cc-meta-strip .sep{color:var(--text-soft)}
+.cc-meta-strip .tag{
+  font-family:var(--mono);text-transform:uppercase;letter-spacing:.6px;font-size:10px;font-weight:500;
+  color:var(--text-muted)
+}
+.cc-cost-inline{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px}
+
+.cc-section-label{
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.8px;color:var(--text-muted);
+  text-transform:uppercase;margin-bottom:6px
+}
+.cc-desc{font-size:13px;color:var(--text);margin-bottom:16px;line-height:1.6}
+
+/* Cost Exposure + Schedule Impact 2-col metric cards */
+.cc-impact{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.impact-box{
+  background:var(--bg);padding:12px 14px;border-radius:8px;
+  border:1px solid var(--border);font-size:12.5px
+}
+.impact-box .ib-label{
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.7px;color:var(--text-muted);
+  text-transform:uppercase;margin-bottom:4px;display:block
+}
+.impact-box .ib-value{font-size:14px;font-weight:700;color:var(--text)}
+
+/* Recommended Action — blue tint (matches real portal) */
+.cc-action{
+  background:#EFF6FF;border:1px solid #BFDBFE;
+  border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.55;color:#1E3A8A
+}
+.cc-action .cc-section-label{color:#1E40AF;margin-bottom:6px}
+.cc-action strong{color:#1E3A8A;font-weight:700}
+
+/* Scores grid (kept, smaller, less prominent) */
+.scores-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
+.score-dim{text-align:center}
+.score-dim .dim-label{font-family:var(--mono);font-size:9px;font-weight:500;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;letter-spacing:.4px}
+.score-bar-bg{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.score-dim .dim-val{font-size:10.5px;font-weight:700;margin-top:2px}
+
+/* Dark mode overrides */
+:root[data-theme="dark"] .cc-action{background:#0F1F3A;border-color:#1E40AF;color:#BFDBFE}
+:root[data-theme="dark"] .cc-action .cc-section-label,
+:root[data-theme="dark"] .cc-action strong{color:#93C5FD}
+.truncated-notice{
+  padding:14px;margin-top:14px;background:rgba(232,160,32,0.08);
+  border:1px solid rgba(232,160,32,0.25);border-radius:8px;text-align:center;
+  font-size:12.5px;color:var(--text)
+}
+.truncated-notice strong{color:#B97D0F}
+.truncated-notice a{color:var(--amber);font-weight:700}
+
+/* Sheet viewer (right pane) */
+.sheet-viewer{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  box-shadow:0 1px 2px rgba(15,23,42,0.04);
+  display:flex;flex-direction:column;min-height:560px;overflow:hidden
+}
+
+/* Sheet tabs row (top of viewer) */
+.sheet-tabs{
+  display:flex;align-items:center;gap:2px;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  padding:8px 8px 0 8px;overflow-x:auto;scrollbar-width:thin
+}
+.sheet-tabs::-webkit-scrollbar{height:6px}
+.sheet-tabs::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+.sheet-tab{
+  display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  background:transparent;border:1px solid transparent;border-bottom:none;
+  border-radius:8px 8px 0 0;padding:8px 14px;cursor:pointer;
+  font-family:inherit;font-size:12px;font-weight:600;color:var(--text-muted);
+  max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color .15s, background .15s
+}
+.sheet-tab:hover{color:var(--text);background:var(--card)}
+.sheet-tab.active{
+  background:var(--card);color:var(--text);
+  border-color:var(--border);border-bottom:1px solid var(--card);
+  margin-bottom:-1px;position:relative;z-index:1
+}
+.sheet-tab .dot{
+  width:6px;height:6px;border-radius:50%;background:transparent;flex-shrink:0
+}
+.sheet-tab.active .dot{background:var(--amber)}
+
+/* Pinned conflict pill (below tabs) */
+.viewer-pinned{
+  display:none;align-items:center;gap:8px;
+  background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;
+  margin:10px 14px 0 14px;padding:6px 8px 6px 12px;
+  font-size:12px;color:#78350F;font-weight:600
+}
+.viewer-pinned.visible{display:inline-flex;align-self:flex-start;max-width:calc(100% - 28px)}
+.viewer-pinned .dot{
+  width:8px;height:8px;border-radius:50%;background:var(--critical);flex-shrink:0
+}
+.viewer-pinned .pin-text{
+  flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.viewer-pinned .pin-close{
+  background:transparent;border:none;color:#78350F;cursor:pointer;
+  font-size:14px;line-height:1;padding:2px 4px;border-radius:4px;font-family:inherit
+}
+.viewer-pinned .pin-close:hover{background:rgba(120,53,15,0.1)}
+:root[data-theme="dark"] .viewer-pinned{background:#3D2F0A;border-color:#854D0E;color:#FCD34D}
+:root[data-theme="dark"] .viewer-pinned .pin-close{color:#FCD34D}
+
+/* Sheet image canvas */
+.viewer-canvas{
+  flex:1;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;position:relative;overflow:hidden;min-height:440px
+}
+.viewer-canvas .sheet-img{
+  max-width:100%;max-height:100%;width:auto;height:auto;
+  box-shadow:0 4px 24px rgba(15,23,42,0.12);background:#fff;
+  border:1px solid var(--border)
+}
+.viewer-canvas .empty-state{text-align:center;color:var(--text-muted);padding:32px}
+.viewer-canvas .empty-state h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.viewer-canvas .empty-state p{font-size:12.5px;max-width:280px;line-height:1.55;margin:0 auto}
+.viewer-canvas .viewer-icon{
+  width:54px;height:54px;border-radius:14px;background:var(--navy);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+  box-shadow:0 4px 14px rgba(10,25,41,0.18)
+}
+.viewer-canvas .viewer-icon svg{width:28px;height:28px;color:var(--amber)}
+
+.viewer-pin{
+  position:absolute;width:22px;height:22px;border-radius:50%;
+  background:var(--critical);border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(220,38,38,0.4),0 0 0 4px rgba(220,38,38,0.2);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;
+  pointer-events:none;z-index:2
+}
+.viewer-footnote{
+  font-size:11px;color:var(--text-soft);text-align:center;
+  padding:8px 14px;border-top:1px solid var(--border);background:var(--bg)
+}
+
+/* Disabled toolbar buttons (PDF Report / Excel Report / RFI Documents) */
+.action-btn.disabled{
+  opacity:0.5;cursor:not-allowed;background:var(--card);
+  color:var(--text-muted)
+}
+.action-btn.disabled:hover{border-color:var(--border);background:var(--card)}
+.action-btn.disabled.dark-fill{
+  background:var(--navy);color:#fff;border-color:var(--navy);opacity:0.45
+}
+/* S336: the disabled export buttons explained themselves only via a `title`
+   tooltip, which never fires on touch. On a phone they read as three dead
+   buttons. Show the explanation as visible text instead. */
+.export-note{
+  flex-basis:100%;margin:2px 0 0;font-size:11.5px;line-height:1.4;
+  color:var(--text-soft)
+}
+
+/* Discipline-pair accordion (matches real portal's "Conflicts by discipline pair" bar) */
+.disc-accordion{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  margin:8px 0 18px 0;overflow:hidden
+}
+.disc-acc-header{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;
+  font-size:13px;color:var(--text);user-select:none
+}
+.disc-acc-header:hover{background:var(--bg)}
+.disc-acc-header .acc-title{font-weight:700;letter-spacing:-0.01em}
+.disc-acc-header .acc-sep{color:var(--text-soft)}
+.disc-acc-header .acc-detail{color:var(--text-muted);font-size:12.5px}
+.disc-acc-header .acc-chev{margin-left:auto;color:var(--text-soft);transition:transform .2s;font-size:14px}
+.disc-accordion.open .acc-chev{transform:rotate(180deg)}
+.disc-acc-body{
+  display:none;padding:0 16px 14px 16px;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px
+}
+.disc-accordion.open .disc-acc-body{display:grid}
+.disc-acc-row{
+  display:flex;justify-content:space-between;font-size:12px;
+  padding:5px 0;border-bottom:1px solid var(--border)
+}
+.disc-acc-row .pair{color:var(--text);font-weight:500}
+.disc-acc-row .cnt{color:var(--amber);font-weight:700}
+
+/* ============ Report view ============ */
+.report-preview{text-align:center;margin:32px 0}
+.report-preview h2{font-size:22px;font-weight:700;letter-spacing:-0.01em;margin-bottom:10px}
+.report-preview .subtitle{color:var(--text-muted);margin-bottom:24px;font-size:14px}
+.report-mockup{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  max-width:480px;margin:0 auto;padding:36px;color:var(--text);
+  box-shadow:0 8px 32px rgba(15,23,42,0.08)
+}
+.rm-header{background:var(--navy);color:#fff;padding:24px;border-radius:8px;margin-bottom:18px}
+.rm-header h3{font-size:20px;letter-spacing:.5px;font-weight:800}
+.rm-header h3 .amber{color:var(--amber)}
+.rm-header p{opacity:.75;font-size:12px;margin-top:4px}
+.rm-title{font-size:16px;font-weight:700;color:var(--text);text-align:center;margin:14px 0}
+.rm-bar{height:3px;background:var(--amber);border-radius:2px;margin:10px 0}
+.rm-meta{font-size:12px;color:var(--text);margin:6px 0;text-align:left}
+.rm-meta strong{color:var(--text-muted);font-weight:600}
+
+/* ============ Mobile ============ */
+.mobile-tabs{
+  display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy);
+  border-top:1px solid rgba(255,255,255,0.06);z-index:100;
+  padding:6px 0 env(safe-area-inset-bottom,6px)
+}
+.mobile-tabs-inner{display:flex;justify-content:space-around;align-items:center}
+.mobile-tab{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  background:none;border:none;color:rgba(255,255,255,0.55);
+  font-family:inherit;font-size:10px;font-weight:600;
+  padding:6px 12px;cursor:pointer;transition:color .2s;
+  -webkit-tap-highlight-color:transparent
+}
+.mobile-tab svg{width:20px;height:20px}
+.mobile-tab.active{color:var(--amber)}
+.mobile-tab.locked{opacity:0.3;pointer-events:none}
+@media(max-width:960px){
+  .report-body{grid-template-columns:1fr}
+  .viewer-col{position:static}
+  .sheet-viewer{min-height:360px}
+}
+@media(max-width:768px){
+  .header{flex-direction:column;gap:10px;padding:12px 16px}
+  .header-left{flex-direction:row;width:100%;justify-content:space-between;gap:12px}
+  .summary-row{grid-template-columns:repeat(2,1fr)}
+  .summary-row2{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:1fr 1fr}
+  .scores-grid{grid-template-columns:repeat(3,1fr)}
+  .cc-impact{grid-template-columns:1fr}
+  .cc-meta{grid-template-columns:1fr}
+  .nav{display:none}
+  .view{padding:16px}
+  .mobile-tabs{display:block}
+  body{padding-bottom:72px}
+  .report-hero{padding:18px}
+  .action-toolbar{width:100%;justify-content:flex-start}
+  .report-hero-title h1{font-size:22px}
+}
+@media(max-width:480px){
+  .summary-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <a href="index.html" class="back-link">&larr; Projects</a>
+    <a href="index.html" class="logo" aria-label="Flikt.AI home">
+      <img src="flikt-icon.svg" alt="" class="logo-icon">
+      <span class="logo-wm">Flikt<span class="logo-accent">.AI</span></span>
+    </a>
+  </div>
+  <div class="header-right">
+    <div class="nav">
+      <button class="active" onclick="showView('dashboard')">Dashboard</button>
+      <button onclick="showView('progress')">Analysis</button>
+      <button onclick="showView('results')">Results</button>
+      <button onclick="showView('report')">Report</button>
+    </div>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" onclick="(function(){var r=document.documentElement;var n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('flikt-theme',n)}catch(e){}})()">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="dashboard" class="view active">
+  <div class="dash-hero">
+    <h1>AI-Powered Plan Coordination</h1>
+    <p>Upload construction plans. Detect coordination conflicts. Save thousands in rework.</p>
+  </div>
+  <div class="project-card">
+    <h2 id="proj-name"></h2>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="label">Address</div><div class="value" id="proj-addr"></div></div>
+      <div class="meta-item"><div class="label">Project Type</div><div class="value" id="proj-type"></div></div>
+      <div class="meta-item"><div class="label">Construction Value</div><div class="value" id="proj-value"></div></div>
+      <div class="meta-item"><div class="label">Total Sheets</div><div class="value" id="proj-sheets"></div></div>
+    </div>
+    <div style="margin-top:18px">
+      <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.6px;margin-bottom:8px;font-weight:700">Disciplines Detected</div>
+      <div class="disciplines-list" id="disc-list"></div>
+    </div>
+  </div>
+  <div class="center-btn">
+    <button class="btn btn-primary" onclick="startAnalysis()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Run Conflict Analysis
+    </button>
+  </div>
+</div>
+
+<div id="progress" class="view">
+  <div class="progress-container">
+    <h2>Analyzing Plan Set</h2>
+    <div class="progress-pct" id="pct">0%</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="pbar"></div></div>
+    <div class="progress-stage" id="stage">Initializing...</div>
+    <div class="activity-log" id="log"></div>
+  </div>
+</div>
+
+<div id="results" class="view">
+  <!-- Report hero: title + address + action toolbar -->
+  <div class="report-hero">
+    <div class="report-hero-top">
+      <div class="report-hero-title">
+        <h1 id="rh-title"></h1>
+        <div class="addr" id="rh-addr"></div>
+      </div>
+      <div class="action-toolbar">
+        <button class="action-btn" title="View summary stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Stats
+        </button>
+        <button class="action-btn" title="Classic list view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Classic
+        </button>
+        <button class="action-btn" onclick="copyLink()" title="Copy shareable link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Copy Link
+        </button>
+        <button class="action-btn disabled dark-fill" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          PDF Report
+        </button>
+        <button class="action-btn disabled dark-fill" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+          Excel Report
+        </button>
+        <button class="action-btn disabled" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          RFI Documents
+        </button>
+        <p class="export-note">PDF, Excel and RFI export are available in the full portal.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary stats row -->
+  <div class="summary-row" id="summary-row"></div>
+  <div class="summary-row2" id="summary-row2"></div>
+
+  <!-- Discipline-pair accordion (collapsed by default) -->
+  <div class="disc-accordion" id="disc-accordion" onclick="this.classList.toggle('open')">
+    <div class="disc-acc-header">
+      <span class="acc-title">Conflicts by discipline pair</span>
+      <span class="acc-sep">&middot;</span>
+      <span class="acc-detail" id="disc-acc-detail">&mdash;</span>
+      <span class="acc-chev">&#9662;</span>
+    </div>
+    <div class="disc-acc-body" id="disc-acc-body" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" id="filters"></div>
+
+  <!-- Two-column body: findings list + sheet viewer -->
+  <div class="report-body">
+    <div class="findings-col">
+      <div id="conflict-list"></div>
+      <div id="truncated-notice"></div>
+    </div>
+    <div class="viewer-col">
+      <div class="sheet-viewer">
+        <div class="sheet-tabs" id="sheet-tabs"></div>
+        <div class="viewer-pinned" id="viewer-pinned">
+          <span class="dot"></span>
+          <span class="pin-text" id="pin-text"></span>
+          <button class="pin-close" type="button" onclick="dismissPinned()" aria-label="Dismiss">&times;</button>
+        </div>
+        <div class="viewer-canvas" id="viewer-canvas">
+          <div class="empty-state" id="viewer-empty">
+            <div class="viewer-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h3>Select a conflict to view its sheet</h3>
+            <p>Click any conflict on the left to load the relevant sheet. Sheet images shown are demo placeholders.</p>
+          </div>
+          <img class="sheet-img" id="sheet-img" alt="" style="display:none"/>
+        </div>
+        <div class="viewer-footnote">Sheet images are demo placeholders. Full PDF rendering with pan/zoom is available in the live customer portal.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="report" class="view">
+  <div class="report-preview">
+    <h2>Plan Conflict &amp; Coordination Report</h2>
+    <p class="subtitle">Professional PDF report ready for download</p>
+    <div class="report-mockup">
+      <div class="rm-header">
+        <h3>Flikt<span class="amber">.AI</span></h3>
+        <p>AI-Powered Plan Coordination</p>
+      </div>
+      <div class="rm-bar"></div>
+      <div class="rm-title">Plan Conflict &amp; Coordination Report</div>
+      <div class="rm-bar"></div>
+      <div class="rm-meta"><strong>Project:</strong> <span id="rm-proj"></span></div>
+      <div class="rm-meta"><strong>Report Date:</strong> August 12, 2026</div>
+      <div class="rm-meta"><strong>Conflicts Found:</strong> <span id="rm-count"></span></div>
+      <div class="rm-meta"><strong>Cost Exposure:</strong> <span id="rm-cost"></span></div>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showView('results')">
+        Back to Results
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-tabs">
+  <div class="mobile-tabs-inner">
+    <button class="mobile-tab active" onclick="showView('dashboard')" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="mobile-tab" onclick="showView('progress')" data-view="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Analysis
+    </button>
+    <button class="mobile-tab" onclick="showView('results')" data-view="results">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Results
+    </button>
+    <button class="mobile-tab" onclick="showView('report')" data-view="report">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Report
+    </button>
+  </div>
+</div>
+
+<script>
+let DATA = {"project": {"id": "demo-cypress-bend", "name": "Cypress Bend Apartments", "name_long": "Cypress Bend Apartments — Garden-Style Multifamily", "address": "4200 Cypress Bend Dr, Round Rock, TX 78665", "type": "Multifamily New Construction — Garden Style", "construction_value": 36500000, "construction_value_display": "$36,500,000", "disciplines": {"Architectural": [], "Landscape": [], "Civil": [], "Electrical": [], "Mechanical": [], "Plumbing": [], "Fire Protection": [], "Structural": [], "Interior Design": [], "Low Voltage": []}, "total_sheets": 329}, "summary": {"total_conflicts": 45, "critical": 2, "high": 12, "medium": 25, "low": 6, "cost_low": 489717, "cost_high": 1178916, "discipline_pairs": 21}, "conflicts": [{"id": "C018", "title": "Plumbing Pipe Penetrations Through Fire-Rated Floor-Ceiling Assembly Require Firestop Coordination", "disc_a": "Plumbing", "disc_b": "Structural", "type": "Code Violation", "severity": "Critical", "confidence": 0.85, "location": "All floor-ceiling assemblies throughout apartment buildings", "sheets": ["C5", "C7", "S1"], "description": "The UL fire-rated assembly details (C5 / L5 series floor-ceiling assembly and C7 / XHEZ through-penetration firestop system) specify strict requirements for pipe penetrations through fire-rated floor-ceiling assemblies. The L5 assembly requires pipes to be 'Nom 4 in. (102 mm) diam (or smaller) Schedule 10 (or heavier) steel pipe or nom 3 in. (76 mm) diam (or smaller) Type L (or heavier) copper pipe' installed midway between trusses with specific cutout dimensions. The XHEZ firestop system requires specific chase wall construction with 2x6 studs and specific fill materials. The structural notes on S1 reference UL L5-series designs but the plumbing drawings provided do not show firestop details at penetration locations or confirm pipe sizes comply with the assembly limitations. The structural notes state 'min 12 in. (305 mm) deep parallel chord trusses' which constrains the available space for pipe routing within the truss depth.", "recommended_action": "Plumbing engineer to identify all pipe penetration locations through fire-rated assemblies and confirm pipe sizes comply with UL assembly limitations (max 4-inch steel or 3-inch copper). Provide firestop schedule referencing UL System No. F-C7 or equivalent at each penetration. Coordinate with structural engineer to confirm penetration locations do not compromise truss integrity.", "source": "vision", "flags": [], "scores": {"constructability": 6, "cost": 5, "safety": 8, "schedule": 5, "downstream": 7}, "cost_low": 66000, "cost_high": 153615, "schedule_impact": "12 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 31.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C040", "title": "Apartment Building Corridor RCP Shows Exit Signs and Emergency Fixtures Referenced to Electrical/Life Safety but No Life Safety Plans Provided", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Critical", "confidence": 0.75, "location": "Apartments, corridors Levels 2-5", "sheets": ["A1"], "description": "The Reflected Ceiling Plan legend on sheets A1-A1 includes symbols for 'EXIT SIGN - TYP CENTERED ABOVE DOOR (SEE ELECTRICAL AND LIFE SAFETY)' and 'EMERGENCY LIGHT FIXTURE (SEE ELECTRICAL AND LIFE SAFETY).' The keynote legend references keynote 26-2 as 'EMERGENCY EXIT SIGN (SEE ELECTRICAL AND LIFE SAFETY)' and 26-3 as 'EMERGENCY LIGHT FIXTURE (SEE ELECTRICAL AND LIFE SAFETY).' However, no electrical or life safety plans are included in the provided document set. Without these plans, it is impossible to verify that all required emergency/exit fixtures are properly circuited, connected to emergency power, and comply with IBC 1008 and NFPA 101 egress illumination requirements.", "recommended_action": "Provide electrical lighting plans and life safety plans for the apartment buildings. Cross-reference all exit signs and emergency fixtures shown on the RCP against the electrical plans to confirm proper circuiting on emergency panels. Verify compliance with IBC 1008.3 for illumination levels along the path of egress.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 9, "schedule": 5, "downstream": 7}, "cost_low": 43200, "cost_high": 103635, "schedule_impact": "5-10 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 30.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C008", "title": "Duct Smoke Detectors Referenced in Mechanical Notes but Not Shown on Electrical/Fire Alarm Plans", "disc_a": "Mechanical", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "High", "confidence": 0.85, "location": "All apartment building levels, AHU locations", "sheets": ["M1", "Apartments Elec Permit Check"], "description": "Mechanical general note #12 on sheet M1 states: 'MECHANICAL CONTRACTOR SHALL PROVIDE A SMOKE DETECTOR IN EACH SUPPLY AND RETURN DUCT SYSTEM OVER 2000 CFM.' The DX split system schedule on M1 shows units AHU1/2/3/1-2 and AHU1/2/3/2 with airflows of 800-1900 CFM individually, but combined supply/return systems may exceed 2000 CFM. Additionally, the mechanical abbreviations list includes 'SMOKE DETECTORS' as DN2 and references them being 'PROVIDED BY DIV. 23, WIRED BY DIV. 26.' The electrical power and systems plans (E2-E2) do not show duct smoke detectors at AHU locations. No fire alarm plan is included in the provided drawing set to confirm these devices are coordinated.", "recommended_action": "Electrical/fire alarm engineer to verify which AHU systems require duct smoke detectors per FBCM 606/IMC 607 and add them to the fire alarm drawings. Coordinate wiring and monitoring with the fire alarm control panel. Mechanical contractor to provide detector housings at duct locations.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 8, "schedule": 4, "downstream": 7}, "cost_low": 19055, "cost_high": 47552, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 28.0, "concealment_weight": 1.0, "bbox": {"x0": 1663.2, "y0": 108.0, "x1": 2570.4, "y1": 540.0}, "page_number": 1, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C002", "title": "Duct Smoke Detector Required by Mechanical but Not Shown on Fire Alarm Plans", "disc_a": "Mechanical", "disc_b": "Fire-Protection", "type": "Missing Coordination", "severity": "High", "confidence": 0.82, "location": "Apartment buildings - AHU systems >2000 CFM; Clubhouse AHU systems", "sheets": ["M1", "Apartments Elec Permit Check"], "description": "The mechanical schedules on M1 note that a smoke detector shall be provided 'IN THE SUPPLY DUCT PER NFPA9 FOR ALL AIR HANDLING UNIT SYSTEMS >2000 CFM OR AS APPLICABLE.' The clubhouse mechanical schedule (M1) similarly requires duct smoke detectors for AHU systems >2000 CFM. The electrical/fire alarm notes on E1 state 'PROVIDE RTI's FOR ALL DUCT MOUNTED SMOKE DETECTORS. FIELD DETERMINE EXACT MOUNTING LOCATION OF DUCT MOUNTED SMOKE DETECTORS AND INSTALL PER NFPA AND MANUFACTURER'S WRITTEN INSTRUCTIONS.' However, the fire alarm plans do not show specific duct smoke detector locations on the floor plans. The fire alarm riser diagram on E1/E5 shows 'HVAC DETECTION' in the fire alarm matrix but actual device locations are deferred to field coordination. This creates a coordination gap where the mechanical engineer requires the devices but the fire alarm drawings do not show them, risking omission during construction.", "recommended_action": "Fire alarm contractor to coordinate with mechanical contractor to identify all AHU systems >2000 CFM and show duct smoke detector locations on fire alarm shop drawings. Electrical engineer should add duct smoke detector symbols to the power/systems plans at each qualifying AHU location. Verify clubhouse AHU1 (1800 CFM), AHU2 (1625 CFM), and AHU3 (1349 CFM) are below the 2000 CFM threshold and confirm whether duct detectors are still required by the AHJ.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 8, "schedule": 4, "downstream": 7}, "cost_low": 19425, "cost_high": 48021, "schedule_impact": "5 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 28.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C012", "title": "Exhaust Fan Duct Routing Through Fire-Rated Floor Assemblies Missing Firestop Coordination", "disc_a": "Architectural", "disc_b": "Mechanical", "type": "Missing Coordination", "severity": "High", "confidence": 0.82, "location": "All apartment units, bathroom and dryer exhaust penetrations", "sheets": ["A4", "M1"], "description": "Architectural sheet A4 shows detailed exhaust fan and dryer duct venting schematics with ducts penetrating through fire-rated floor/ceiling assemblies at each level. The details show 'FIRE CAULK OPENING' notes at each floor penetration and 'RATED CEILING' callouts. Mechanical sheet M1 provides firestop details including UL System F-C8 for multiple penetrations through wood floor/ceiling assemblies. However, the architectural details on A4 show duct configurations (double duct runs, four duct runs at floor-ceiling) that may exceed the maximum penetration sizes allowed by the referenced UL firestop systems. The UL F-C8 system limits metallic pipe penetrations to specific maximum diameters and quantities. The architectural venting schematic shows up to 4 ducts passing through a single floor opening, which needs verification against the firestop system limitations.", "recommended_action": "Verify that the duct quantities and sizes shown in the A4 venting details comply with the UL F-C8 firestop system limitations on M1. If the 4-duct configuration exceeds the listed system capacity, either separate the penetrations to meet annular space requirements or specify an alternative UL-listed firestop system that accommodates the actual duct configuration.", "source": "vision", "flags": [], "scores": {"constructability": 6, "cost": 4, "safety": 8, "schedule": 4, "downstream": 6}, "cost_low": 18130, "cost_high": 46381, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 28.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "G072", "title": "Missing Structural Support for FIRE PUMP — Structural scope gap", "disc_a": "Architectural", "disc_b": "Structural", "type": "Missing Coordination", "severity": "High", "confidence": 0.8075, "location": "P1", "sheets": ["P1"], "description": "FIRE PUMP found on Architectural plans (sheet P1) but no corresponding structural support found on Structural plans. Fire pump requires equipment pad/room structural support", "recommended_action": "Verify Structural plans include structural support for FIRE PUMP. Issue RFI if missing.", "source": "scope_completeness", "flags": [], "scores": {"constructability": 5, "cost": 8, "safety": 7, "schedule": 5, "downstream": 5}, "cost_low": 20900, "cost_high": 47727, "schedule_impact": "10 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 30.0, "concealment_weight": 1.0, "bbox": {"x0": 2271.116455078125, "y0": 770.0689086914062, "x1": 2277.047607421875, "y1": 779.6314086914062}, "page_number": 1, "milestone_pct": 30, "group_id": null, "group_label": null}, {"id": "C007", "title": "Apartment Building Breezeway Ceiling Height vs Structural Truss Depth Coordination", "disc_a": "Structural", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "High", "confidence": 0.805, "location": "Breezeways at all apartment buildings, all floors", "sheets": ["L5", "A1", "C1", "U3", "Apartments Structural Permit Check"], "description": "The architectural framing details on A1 specify '17 1/2\" DEEP WOOD BREEZEWAY WOOD FLOOR' trusses for the breezeway areas, with a note that breezeways have '3\" AVERAGE AT ENTRY DOORS DOWN TO 1.5\" AT EDGE/STAIRS W/ T BAR.' The structural framing plans (S1) note '17.5\" DEEP CORRIDOR WOOD FLOOR TRUSSES AT 24\" O.C. W/ CONC. TOPPING.' The architectural reflected ceiling plans (A1-A1) show breezeway ceiling heights at 8'-10\" with exterior grade gypsum board (XC2). The architectural building section A4 shows the floor-to-floor height from Level 1 (+0'-0\") to Level 2 (+10'-9 7/8\"), giving approximately 10'-10\" floor-to-floor. With a 17.5\" truss depth plus concrete topping (approximately 3\"), the structural depth is approximately 20.5\". The available space from finished floor to bottom of structure above is approximately 10'-10\" minus 20.5\" = approximately 9'-1.5\". With an 8'-10\" ceiling, the plenum space is approximately 3.5\", which is extremely tight for any MEP routing in the breezeway ceiling. The RCP shows sprinkler heads in the breezeway ceiling, which require piping above the ceiling.", "recommended_action": "Verify the actual available plenum space in the breezeway ceiling by cross-referencing the structural truss bottom chord elevation with the architectural finished ceiling height of 8'-10\". If the plenum is less than 6\", coordinate with fire protection to confirm sprinkler piping can be accommodated. Consider recessing sprinkler piping into the truss space or adjusting the ceiling height.", "source": "vision", "flags": [], "scores": {"constructability": 6, "cost": 4, "safety": 3, "schedule": 5, "downstream": 7}, "cost_low": 15984, "cost_high": 41321, "schedule_impact": "7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 28.7, "concealment_weight": 1.15, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C004", "title": "Condensing Units Missing from Civil/Site Plan Equipment Pads", "disc_a": "Mechanical", "disc_b": "Civil", "type": "Missing Coordination", "severity": "High", "confidence": 0.8, "location": "Ground level, exterior of apartment buildings", "sheets": ["M1", "C6", "A1"], "description": "Mechanical note #4 on sheet M1 states: 'PROVIDE 4\" CONCRETE EQUIPMENT PAD. PAD SHALL EXTEND MIN. 6\" AROUND UNIT.' The mechanical plans (M1-M1) show condensing unit locations at ground level along the building perimeter. The condensing unit detail on M1 shows units on grade with concrete pads. However, the architectural site reference plan (A1) and the civil site reference plan (A1) do not show condenser pad locations. The landscape shrub plans (LS1 through LS6) show dense plantings along building perimeters that may conflict with condenser unit locations and required clearance zones.", "recommended_action": "Civil engineer to add concrete equipment pads at all condenser locations shown on mechanical plans. Landscape architect to verify minimum clearances around condensing units (typically 24\" sides, 48\" service side) and adjust plantings accordingly. Coordinate pad locations with civil grading plan.", "source": "vision", "flags": [], "scores": {"constructability": 6, "cost": 5, "safety": 2, "schedule": 5, "downstream": 7}, "cost_low": 18793, "cost_high": 46664, "schedule_impact": "5-10 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 25.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C022", "title": "Metercenter XB Service Sizing - 36 Units at 1006A vs Panel Demand Verification", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "High", "confidence": 0.8, "location": "Electrical service entrance, apartment buildings", "sheets": ["E5"], "description": "Sheet E5 shows service load calculations for two metercenters: Metercenter XA serves 24 units (10 Unit A + 10 Unit B + 4 Unit C) with total demand of 759 amps requiring an 800A metercenter at 120/208, 3PH, 4W. Metercenter XB serves 36 units (15 Unit A + 15 Unit B + 6 Unit C) with total demand of 976 amps requiring a 1000A metercenter. Sheet E5 shows the proposed meter center series rating chart with Square D equipment. The XB metercenter at 1006A for 36 units represents a very high density load. Cross-referencing with the typical unit panel schedule on UE-B1 (Sheet 19), Unit B1 shows a total connected load of approximately 37,068 VA (panel demand ~19,042 VA after demand factors). With 36 units on XB, the service calculation should be verified against the actual unit panel demands to ensure the 1000A service is adequate, particularly considering that the service load calculation shows 1,171,360 VA total connected load with a 0.3 demand factor yielding 351,408 VA service demand plus house panel loads.", "recommended_action": "Electrical engineer to verify that the 1000A metercenter XB service is adequate for 36 units by cross-checking individual unit panel demands against the service entrance calculation. Verify that the utility company (FPL) has confirmed the available service capacity at the site. Confirm conductor sizing from utility transformer to metercenter.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 7, "safety": 6, "schedule": 5, "downstream": 7}, "cost_low": 19392, "cost_high": 44017, "schedule_impact": "14 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 29.0, "concealment_weight": 1.0, "page_number": 1, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C024", "title": "Fire-Rated Wall Penetrations at Electrical and Breezeway Locations", "disc_a": "Architectural", "disc_b": "Structural", "type": "Code Violation", "severity": "High", "confidence": 0.78, "location": "Apartment buildings, fire-rated walls at breezeways and electrical rooms", "sheets": ["A1", "S2"], "description": "Architectural floor plans A1-A1 show fire-rated walls (referenced in floor plan notes: 'REFER TO LIFE SAFETY SHEETS FOR RATED WALL LOCATION & TYPE') at breezeways, stairwells, and between units. The structural details on S2 show shear wall construction details including typical shear wall/blocking detail in truss space, but do not address fire-rated penetration details for electrical conduit, plumbing pipes, or HVAC ducts passing through these rated walls. The electrical plans show panel locations (PWR.11.1(I), etc.) adjacent to rated walls, requiring conduit penetrations. The UL firestop system F-C7 is referenced in the civil/plumbing sheets but no firestop schedule or penetration detail is shown on the architectural or structural drawings linking specific wall types to required firestop systems.", "recommended_action": "Architect to provide a firestop schedule identifying all rated wall and floor penetration types with corresponding UL system numbers. Structural engineer to coordinate shear wall penetration limitations. All MEP disciplines to identify penetration locations through rated assemblies and specify appropriate firestop systems.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 8, "schedule": 4, "downstream": 7}, "cost_low": 21367, "cost_high": 52823, "schedule_impact": "7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 28.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C035", "title": "Fire-Rated Wall Penetration Firestop Details Missing from Construction Drawings", "disc_a": "Structural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "High", "confidence": 0.78, "location": "All fire-rated wall and floor assemblies", "sheets": ["L3", "U3", "S3"], "description": "The document set includes UL System W-L3 (through-penetration firestop system) and BXUV.U3 (fire resistance ratings for wall assemblies). These UL listings specify detailed requirements for firestopping penetrations through fire-rated walls including maximum opening sizes (4\" diameter), cable fill ratios (max 45%), and specific sealant products (Hilti CP6 or FS-One). However, the structural foundation sections (S3) and framing sections (S4) do not include firestop detail callouts at penetration locations. The architectural RCP notes reference 'SEE ELECTRICAL' and 'SEE MECHANICAL' for various devices but no firestop schedule or penetration detail is shown on the architectural or structural drawings to implement the UL listings provided.", "recommended_action": "Add firestop detail callouts on structural and architectural drawings at all penetration locations through fire-rated assemblies. Create a firestop schedule referencing the specific UL system numbers (W-L3, etc.) for each penetration type. Include firestop details on MEP drawings showing proper installation per UL listing requirements.", "source": "vision", "flags": ["fire rating", "code compliance"], "scores": {"constructability": 5, "cost": 4, "safety": 8, "schedule": 3, "downstream": 7}, "cost_low": 14568, "cost_high": 36015, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 27.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C020", "title": "Garage Truss Bearing Elevation vs Architectural Ceiling Height Coordination", "disc_a": "Structural", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "High", "confidence": 0.77, "location": "Garages (5-bay regular and ADA garages)", "sheets": ["A1", "S1"], "description": "The structural framing notes on sheets S1 and S1 for the 5-bay garages state 'TRUSS BEARING ELEVATION = 8'-4\". VERIFY WITH ARCHITECTURAL DRAWINGS.' The architectural garage plan A1 shows a ceiling/soffit schedule indicating 'CEILING / SOFFIT SCHEDULE - GARAGE' but the ceiling height is not clearly dimensioned against the 8'-4\" bearing elevation. The garage overhead door schedule on A1 shows door heights of 7'-0\" (G1) and 9'-0\" (G2). A 9'-0\" overhead door height with an 8'-4\" truss bearing elevation creates a potential conflict - the door header would need to be at or above the truss bearing point, which may not be structurally feasible without special framing.", "recommended_action": "Architect and structural engineer to verify that the 9'-0\" overhead door (G2) can be accommodated with the 8'-4\" truss bearing elevation. If the door height exceeds the bearing elevation, either the truss bearing must be raised or the door height reduced. Provide a section detail showing the relationship between the overhead door head, header, and truss bearing.", "source": "vision", "flags": [], "scores": {"constructability": 7, "cost": 5, "safety": 3, "schedule": 6, "downstream": 5}, "cost_low": 17262, "cost_high": 42423, "schedule_impact": "13 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 26.0, "concealment_weight": 1.0, "page_number": 36, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C011", "title": "Plumbing Waste/Vent Risers Routing Through Structural Truss Zones", "disc_a": "Plumbing", "disc_b": "Structural", "type": "Spatial Clash", "severity": "High", "confidence": 0.75, "location": "All floors, bathroom and kitchen wet walls", "sheets": ["P2", "Apartments Structural Permit Check"], "description": "The plumbing sanitary waste and vent riser diagrams (P2) show 3\" and 2\" waste/vent risers running vertically through all five floors. The structural framing plans (S1-S1) show 20\" deep unit wood floor trusses at 24\" O.C. and 17.5\" deep corridor wood floor trusses. Structural framing note #4 states: 'RUNS FOR MECH., ELECTRICAL AND PLUMBING UNITS THROUGH PRE-FABRICATED TRUSSES MUST BE IN COORDINATION WITH THE TRUSS DESIGNER AND ARE NOT DUCT, OPENING, DUCT RUNS, ETC.) FIRE SPRINKLER RUNS MUST ALSO BE COORDINATED.' While vertical risers typically pass through floor openings rather than through trusses, the horizontal waste piping connections from fixtures to risers must route through the truss zone. The plumbing floor plans show horizontal runs that would need to pass through or below the 20\" floor trusses, and coordination with the truss manufacturer is required per the structural notes.", "recommended_action": "Plumbing engineer to coordinate all horizontal waste/vent pipe routing with the truss manufacturer. Provide truss penetration locations and sizes to the structural engineer for truss design. Ensure no pipes penetrate truss chords without engineered approval. Consider routing larger pipes below trusses where ceiling height permits.", "source": "vision", "flags": [], "scores": {"constructability": 7, "cost": 5, "safety": 3, "schedule": 6, "downstream": 7}, "cost_low": 22726, "cost_high": 55025, "schedule_impact": "7-10 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 28.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C005", "title": "Clubhouse Ceiling Height vs Structural Truss Bearing - Plenum Space Concern", "disc_a": "Structural", "disc_b": "Mechanical", "type": "Spatial Clash", "severity": "High", "confidence": 0.68, "location": "Clubhouse building - all rooms", "sheets": ["S2", "Clubhouse Mech Permit Check"], "description": "The structural roof framing plan S2 shows the clubhouse truss bearing (bottom chord) elevation at 12'-0\". The architectural section A4 shows the clubhouse elevation height reference of +21'-6 5/8\" at the roof level and +12'-0\" at the second level/truss bearing, with the finished floor at +0'-0\". This gives a floor-to-bottom-chord height of 12'-0\". The architectural RCP (A1) does not explicitly state the finished ceiling height for all clubhouse rooms, but the mechanical plan M1 shows ductwork with sizes up to 20x14 in the clubhouse. A 20x14 duct requires approximately 14\" of vertical space plus hangers (approximately 16-18\" total). If the finished ceiling is at approximately 10'-0\" to 10'-6\" (typical for clubhouse spaces), the available plenum would be approximately 18-24\", which is tight for the larger duct runs plus sprinkler piping, electrical conduit, and lighting. The mechanical plan shows multiple duct crossings and transitions that could create congestion in the plenum space.", "recommended_action": "Verify the finished ceiling height for all clubhouse rooms against the structural bottom chord elevation of 12'-0\". Calculate available plenum space and confirm all mechanical ductwork, sprinkler piping, and electrical conduit can fit within the available space. Consider 3D coordination for the clubhouse ceiling plenum. Particular attention needed at duct crossings near the lobby, kitchen, and fitness areas where multiple large ducts converge.", "source": "vision", "flags": [], "scores": {"constructability": 7, "cost": 5, "safety": 2, "schedule": 6, "downstream": 8}, "cost_low": 23172, "cost_high": 55570, "schedule_impact": "13 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 32.2, "concealment_weight": 1.15, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C032", "title": "Firestop System References Mislabeled as Landscape Sheets", "disc_a": "Landscape", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.9, "location": "Drawing Set Organization", "sheets": ["L3"], "description": "Multiple sheets labeled as 'Landscape' discipline (L3, L1, L3, L2) actually contain UL through-penetration firestop system details (System No. W-L3, W-L1, W-L3, W-L2) and fire-resistance design information (Design No. U3). These are fire protection/code compliance documents, not landscape drawings. Similarly, sheets labeled as 'Plumbing' (P5) contain UL fire-resistance assembly details including ceiling damper specifications and fire-rated wall assembly information. This mislabeling creates confusion in the drawing set organization and could lead to contractors not finding critical firestop information during construction. The firestop details are essential for fire-rated wall and floor penetrations but are buried under incorrect discipline labels.", "recommended_action": "Reorganize the drawing set to properly categorize firestop system details under fire protection or architectural code compliance sections. Ensure the drawing index on G1 correctly references these sheets. Add cross-references on the architectural fire-rated wall details directing contractors to the correct firestop system sheets.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 1, "safety": 5, "schedule": 2, "downstream": 4}, "cost_low": 3740, "cost_high": 9981, "schedule_impact": "1-2 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 17.2, "concealment_weight": 1.15, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C030", "title": "AC Unit Pads Not Shown on Civil Site Plan", "disc_a": "Civil", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.85, "location": "Buildings 1-5, Clubhouse", "sheets": ["A1", "C1", "C6"], "description": "Civil utility plan C1 includes a note stating 'IRRIGATION SOURCE WILL BE A WELL.' An irrigation well requires a pump, which requires an electrical power source — typically a dedicated transformer or circuit from the main electrical service. No electrical drawings are provided in this set to confirm that a dedicated electrical feed, disconnect, or transformer has been designed for the irrigation well pump. The civil notes also state 'CONTRACTOR RESPONSIBLE FOR COORDINATING UTILITY SHUT DOWNS DURING STORM DRAIN UTILITY CROSSING INSTALLATION WITH THE CITY OF FORT MYERS PUBLIC WORKS,' indicating active utility coordination is required, but the irrigation pump power supply appears to be a scope gap.", "recommended_action": "Civil engineer must coordinate with the mechanical engineer to show all AC unit pad locations on the site plan with proper elevations. Verify that equipment pads do not conflict with sidewalks, landscaping, or drainage patterns. Provide pad details including size and elevation relative to finished grade.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 3, "safety": 1, "schedule": 4, "downstream": 5}, "cost_low": 5922, "cost_high": 14159, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 17.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C010", "title": "Irrigation Controller Missing Electrical Power Circuit", "disc_a": "Landscape", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.82, "location": "Site, irrigation controller location", "sheets": ["Irrigation", "Apartments Elec Permit Check", "IR6", "E5", "E1"], "description": "The irrigation general notes on sheet IR1 specify an 'I-CORE 42 STATION CONTROLLER WITH RFC RAIN & FREEZE SENSOR' and note 'A Licensed electrician will install/provide power to the controller, pump, or fountain if utilized on project.' The irrigation system also references an 'EXISTING WELL/PUMP TO PROVIDE 50 GPM AT 65 PSI.' The electrical riser diagram (E5) and power plans (E2-E2) do not show a dedicated circuit for the irrigation controller or well pump. No irrigation power circuit is visible on any electrical plan provided.\n\nAffected disciplines: Electrical-Lighting, Landscape (2 related findings combined).", "recommended_action": "Electrical engineer to add a dedicated circuit for the irrigation controller (typically 120V/20A) and verify if the existing well pump requires a new or upgraded electrical feed. Add these circuits to the appropriate panel schedule and show conduit routing on the site electrical plan.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 3, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 5462, "cost_high": 13601, "schedule_impact": "3-5 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 18.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C006", "title": "Fire Alarm Waterflow and Tamper Switch Connections Deferred Without Clear Scope Assignment", "disc_a": "Fire-Protection", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.8, "location": "All apartment buildings and clubhouse - sprinkler risers", "sheets": ["Apartments Fp Permit Check", "Apartments Elec Permit Check"], "description": "The fire protection notes on FP1 state '2G PROVIDE WATERFLOW ALARM DEVICE & TAMPERING DEVICE CONNECTED TO...' indicating the fire sprinkler system requires waterflow and tamper switch connections to the fire alarm system. The electrical/fire alarm notes on E1 state 'REFER TO FIRE PROTECTION SHOP DRAWINGS FOR ACTUAL LOCATIONS OF ALL FLOW AND TAMPER SWITCHES, INCLUDING THOSE LOCATED OUTSIDE THE BUILDING. FIELD VERIFY.' The electrical power/systems plans (E2-E2) show notes for 'PROVIDE FIRE ALARM CONNECTION TO FLOW SWITCH AND TAMPER SWITCH ON EACH FLOOR.' However, the fire protection plans (FP1, FP1) show butterfly valves with tamper switches at each floor but do not show the fire alarm wiring connections. This creates a partial delegation where both disciplines reference each other but neither shows the complete scope of the interface wiring between the sprinkler system devices and the fire alarm panel.", "recommended_action": "Clarify scope boundary: fire protection contractor to provide and install waterflow switches and tamper switches; electrical/fire alarm contractor to provide wiring from these devices to the FACP. Both contractors must coordinate device locations during shop drawing phase. Add a coordination note on both FP and electrical drawings specifying the interface responsibility.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 3, "safety": 8, "schedule": 3, "downstream": 6}, "cost_low": 5750, "cost_high": 13950, "schedule_impact": "3 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 24.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C019", "title": "Irrigation Mainline Sleeves Under Sidewalks and Parking - Civil Coordination Gap", "disc_a": "Landscape", "disc_b": "Civil", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.8, "location": "Site-wide, under sidewalks and parking areas", "sheets": ["IR1", "IR2", "IR3", "C2"], "description": "The irrigation plans IR1 through IR5 extensively reference 'SLEEVES TYP.' at locations where the 2.5-inch mainline crosses under sidewalks and parking areas, with notes stating 'SIDEWALK BY CIVIL' and 'PARKING BY CIVIL.' The irrigation plans show numerous sleeve locations throughout the site. However, the civil general notes on C2 do not reference irrigation sleeves or coordination with the irrigation contractor for sleeve installation timing. The civil notes address water lines, sanitary sewer, and storm drainage but make no mention of irrigation sleeve installation under paving or sidewalks. If sleeves are not installed before paving, costly saw-cutting and patching will be required.", "recommended_action": "Civil engineer to add irrigation sleeve locations to the civil utility plan or paving plan. Include a note requiring irrigation sleeves to be installed prior to paving operations. Coordinate sleeve sizes (minimum 4-inch PVC sleeve for 2.5-inch mainline) and locations with landscape architect. Add sleeve installation to the civil construction sequence.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 1, "schedule": 6, "downstream": 5}, "cost_low": 6180, "cost_high": 14311, "schedule_impact": "7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 21.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C027", "title": "Irrigation Pump and Controller Missing Electrical Coordination", "disc_a": "Electrical-Lighting", "disc_b": "Civil", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.8, "location": "Site - Irrigation System", "sheets": ["E5", "C6"], "description": "Panel DP on electrical sheet E5 shows circuits for irrigation: Circuit 1 'AHU1' at 2.60 KVA, Circuit 21 'IRRIGATION PUMP' at 2.54 KVA, Circuit 23 'IRRIGATION PUMP' at 2.00 KVA, and Circuit 25 'IRRIGATION PUMP TIMER' at 0.50 KVA. Additionally, Circuit 1 on Panel DP shows 'FOUNTAIN CONTROLLER' at 3.20 KVA. The civil site plan C6 shows the overall site layout with landscaped areas but no irrigation plan is included in the provided sheets. There is no landscape irrigation plan showing pump locations, controller locations, or sleeve locations to coordinate with the electrical conduit routing. The electrical panel provides power but the irrigation system design (pump size, location, controller type) appears to be missing from the provided drawings, creating a coordination gap.", "recommended_action": "Landscape architect must provide an irrigation plan showing pump and controller locations. Coordinate with electrical engineer to verify conduit routing from Panel DP to irrigation equipment locations. Verify pump HP matches the electrical circuit sizing (2.54 KVA on a 30A/2P breaker appears adequate for a small pump but must be confirmed against actual pump selection).", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 2, "schedule": 6, "downstream": 7}, "cost_low": 6240, "cost_high": 14382, "schedule_impact": "7-10 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 24.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C014", "title": "Mechanical Condensate Drain Routing Not Coordinated with Plumbing", "disc_a": "Mechanical", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.78, "location": "All apartment units, mechanical closets", "sheets": ["M1", "P1"], "description": "The mechanical cover sheet (M1) shows a condensate trap detail and notes that condensate drains require proper routing. The DX split system schedule lists indoor AHU units in mechanical closets on each floor. Plumbing note #4 on sheets P1-P1 states: '5/8 CONDENSATE DRAIN UP AND DOWN. REFER TO UPPER LEVELS FOR COORDINATION. PROVIDE A 1\" CHECK VALVE ON THE HORIZONTAL LINE CONNECTED TO THE RISER SERVING THE FIRST FLOOR AVL.' This confirms condensate is being routed through the plumbing system, but the mechanical plans (M1-M1) do not show condensate drain routing from the AHU units to the plumbing condensate risers. The interface between mechanical equipment and plumbing drainage is not detailed.", "recommended_action": "Mechanical engineer to show condensate drain routing from each AHU to the plumbing condensate riser on the mechanical floor plans. Coordinate trap locations, pipe sizes, and connection points with the plumbing engineer. Ensure condensate piping is properly sloped and insulated per mechanical specifications.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 3, "safety": 1, "schedule": 3, "downstream": 5}, "cost_low": 5807, "cost_high": 14019, "schedule_impact": "3-5 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 17.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C017", "title": "Elevator Electrical Load on Panel Schedule vs Missing Elevator Equipment Coordination", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.78, "location": "Elevator shaft, apartment buildings", "sheets": ["E5", "A1"], "description": "Panel schedules H1-H5 on E5 each show an 'ELEVATOR' circuit at approximately 11.5 KVA (varying slightly) and a separate 'ELEVATOR (FUTURE)' circuit. The architectural floor plan A1 shows an elevator location at the central core area. However, there is no elevator equipment schedule visible in the provided drawings to confirm the elevator motor size, voltage requirements, or whether the 11.5 KVA allocation is adequate for the elevator machine. Additionally, the panel schedules show both current and future elevator circuits, but no coordination details are provided for the elevator pit sump pump, cab lighting, or ventilation fan circuits that are typically required.", "recommended_action": "Coordinate with elevator vendor to confirm motor HP, voltage, phase, and starting current requirements. Verify that the 11.5 KVA allocation on each panel is adequate. Add circuits for elevator pit sump pump, cab lighting, and shaft ventilation fan if not already included.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 5, "safety": 3, "schedule": 4, "downstream": 6}, "cost_low": 6250, "cost_high": 14250, "schedule_impact": "7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 22.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C009", "title": "Landscape Plantings Conflict with Condenser Unit Clearance Zones", "disc_a": "Landscape", "disc_b": "Mechanical", "type": "Spatial Clash", "severity": "Medium", "confidence": 0.77, "location": "Building perimeters, all apartment buildings", "sheets": ["Landscape Shrubs", "M1"], "description": "The landscape shrub plans (LS1 through LS6) show dense shrub plantings (HP - Dwarf Firebush, CV - Croton, ST - Trinette Variegated Schefflera, etc.) along building perimeters at locations where mechanical plans show ground-mounted condensing units. The mechanical condensing unit detail on M1 requires minimum 5\" clearance on sides and specific service access clearance. Dense shrub plantings directly adjacent to condensers will restrict airflow, reduce equipment efficiency, and impede maintenance access. Multiple locations across all five buildings are affected.", "recommended_action": "Landscape architect to overlay mechanical condenser locations onto shrub plans and provide minimum 36\" clearance zone around all condensing units. Replace dense shrubs with low groundcover within clearance zones. Coordinate with mechanical engineer for exact unit locations and required clearances per manufacturer recommendations.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 4, "safety": 1, "schedule": 3, "downstream": 4}, "cost_low": 6830, "cost_high": 16132, "schedule_impact": "2-3 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 15.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C016", "title": "Booster Pump Electrical Circuit Sizing Verification Needed", "disc_a": "Electrical-Lighting", "disc_b": "Plumbing", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.75, "location": "Fire pump room / mechanical room, apartment buildings", "sheets": ["E5", "A1"], "description": "Panel schedules H1 through H5 on sheet E5 each show a 'BOOSTER PUMP' circuit at 8.75 KVA on a 3-phase breaker. The booster pump is listed on each building panel. However, the plumbing drawings provided (UL fire-rated assembly details from P5) do not include a plumbing equipment schedule to cross-reference the booster pump HP rating against the electrical circuit sizing. The architectural floor plan A1 shows a 'FIRE PUMP' room at Level 1. Without a plumbing equipment schedule confirming the booster pump motor HP and voltage, the 8.75 KVA allocation and breaker sizing cannot be verified as adequate.", "recommended_action": "Plumbing engineer to provide booster pump equipment schedule with motor HP, voltage, phase, and full load amps. Electrical engineer to verify breaker and conductor sizing match the actual pump motor requirements per NEC Article 430.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 4, "safety": 5, "schedule": 3, "downstream": 4}, "cost_low": 5616, "cost_high": 12943, "schedule_impact": "3 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 19.0, "concealment_weight": 1.0, "bbox": {"x0": 0.0, "y0": 1512.0, "x1": 756.0, "y1": 1836.0}, "page_number": 1, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C031", "title": "Maintenance Building Missing HVAC Design", "disc_a": "Architectural", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.75, "location": "Maintenance Building", "sheets": ["A1", "E5"], "description": "The architectural plan for the maintenance building on sheet A1 shows offices, a restroom, and maintenance areas that would require HVAC. The building data table on A1 shows the building as 'TYPE V-B' construction with 'UNSPRINKLERED' status. However, no mechanical/HVAC plans are provided for the maintenance building in the drawing set. The electrical panel schedules on E5 do not show any HVAC equipment circuits specifically for the maintenance building. The structural sheet S1 shows the maintenance building framing but the structural notes reference coordination with mechanical drawings that do not appear to exist for this building.", "recommended_action": "Mechanical engineer must provide HVAC design for the maintenance building including equipment selection, duct layout, and thermostat locations. Electrical engineer must add corresponding circuits to the panel schedule for HVAC equipment. Coordinate equipment locations with the structural roof framing plan.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 5, "safety": 3, "schedule": 5, "downstream": 6}, "cost_low": 6187, "cost_high": 14178, "schedule_impact": "10-14 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 24.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C038", "title": "Clubhouse Lighting Fixture L6 Specified as TBD — Incomplete Specification in Lighting Legend", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.75, "location": "Clubhouse, various locations per RCP", "sheets": ["A1"], "description": "The Lighting Legend on sheets A1, A1, and A1 lists fixture L6 as 'PENDANT LIGHT FIXTURE' with manufacturer and product # both listed as 'TBD'. This fixture type appears on the clubhouse RCP plan. Without a specified manufacturer, product number, wattage, or lamp type, the electrical engineer cannot properly circuit the fixture, the contractor cannot procure it, and the lead time is unknown. All other fixtures (L1-L5, L7-L1) have complete specifications. L6 is an incomplete specification that blocks procurement and electrical coordination.", "recommended_action": "Architect/interior designer must finalize the L6 pendant light fixture selection including manufacturer, model number, wattage, voltage, and mounting requirements. Update the lighting legend and distribute to electrical engineer for circuiting coordination.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 3, "safety": 1, "schedule": 7, "downstream": 6}, "cost_low": 4484, "cost_high": 10671, "schedule_impact": "2-4 weeks if fixture has long lead time once selected", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 22.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C039", "title": "Clubhouse RCP Shows Multiple Fixture Types with 3-6 Week Lead Times — No Early Procurement Note", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Documentation Gap", "severity": "Medium", "confidence": 0.75, "location": "Clubhouse", "sheets": ["A1"], "description": "The Lighting Legend on the clubhouse RCP sheets identifies multiple fixtures with significant lead times: FAN1 (Visual Comfort, 4-6 weeks), L2 (West Elm chandelier, 3-4 weeks), L3 (wall sconce, made to order, ships within 6 weeks), L8 (West Elm chandelier, 3-4 weeks), L1 (Cedar & Moss, ships from Oregon in 1 week), L1 (Shades of Light, 4-6 weeks), L1 (Schneid Studio, 2-3 weeks, made in Germany, 3-4 months if not in stock), L1 (Schneid Studio, made in Germany, 3-4 months). Fixture L1 and L1 have potential lead times of 3-4 months from Germany. There is no early procurement or long-lead-item note in the construction documents to flag these items for advance ordering.", "recommended_action": "Add a long-lead-item procurement note to the specifications or general notes identifying fixtures L1, L1, and L3 as requiring early procurement (minimum 4 months prior to installation). Coordinate with the general contractor's procurement schedule to ensure these items are ordered at or before construction start.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 2, "safety": 1, "schedule": 8, "downstream": 5}, "cost_low": 4125, "cost_high": 10350, "schedule_impact": "14-90 days if fixtures are not pre-ordered", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 19.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C044", "title": "Ceiling Plenum Conflict: 42\" duct exceeds available plenum", "disc_a": "Mechanical", "disc_b": "Architectural", "type": "spatial_conflict", "severity": "Medium", "confidence": 0.75, "location": "O R S IF THIS SHEET DOES NOT MEASURE TO 30 x 42, IT HAS BEEN", "sheets": ["P1", "P2", "A1", "C1", "M1"], "description": "Available plenum space is approximately 6\" (floor-to-floor 132\" - ceiling 108\" - structure 12\" - slab 6\"). Duct requires 46\" (42\" duct + 2\" insulation + 2\" clearance). Shortfall: 40\". Additional ducts also exceed available plenum: 38\", 36\", 30\", 20\", 18\", 16\", 14\", 12\", 10\", 8\", 6\", 4\" (13 ducts total flagged on this project).", "recommended_action": "Coordinate MEP routing with structural depth and ceiling height. Options: raise ceiling, reduce duct size, or reroute ductwork.", "source": "clearance_validator", "flags": [], "scores": {"constructability": 4, "cost": 5, "safety": 2, "schedule": 5, "downstream": 5}, "cost_low": 6375, "cost_high": 14392, "schedule_impact": 3, "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 21.0, "concealment_weight": 1.0, "bbox": {"x0": 2128.8896484375, "y0": 822.90625, "x1": 2138.3291015625, "y1": 833.2140502929688}, "page_number": 1, "milestone_pct": 60, "group_id": null, "group_label": null}, {"id": "C023", "title": "Clubhouse Kitchen Missing Dedicated Electrical Circuits for Commercial Equipment", "disc_a": "Architectural", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.73, "location": "Clubhouse Kitchen, Room 115", "sheets": ["A1", "E5"], "description": "The architectural clubhouse floor plan A1 shows a Kitchen (Room 115) with notes referencing 'FOR INTERIOR APPLIANCE & GENERAL SPECIALTY EQUIPMENT: REFER TO SHEET A7.' The kitchen appears to be a commercial-style kitchen for the clubhouse amenity. The electrical panel schedules on E5 show house panels (H1-H5) for the apartment buildings but no dedicated clubhouse panel schedule is visible in the provided sheets. A clubhouse kitchen would require dedicated circuits for commercial cooking equipment, exhaust hood, dishwasher, refrigeration, and potentially a grease trap pump. Without a clubhouse electrical panel schedule, these loads cannot be verified.", "recommended_action": "Verify that a clubhouse electrical panel schedule exists (possibly on sheets not included in this review). Coordinate kitchen equipment schedule from A7 with electrical engineer to ensure all cooking equipment, exhaust hood motor, dishwasher, and refrigeration have dedicated circuits with proper sizing.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 5, "safety": 3, "schedule": 4, "downstream": 6}, "cost_low": 6125, "cost_high": 14107, "schedule_impact": "7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 22.0, "concealment_weight": 1.0, "page_number": 17, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C028", "title": "Dog Wash Plumbing and Electrical Connections Not Coordinated", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.73, "location": "Dog Wash Pavilion", "sheets": ["E1", "A1"], "description": "The site electrical plan E1 shows the dog wash area near the clubhouse with electrical connections indicated. The architectural sheet A1 shows detailed dog wash plans including a prep table, cross section, and elevations with plumbing fixtures (dog wash stations). The structural sheet S1 shows the dog wash foundation and roof framing. However, the electrical site plan E1 shows only general site electrical routing near the dog wash without specific circuit identification for dog wash equipment (water heater, hose bibs, lighting). The clubhouse panel schedules on E5 do not clearly identify dedicated circuits for dog wash hot water or equipment. The keynote legend on A1 references 'DOG WASH PREP TABLE' and 'DOG WASH CEM. 30\" PAV. HT.' but no corresponding electrical or plumbing schedules are provided for the dog wash equipment.", "recommended_action": "Electrical engineer must identify specific circuits for dog wash lighting, receptacles, and water heater on the panel schedule. Plumbing engineer must provide a plumbing plan for the dog wash showing hot/cold water supply, drainage, and hose bib connections. Coordinate with the architectural dog wash plan for fixture locations.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 6000, "cost_high": 14100, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 20.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C013", "title": "Building Fire-Resistance Rating Discrepancy Between Apartments and Clubhouse", "disc_a": "Architectural", "disc_b": "Structural", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.72, "location": "Apartment buildings and clubhouse", "sheets": ["A2"], "description": "The apartment building life safety plan (A2) shows Fire-Resistance Ratings with Primary Structural Frame at 1 HOUR, Bearing Walls Exterior/Interior at 2 HOUR/1 HOUR, Floor Construction at 1 HOUR, and Roof Construction at 1 HOUR for Type IIA construction. The clubhouse life safety plan (A2) shows Fire-Resistance Ratings with Primary Structural Frame at 0 HOUR, all Bearing Walls at 0 HOUR, Floor Construction at 0 HOUR, and Roof Construction at 0 HOUR for Type V-B construction. The clubhouse framing plan (A1) shows partition types with fire ratings (PW4.0 with STC Rating 33, etc.) but the structural framing details on A1 show interior wood stud walls with varying fire ratings. The discrepancy between 0-hour rated construction type and the presence of fire-rated partitions within the clubhouse needs clarification to ensure proper construction.", "recommended_action": "Architect to clarify the relationship between the Type V-B (0-hour) building classification for the clubhouse and the fire-rated partitions shown on the framing plan. Verify that fire-rated partitions are for occupancy separation (A3 to other uses) rather than structural fire resistance. Ensure structural engineer and framing contractor understand which walls require fire-rated assemblies.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 2, "safety": 6, "schedule": 2, "downstream": 5}, "cost_low": 5197, "cost_high": 12730, "schedule_impact": "2-3 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 18.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C025", "title": "Structural Bearing Height vs Architectural Truss Bearing Elevation - Maintenance Building", "disc_a": "Structural", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.72, "location": "Maintenance Building", "sheets": ["S1", "A1"], "description": "On structural sheet S1, the framing note states 'TRUSS BEARING ELEVATION = 8'-1 1/8\" - VERIFY WITH ARCHITECTURAL DRAWINGS.' On architectural sheet A1, the maintenance building sections show truss bearing at EL 8'-1 1/8\" (bearing ht.) in some sections but the wall sections show varying bearing heights. The structural note explicitly calls for verification with architectural, indicating the two disciplines have not yet been formally coordinated on this dimension. Any discrepancy between the structural truss bearing elevation and the architectural stud wall height will cause field conflicts during framing.", "recommended_action": "Architect and structural engineer must formally coordinate and confirm the truss bearing elevation for the maintenance building. Issue an RFI or coordination memo to lock in the bearing height on both sets of drawings before framing begins.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 3, "safety": 2, "schedule": 4, "downstream": 5}, "cost_low": 5226, "cost_high": 12617, "schedule_impact": "3-5 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 19.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C033", "title": "Corridor Ceiling Height Discrepancy Between Building Levels", "disc_a": "Architectural", "disc_b": "Structural", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.7, "location": "Apartment building corridors - Levels 2-5", "sheets": ["A1"], "description": "The apartment building RCPs show corridor ceiling heights that vary between levels. A1 (Level 2) shows corridor ceiling heights of 9-30 and 7-62 keynotes. A1 (Level 4) shows keynote 6-35 which reads '12\" WALL, 12\" W/6 INSUL. LISTED TOP CHORD TRUSS FRAMING @ 24\" O.C.' and keynotes 9-30 and 7-62. A1 (Level 5) shows different ceiling configurations at the stair/elevator area with varying soffit heights (9-30, 9-32). These varying ceiling conditions across levels need to be coordinated with the structural truss depths at each level to confirm adequate plenum space, but no structural framing plans for the apartment buildings are provided in this sheet set to cross-reference.", "recommended_action": "Provide structural roof/floor framing plans for the apartment buildings to verify truss/joist depths at each level. Confirm that corridor ceiling heights shown on RCPs are achievable given structural member depths and MEP routing requirements in the corridor plenum.", "source": "vision", "flags": [], "scores": {"constructability": 5, "cost": 3, "safety": 1, "schedule": 4, "downstream": 6}, "cost_low": 5278, "cost_high": 12680, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 19.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C015", "title": "Electrical Riser Shows 125A Unit Panels but Feeder Sizing Not Verified Against Demand", "disc_a": "Electrical-Lighting", "disc_b": "Mechanical", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.7, "location": "All apartment units, electrical panels", "sheets": ["Apartments Elec Permit Check", "M1"], "description": "The electrical riser diagram (E5) shows typical unit feeders with panels rated 125A MLO (Main Lug Only), 120/208V, 14 spaces, 3-phase, 4-wire. Each unit has Panel A1, Panel B1, and some units have Panel C1. The mechanical schedule on M1 shows DX split systems with outdoor units drawing 8-1 to 25-1 amps at 208V and indoor AHU units at various amperages. The riser note states 'TYPICAL CDN UNIT FEEDER: (2/3) THW, (2/3) CU, (1/3) CU GND IN 1-1/2\" C. COPPER THHN WIRE IN EMT CONDUIT. UNDER THAN 200' (2/3)#1 AL, (1)#4 CU GND IN 2\" C.' However, the feeder sizing appears to be based on preliminary calculations and the note warns that 'GROUND FAULT CURRENTS ARE BASED ON PRELIMINARY UTILITY TRANSFORMER INFORMATION.' Without detailed panel schedules for each unit type showing all connected loads including HVAC, water heater, range, dryer, and general circuits, the feeder adequacy cannot be fully verified.", "recommended_action": "Electrical engineer to provide detailed panel schedules for each unit type (A1, B1, C1) showing all connected loads including HVAC equipment from the mechanical schedule. Verify feeder conductor sizing per NEC Article 220 demand calculations. Confirm that 125A panel rating is adequate for the total connected load of each unit type.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 5, "safety": 5, "schedule": 3, "downstream": 4}, "cost_low": 5456, "cost_high": 12632, "schedule_impact": "3-5 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 21.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C026", "title": "Clubhouse Lighting Panel CHA - Spare Circuits vs Known Equipment Loads", "disc_a": "Electrical-Lighting", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.7, "location": "Clubhouse", "sheets": ["E5", "E1"], "description": "Panel CHA on sheet E5 shows total connected load of 33.91 KVA with 84 amps on a 200A MCB panel. The panel has circuits for lighting in various clubhouse rooms (lobby, yoga room, fitness room, kitchen, game room, etc.) and several spare circuits. However, the lighting plan on E1 shows numerous fixture types and locations throughout the clubhouse. The panel schedule shows circuits CHA2 labeled 'EF1 & EF3' and CHA2 labeled 'EF2' which appear to be exhaust fans. The architectural plans on A1 show the maintenance building has an exhaust fan (keynote legend), but there is no clear coordination showing that all clubhouse exhaust fans referenced on architectural plans have corresponding electrical circuits. Additionally, the panel schedule shows 'SPARE' circuits that may need to be allocated for equipment not yet identified.", "recommended_action": "Cross-reference all mechanical equipment shown on architectural and mechanical plans for the clubhouse against the electrical panel schedules. Verify all exhaust fans, HVAC equipment, and specialty equipment have dedicated circuits. Allocate spare circuits as needed.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 4, "safety": 2, "schedule": 3, "downstream": 5}, "cost_low": 5820, "cost_high": 13888, "schedule_impact": "3-5 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 17.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "D068", "title": "Electrical shows transformer but Civil plan shows no site coordination (4 instances)", "disc_a": "Electrical", "disc_b": "Civil", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.7, "location": "22150_bld amenities - elec - permit check _p3", "sheets": ["Amenities Elec Permit Check", "Apartments Elec Permit Check", "Clubhouse Elec Permit Check"], "description": "Electrical plans show transformer at 22150_bld amenities - elec - permit check _p3, but Civil/Site plans do not show the location, utility connections, drainage implications, or access requirements for this equipment. This could impact site grading, drainage design, and utility routing.\n\nAGGREGATED FINDING: 4 instances detected across sheets: 22150 Amenities - ELEC - Permit Check, 22150 Apartments - ELEC - Permit Check Elec, 22150 Clubhouse - ELEC - Permit Check Elec. Equipment/element tags: .", "recommended_action": "Coordinate with Civil to add transformer to site plan, including: equipment pad location, utilities (electric/water/gas) routing, drainage around equipment, maintenance access, and any tie-ins to site systems.", "source": "coordination", "flags": [], "scores": {"constructability": 5, "cost": 4, "safety": 4, "schedule": 4, "downstream": 6}, "cost_low": 5940, "cost_high": 14029, "schedule_impact": "7-14 days", "instance_count": 4, "repetition_multiplier": 1.15, "priority_score": 26.4, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C034", "title": "Irrigation Source Coordination with Civil Utility Plan", "disc_a": "Civil", "disc_b": "Landscape", "type": "Missing Coordination", "severity": "Medium", "confidence": 0.68, "location": "Site-wide irrigation system", "sheets": ["C1", "L3"], "description": "The civil utility plan C1 includes a note stating 'IRRIGATION SOURCE WILL BE A WELL' and references irrigation sleeves at road crossings. However, the landscape sheets provided (L3, L3, L5) contain only UL fire resistance and firestop specification data - no actual landscape/irrigation plans are included in this review set. The civil plan shows irrigation sleeve locations but without the corresponding landscape irrigation plan, it is impossible to verify: (1) irrigation sleeve locations align with irrigation main routing, (2) the irrigation well location is coordinated with other site utilities, (3) electrical power for the irrigation pump/controller is provided.", "recommended_action": "Include landscape irrigation plans in the coordination set. Verify irrigation sleeve locations on civil plans match irrigation main routing on landscape plans. Confirm irrigation well location does not conflict with other utilities. Verify electrical service to irrigation pump and controller is shown on electrical plans.", "source": "vision", "flags": [], "scores": {"constructability": 4, "cost": 3, "safety": 1, "schedule": 5, "downstream": 6}, "cost_low": 5635, "cost_high": 13810, "schedule_impact": "5-10 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 19.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C037", "title": "Structural Foundation Section Wall Types vs Architectural Finish Notes", "disc_a": "Structural", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.65, "location": "Clubhouse and apartment building perimeter walls", "sheets": ["S3", "C1"], "description": "Structural foundation sections on S3 show various wall configurations including 'WOOD STUD WALL PER PLAN AND SCHEDULE' with OSB wall sheathing and gypsum wall sheathing. Section 7 on S3 shows an existing condition with 'EXISTING SURROUND AS PER 200 SERIES PLANS AND BELOW FIN. GRADE, COORDINATE W/ CIVIL DWGS.' The architectural finish schedule on UA-C1 (C1.1_p2) specifies 5/8\" gypsum board (GB1) for interior walls with specific paint finishes (Sherwin Williams SW7 - Pearly White). However, the structural sections do not specify gypsum board thickness on the interior face, and the UL fire resistance assembly BXUV.U3 requires two layers of 5/8\" gypsum board for the rated assembly. The architectural finish notes call for single-layer 5/8\" gypsum, which may not satisfy the fire-rated assembly requirements shown in the UL listing.", "recommended_action": "Verify fire-rated wall assembly requirements at each wall type. Confirm whether single-layer or double-layer gypsum board is required per the applicable UL design number. Update architectural finish schedule and structural wall sections to consistently show the correct number of gypsum board layers for fire-rated assemblies.", "source": "vision", "flags": ["fire rating", "wall assembly"], "scores": {"constructability": 5, "cost": 4, "safety": 6, "schedule": 3, "downstream": 5}, "cost_low": 5238, "cost_high": 12499, "schedule_impact": "5-7 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 23.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "DTL081", "title": "Spec mismatch — Gypsum: 5/8\" vs 1/2\"", "disc_a": "Architectural", "disc_b": "Architectural", "type": "Specification Mismatch", "severity": "Medium", "confidence": 0.65, "location": "2 sheet(s) — disagreement across notes/details", "sheets": ["A2", "Unknown Schedule"], "description": "Specification for gypsum is inconsistent across the plan set. 5/8\" appears in schedule on unknown_schedule; 1/2\" appears in notes on A201C_-_ROOF_PLAN. This ambiguity forces RFI resolution and risks incorrect installation if the wrong source is used.", "recommended_action": "Coordinate with drafting to align all gypsum values across notes, details, and schedules. Confirm the correct value and re-issue inconsistent document(s).", "source": "detail_notes_checker", "flags": [], "scores": {"constructability": 4, "cost": 5, "safety": 1, "schedule": 4, "downstream": 7}, "cost_low": 5850, "cost_high": 13081, "schedule_impact": "8 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 21.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C041", "title": "Drawing Index: sheets unverifiable — image-only discipline PDF", "disc_a": "Index Audit", "disc_b": "Cross-Discipline", "type": "Documentation Gap", "severity": "Low", "confidence": 1.0, "location": "G001_from_22150_BLD Apartments - Arch - Permit Set, COVER_1, COVER_from_V3 Apartments Civil Plans (covers)", "sheets": ["S1", "S2", "S3", "S4"], "description": "9 index-listed sheets (S1, S1, S1, S1, S1, S1, S2, S3, S4) could not be confirmed by text extraction because their discipline PDF(s) contain no selectable text (image-only). The sheets are likely present but unreadable by the text layer; verify visually.", "recommended_action": "Open the image-only discipline PDF(s) and confirm the listed sheets are present.", "source": "index_audit", "flags": ["deterministic", "pre-vision"], "scores": {"constructability": 3, "cost": 3, "safety": 0, "schedule": 0, "downstream": 6}, "cost_low": 1360, "cost_high": 3526, "schedule_impact": "2 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 12.0, "concealment_weight": 1.0, "pattern_source": "heuristic", "pattern_confidence": null, "milestone_pct": 60, "group_id": null, "group_label": null}, {"id": "C003", "title": "Water Heater Electrical Sizing Mismatch Between Plumbing and Electrical - Unit C1", "disc_a": "Plumbing", "disc_b": "Electrical-Lighting", "type": "Specification Mismatch", "severity": "Low", "confidence": 0.78, "location": "Apartment Unit C1 - all floors", "sheets": ["P1", "Apartments Elec Permit Check Civi"], "description": "The plumbing schedule on P1 shows water heater EWH2 (for Type B and C units) as AO Smith model ESL4, which is a 40-gallon electric water heater. The electrical panel schedule for Unit C1 (UE-C1) shows the water heater circuit as '6 KW @208V' with a demand of 119 VA at 120/208V, 1PH, 3W. However, the AO Smith ESL4 is typically rated at 4.5 kW with dual 4500W elements (not simultaneous). A 6 kW rating would require a different model or configuration. The panel schedule shows a 30A double-pole breaker for the water heater, which at 208V would support up to 6.24 kW continuous (at 80% derating = 4.99 kW). If the actual water heater is 4.5 kW, the circuit is adequately sized, but the 6 kW notation on the panel schedule does not match the plumbing equipment specification.", "recommended_action": "Verify the actual kW rating of the AO Smith ESL4 water heater specified on the plumbing schedule. If 4.5 kW, update the electrical panel schedule to reflect the correct load. If a 6 kW unit is intended, update the plumbing schedule model number. Ensure breaker sizing matches the actual equipment.", "source": "vision", "flags": [], "scores": {"constructability": 2, "cost": 2, "safety": 3, "schedule": 1, "downstream": 4}, "cost_low": 1522, "cost_high": 4142, "schedule_impact": "1 day", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 12.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C001", "title": "Irrigation Pump/Controller Electrical Circuit Not Detailed on Clubhouse Panel", "disc_a": "Landscape", "disc_b": "Electrical-Lighting", "type": "Missing Coordination", "severity": "Low", "confidence": 0.75, "location": "Irrigation controller/pump location near clubhouse", "sheets": ["Irrigation", "Clubhouse Elec Permit Check"], "description": "The irrigation plans (IR series) specify an existing well/pump to provide 50 GPM at 65 PSI and a controller requiring hardwired 110 or 220 VAC power. The irrigation notes state 'A Licensed electrician will install/provide power to the controller, pump, or fountain if utilized on project.' The clubhouse electrical panel schedule on E5 shows circuit CHA2 labeled 'IRRIGATION PUMP' and CHA2 labeled 'IRRIGATION PUMP TIMER,' confirming circuits exist. However, the electrical site plan E2 note #3 states 'PROVIDE BRANCH CIRCUIT FOR IRRIGATION PUMP AND TIMER. COORDINATE LOCATION WITH...' but the exact conduit routing from the panel to the irrigation controller/pump location is not shown on the site electrical plan. The irrigation plan shows the controller location but does not reference the electrical connection point.", "recommended_action": "Electrical contractor to coordinate exact conduit routing from clubhouse panel CHA to the irrigation controller and pump location. Show conduit path on site electrical plan E2. Verify pump HP and voltage match the circuit breaker sizing on CHA2.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 2, "safety": 1, "schedule": 2, "downstream": 4}, "cost_low": 1641, "cost_high": 4534, "schedule_impact": "2 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 12.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C021", "title": "Dog Wash Electrical Plan Missing Plumbing Coordination", "disc_a": "Electrical-Lighting", "disc_b": "Plumbing", "type": "Missing Coordination", "severity": "Low", "confidence": 0.7, "location": "Dog Wash building, out buildings", "sheets": ["E1", "A1"], "description": "Sheet E1 shows a 'DOG WASH ELECTRICAL PLAN' with receptacles and lighting for the dog wash facility. The architectural clubhouse plan A1 does not appear to show the dog wash building in detail. The electrical plan shows power provisions but there is no corresponding plumbing plan visible in the provided sheets showing hot/cold water supply, drain connections, or hose bibs for the dog wash station. A dog wash facility requires coordinated plumbing (hot water, drain with trap, possibly a pet bathing station with spray fixture) that must align with the electrical layout.", "recommended_action": "Verify that plumbing drawings (not provided in this review set) include water supply, drainage, and fixture connections for the dog wash facility. Coordinate plumbing fixture locations with electrical receptacle and switch locations shown on E1.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 2, "safety": 1, "schedule": 2, "downstream": 4}, "cost_low": 1591, "cost_high": 4465, "schedule_impact": "3 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 12.0, "concealment_weight": 1.0, "page_number": 31, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C029", "title": "Clubhouse Exterior Lighting Control - Photocell Circuit vs Panel Schedule Mismatch", "disc_a": "Electrical-Lighting", "disc_b": "Electrical-Lighting", "type": "Documentation Gap", "severity": "Low", "confidence": 0.68, "location": "Clubhouse Exterior", "sheets": ["E1", "E5"], "description": "On sheet E1, the exterior control diagram shows a 120V photocell controlling (4) pole square D electrically held lighting contactors, with circuits CHB2 feeding the photocell and circuits CHA2 and CHB1 feeding exterior building lights and monument sign respectively. On the panel schedule (E5), Panel CHB shows circuit 2 as 'GATE OPENER' at 0.60 KVA, not as a photocell circuit. This creates a discrepancy between the lighting control diagram and the panel schedule. The exterior control diagram labels CHB2 as the photocell feed, but the panel schedule assigns CHB2 to a gate opener.", "recommended_action": "Verify whether CHB2 feeds the photocell or the gate opener. Update either the exterior control diagram on E1 or the panel schedule on E5 to resolve the circuit assignment conflict. A dedicated circuit may be needed for the photocell if CHB2 is confirmed as the gate opener circuit.", "source": "vision", "flags": [], "scores": {"constructability": 3, "cost": 2, "safety": 1, "schedule": 2, "downstream": 4}, "cost_low": 1205, "cost_high": 3366, "schedule_impact": "1-2 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 12.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}, {"id": "C036", "title": "Dog Park Plumbing and Electrical Coordination with Civil", "disc_a": "Civil", "disc_b": "Architectural", "type": "Missing Coordination", "severity": "Low", "confidence": 0.6, "location": "Dog Park area near clubhouse", "sheets": ["C1"], "description": "Civil plan C1 labels a 'DOG PARK' area adjacent to the clubhouse. The civil utility plan C1 shows water service lines and sanitary connections in the vicinity but does not specifically show a water supply connection to the dog park for a pet fountain, dog wash station, or hose bib. The architectural unit schedule (C1) lists a 'front load washer, 3.6 Cu. Ft., 6 cycle, 4 heat' and 'Stack kit for front load washer & dryer' under ADA (Not Applicable), suggesting amenity laundry may exist, but no dog park amenity details (water fountain, waste station, wash station) are shown on any discipline's drawings.", "recommended_action": "Confirm whether the dog park requires water supply (drinking fountain, hose bib, dog wash). If so, coordinate plumbing connections on civil utility plan and provide electrical service for any powered features. Add site furnishing details to landscape plans.", "source": "vision", "flags": [], "scores": {"constructability": 2, "cost": 2, "safety": 0, "schedule": 2, "downstream": 4}, "cost_low": 1691, "cost_high": 4602, "schedule_impact": "2-3 days", "instance_count": 1, "repetition_multiplier": 1.0, "priority_score": 10.0, "concealment_weight": 1.0, "milestone_pct": null, "group_id": null, "group_label": null}]};
+const STAGES = [{"pct": 3, "text": "Loading plan set (329 sheets)...", "log": "Loaded Cypress Bend Apartments plan set — 329 construction documents"}, {"pct": 6, "text": "Classifying sheet disciplines...", "log": "Identified 10 disciplines: Architectural, Landscape, Civil, Electrical, Mechanical, Plumbing, Fire Protection, Structural, Interior Design, Low Voltage"}, {"pct": 12, "text": "Rendering architectural plans...", "log": "Architectural: extracting floor plans, elevations, details"}, {"pct": 18, "text": "Processing structural sheets...", "log": "Structural: extracting framing, foundations, shear walls"}, {"pct": 26, "text": "Extracting MEP elements...", "log": "MEP: identifying equipment, panels, circuits, fixtures"}, {"pct": 32, "text": "Processing fire protection plans...", "log": "Fire Protection: sprinkler risers, flow switches, device layout"}, {"pct": 38, "text": "Extracting civil and landscape...", "log": "Civil / Landscape: grading, utilities, site coordination"}, {"pct": 52, "text": "Running cross-discipline conflict detection...", "log": "Comparing elements across 21 discipline pairs"}, {"pct": 60, "text": "Checking code compliance...", "log": "⚠ Detecting building-code + accessibility issues"}, {"pct": 68, "text": "Detecting spatial clashes...", "log": "⚠ Scanning for geometric conflicts between disciplines"}, {"pct": 75, "text": "Checking MEP coordination gaps...", "log": "⚠ Identifying missing equipment circuits, routing conflicts"}, {"pct": 82, "text": "Scoring severity (50-point model)...", "log": "Scored 45 conflicts: 2 Critical, 12 High, 25 Medium, 6 Low"}, {"pct": 92, "text": "Estimating cost and schedule impacts...", "log": "Total cost exposure: $489,717 – $1,178,916"}, {"pct": 100, "text": "Analysis complete!", "log": "Report generated — 45 conflicts across 21 discipline pairs"}];
+const RENDER_CAP = 9999;
+
+let analysisComplete = false;
+init();
+
+function updateNavLocks(){
+  document.querySelectorAll('.nav button').forEach(b=>{
+    const label = b.textContent.toLowerCase();
+    if(!analysisComplete && (label.includes('results') || label.includes('report'))){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    const view = b.dataset.view;
+    if(!analysisComplete && (view==='results' || view==='report')){
+      b.classList.add('locked');
+    } else {
+      b.classList.remove('locked');
+    }
+  });
+}
+
+function init(){
+  const p=DATA.project, s=DATA.summary;
+  document.getElementById('proj-name').textContent=p.name_long || p.name;
+  document.getElementById('proj-addr').textContent=p.address;
+  document.getElementById('proj-type').textContent=p.type;
+  document.getElementById('proj-value').textContent=p.construction_value_display || ('$'+(p.construction_value||0).toLocaleString());
+  document.getElementById('proj-sheets').textContent=p.total_sheets+' sheets';
+  const dl=document.getElementById('disc-list');
+  Object.entries(p.disciplines).forEach(([name,sheets])=>{
+    const n = (sheets && sheets.length) || 0;
+    const cnt = n > 0 ? `<span class="count">${n}</span>` : '';
+    dl.innerHTML+=`<span class="disc-tag">${name}${cnt}</span>`;
+  });
+  // Hero in results view
+  document.getElementById('rh-title').textContent = p.name_long || p.name;
+  document.getElementById('rh-addr').textContent = p.address;
+  // Report mockup
+  document.getElementById('rm-proj').textContent=p.name;
+  document.getElementById('rm-count').textContent=s.total_conflicts;
+  document.getElementById('rm-cost').textContent='$'+s.cost_low.toLocaleString()+' – $'+s.cost_high.toLocaleString();
+  updateNavLocks();
+}
+
+function showView(id){
+  if(!analysisComplete && (id==='results'||id==='report')) return;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>{
+    if(b.textContent.toLowerCase().includes(id==='dashboard'?'dashboard':id==='progress'?'analysis':id))
+      b.classList.add('active');
+  });
+  document.querySelectorAll('.mobile-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===id);
+  });
+  if(id==='results'&&!document.getElementById('conflict-list').innerHTML) buildResults();
+}
+
+function copyLink(){
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btns = document.querySelectorAll('.action-btn');
+    btns.forEach(b=>{
+      if(b.textContent.includes('Copy')) b.textContent = ' Copied!';
+    });
+    setTimeout(()=>location.reload(),1200);
+  }).catch(()=>{});
+}
+
+function startAnalysis(){
+  showView('progress');
+  let i=0;
+  const run=()=>{
+    if(i>=STAGES.length){
+      analysisComplete=true;
+      updateNavLocks();
+      setTimeout(()=>showView('results'),800);
+      return;
+    }
+    const s=STAGES[i];
+    document.getElementById('pct').textContent=s.pct+'%';
+    document.getElementById('pbar').style.width=s.pct+'%';
+    document.getElementById('stage').textContent=s.text;
+    const log=document.getElementById('log');
+    const cls=s.log.startsWith('⚠')?'log-line highlight':'log-line';
+    log.innerHTML+=`<div class="${cls}"><span class="time">${new Date().toLocaleTimeString()}</span>${s.log}</div>`;
+    log.scrollTop=log.scrollHeight;
+    i++;
+    setTimeout(run, 500+Math.random()*900);
+  };
+  run();
+}
+
+const SEVERITY_ORDER = {Critical:0, High:1, Medium:2, Low:3};
+function sortedConflicts(){
+  return DATA.conflicts.slice().sort((a,b)=>{
+    const sa = SEVERITY_ORDER[a.severity]??99, sb=SEVERITY_ORDER[b.severity]??99;
+    if(sa!==sb) return sa-sb;
+    return (b.cost_high||0)-(a.cost_high||0);
+  });
+}
+
+function discPairCounts(conflicts){
+  const counts = new Map();
+  conflicts.forEach(c=>{
+    const a = (c.disc_a||'').trim(), b = (c.disc_b||'').trim();
+    if(!a || !b) return;
+    const key = [a,b].sort().join(' ↔ ');
+    counts.set(key, (counts.get(key)||0) + 1);
+  });
+  return Array.from(counts.entries()).sort((x,y)=>y[1]-x[1]);
+}
+
+function discAbbrev(name){
+  const map = {Architectural:'A',Structural:'S',Mechanical:'M',Electrical:'E',Plumbing:'P',
+    Civil:'C',Landscape:'L','Fire Protection':'F','Fire Alarm':'FA','Low Voltage':'LV',
+    Signage:'SG','Interior Design':'ID',Kitchen:'K',Telecom:'T',Specifications:'SP'};
+  return map[name] || (name||'').charAt(0).toUpperCase();
+}
+
+function buildResults(){
+  const s=DATA.summary;
+  document.getElementById('summary-row').innerHTML=`
+    <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
+    <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
+    <div class="stat-box stat-high"><div class="num">${s.high}</div><div class="lbl">High</div></div>
+    <div class="stat-box stat-medium"><div class="num">${s.medium}</div><div class="lbl">Medium</div></div>
+    <div class="stat-box stat-low"><div class="num">${s.low}</div><div class="lbl">Low</div></div>`;
+  document.getElementById('summary-row2').innerHTML=`
+    <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} – $${s.cost_high.toLocaleString()}</div></div>
+    <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
+
+  // Discipline-pair accordion (header + collapsed list)
+  const allPairs = discPairCounts(DATA.conflicts);
+  const accDetail = document.getElementById('disc-acc-detail');
+  const accBody = document.getElementById('disc-acc-body');
+  if(allPairs.length){
+    const [topKey, topVal] = allPairs[0];
+    accDetail.innerHTML = `${allPairs.length} pairs &middot; top: <strong>${escapeHtml(topKey)}</strong> (${topVal})`;
+    accBody.innerHTML = allPairs.map(([k,v])=>
+      `<div class="disc-acc-row"><span class="pair">${escapeHtml(k)}</span><span class="cnt">${v}</span></div>`
+    ).join('');
+  } else {
+    accDetail.textContent = 'No discipline pairs detected.';
+    accBody.innerHTML = '';
+  }
+
+  const severities=['All','Critical','High','Medium','Low'];
+  document.getElementById('filters').innerHTML=severities.map(sv=>
+    `<button class="filter-btn ${sv==='All'?'active':''}" onclick="filterConflicts('${sv}',this)">${sv}</button>`
+  ).join('');
+
+  renderConflicts('All');
+}
+
+let currentFilter='All';
+function filterConflicts(sev,btn){
+  currentFilter=sev;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderConflicts(sev);
+}
+
+function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
+
+/* === Sheet viewer helpers === */
+
+// Map a sheet name to one of the 6 placeholder SVGs based on its discipline prefix.
+// Cryptic hashed names like "96cd51a1_A1.21-..." get stripped and matched on the first letter.
+function sheetSvgFor(sheetName){
+  const cleaned = (sheetName||'').replace(/^[a-f0-9]{6,8}_/i, '');
+  const first = (cleaned[0]||'X').toUpperCase();
+  // Discipline letter → SVG. Default to arch.
+  const map = {
+    A: 'sheets/demo_arch_01.svg',
+    P: 'sheets/demo_plumb_01.svg',
+    E: 'sheets/demo_elec_01.svg',
+    S: 'sheets/demo_struc_01.svg',
+    M: 'sheets/demo_mech_01.svg',
+    C: 'sheets/demo_civil_01.svg',
+    G: 'sheets/demo_arch_01.svg',  // G = General (architectural)
+    L: 'sheets/demo_civil_01.svg', // L = Landscape (civil-ish)
+    F: 'sheets/demo_elec_01.svg',  // F = Fire (electrical-ish)
+  };
+  return map[first] || 'sheets/demo_arch_01.svg';
+}
+
+// Clean sheet name for display: strip hash prefix and _pN suffix, truncate.
+function cleanSheetLabel(sheetName, maxLen){
+  let s = String(sheetName||'').replace(/^[a-f0-9]{6,8}_/i, '').replace(/_p\d+$/, '');
+  // Replace common separators for readability
+  s = s.replace(/_/g, ' ').replace(/-Rev\.\d+/i, '');
+  if(maxLen && s.length > maxLen) s = s.slice(0, maxLen) + '…';
+  return s;
+}
+
+// Parse the sheets list (comma-separated string or array) into an array of distinct names.
+function parseSheets(sheets){
+  if(Array.isArray(sheets)) return sheets.filter(Boolean);
+  if(typeof sheets === 'string') return sheets.split(',').map(s=>s.trim()).filter(Boolean);
+  return [];
+}
+
+let currentSheets = [];
+let currentSheetIdx = 0;
+let currentPinIdx = 0;
+
+function renderSheetTabs(sheets, activeIdx){
+  const wrap = document.getElementById('sheet-tabs');
+  if(!sheets || !sheets.length){
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.innerHTML = sheets.map((s, i)=>{
+    const label = cleanSheetLabel(s, 18);
+    const titleAttr = String(s||'').replace(/"/g, '&quot;');
+    return `<button class="sheet-tab ${i===activeIdx?'active':''}" type="button" title="${titleAttr}" onclick="selectSheet(${i})">
+      <span class="dot"></span>${escapeHtml(label)}
+    </button>`;
+  }).join('');
+}
+
+function selectSheet(idx){
+  currentSheetIdx = idx;
+  // Update active tab
+  document.querySelectorAll('.sheet-tab').forEach((t, i)=>t.classList.toggle('active', i===idx));
+  // Swap sheet image
+  const name = currentSheets[idx];
+  const img = document.getElementById('sheet-img');
+  const empty = document.getElementById('viewer-empty');
+  const canvas = document.getElementById('viewer-canvas');
+  if(name){
+    img.src = sheetSvgFor(name);
+    img.alt = cleanSheetLabel(name, 60);
+    img.style.display = 'block';
+    if(empty) empty.style.display = 'none';
+    // Move pin to deterministic position based on conflict idx
+    const existingPin = canvas.querySelector('.viewer-pin');
+    if(existingPin) existingPin.remove();
+    const pinX = 20 + (currentPinIdx * 37) % 60;
+    const pinY = 25 + (currentPinIdx * 53) % 50;
+    const pin = document.createElement('div');
+    pin.className = 'viewer-pin';
+    pin.style.left = pinX + '%';
+    pin.style.top = pinY + '%';
+    pin.textContent = '!';
+    pin.title = 'Approximate conflict location';
+    canvas.appendChild(pin);
+  }
+}
+
+function dismissPinned(){
+  document.getElementById('viewer-pinned').classList.remove('visible');
+}
+
+function selectConflict(idx, sheets, title){
+  const card = document.querySelector(`.conflict-card[data-idx="${idx}"]`);
+  if(!card) return;
+  const wasOpen = !card.classList.contains('collapsed');
+
+  // Accordion: collapse + deactivate every card, then re-open this one (unless it
+  // was already open, in which case the user just clicked to close it).
+  document.querySelectorAll('.conflict-card').forEach(c=>{
+    c.classList.remove('active');
+    c.classList.add('collapsed');
+  });
+
+  if(wasOpen){
+    // User clicked an already-open card: leave it closed, clear pinned pill.
+    document.getElementById('viewer-pinned').classList.remove('visible');
+    return;
+  }
+
+  // Expand this card and mark active.
+  card.classList.add('active');
+  card.classList.remove('collapsed');
+  // Smoothly scroll the right pane sheet viewer into view on small screens
+  if(window.innerWidth < 960){
+    document.querySelector('.viewer-col').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  // Render the sheet tabs from this conflict's sheets array
+  currentSheets = parseSheets(sheets);
+  currentPinIdx = idx;
+  renderSheetTabs(currentSheets, 0);
+  if(currentSheets.length){
+    selectSheet(0);
+  } else {
+    document.getElementById('sheet-img').style.display = 'none';
+    const empty = document.getElementById('viewer-empty');
+    if(empty) empty.style.display = 'block';
+  }
+
+  // Pinned conflict pill above the viewer
+  const pinned = document.getElementById('viewer-pinned');
+  document.getElementById('pin-text').textContent = (title || 'Conflict').slice(0, 80);
+  pinned.classList.add('visible');
+}
+
+function renderConflicts(severity){
+  const sorted = sortedConflicts();
+  const filtered = severity==='All' ? sorted : sorted.filter(c=>c.severity===severity);
+  const visible = filtered.slice(0, RENDER_CAP);
+  const hidden = filtered.length - visible.length;
+
+  const list=document.getElementById('conflict-list');
+  list.innerHTML=visible.map((c, idx)=>{
+    const dims=['constructability','cost','safety','schedule','downstream'];
+    const scoresHTML=dims.map(d=>{
+      const v=(c.scores||{})[d]||0;
+      return `<div class="score-dim">
+        <div class="dim-label">${d.slice(0,6)}</div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div>
+        <div class="dim-val" style="color:${scoreColor(v)}">${v}/10</div>
+      </div>`;
+    }).join('');
+
+    const sheetsStr = Array.isArray(c.sheets)?c.sheets.join(', '):(c.sheets||'');
+    const da = c.disc_a || '', db = c.disc_b || '';
+    const pairTag = (da && db) ? `${discAbbrev(da)} ↔ ${discAbbrev(db)}` : '';
+    // FIX-S181: HTML-encode embedded quotes so JSON.stringify(...) values
+    // can't terminate the outer onclick="..." attribute prematurely.
+    const sheetsAttr = JSON.stringify(sheetsStr).replace(/"/g, '&quot;');
+    const titleAttr  = JSON.stringify(c.title || '').replace(/"/g, '&quot;');
+    const costRange = `$${(c.cost_low||0).toLocaleString()} – $${(c.cost_high||0).toLocaleString()}`;
+    const typeLabel = String(c.type||'').replace(/_/g,' ').toUpperCase();
+    const location  = c.location || '';
+
+    return `<div class="conflict-card collapsed" data-sev="${c.severity}" data-idx="${idx}">
+      <div class="cc-titlebar" onclick="selectConflict(${idx}, ${sheetsAttr}, ${titleAttr})">
+        <div class="cc-tb-left">
+          <span class="sev-badge sev-${c.severity}">${c.severity}</span>
+          ${pairTag ? `<span class="disc-pair-tag">${pairTag}</span>` : ''}
+        </div>
+        <div class="cc-tb-main">
+          <div class="cc-tb-top">
+            <div class="cc-title">${escapeHtml(c.title)}</div>
+            <div class="cc-index">#${idx+1}</div>
+          </div>
+        </div>
+        <span class="cc-chevron">&#9650;</span>
+      </div>
+      <div class="cc-actions" onclick="event.stopPropagation()">
+        <button class="cc-action-btn good" type="button" title="Mark as a good find (demo — read-only)" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          Good find
+        </button>
+        <button class="cc-action-btn bad" type="button" title="Mark as a bad find (demo — read-only)" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>
+          Bad find
+        </button>
+        <button class="cc-action-btn rfi" type="button" title="Draft an RFI (demo — read-only)" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Draft RFI
+        </button>
+      </div>
+      <div class="cc-body">
+        <div class="cc-meta-strip">
+          <span class="tag">${escapeHtml(typeLabel)}</span>
+          ${location ? `<span class="sep">|</span><span>${escapeHtml(location)}</span>` : ''}
+        </div>
+        <div class="cc-cost-inline">${costRange}</div>
+        <div class="cc-section-label">Description</div>
+        <div class="cc-desc">${escapeHtml(c.description||'')}</div>
+        <div class="scores-grid">${scoresHTML}</div>
+        <div class="cc-impact">
+          <div class="impact-box">
+            <span class="ib-label">Cost Exposure</span>
+            <span class="ib-value">${costRange}</span>
+          </div>
+          <div class="impact-box">
+            <span class="ib-label">Schedule Impact</span>
+            <span class="ib-value">${escapeHtml(c.schedule_impact||'—')}</span>
+          </div>
+        </div>
+        <div class="cc-action">
+          <div class="cc-section-label">Recommended Action</div>
+          ${escapeHtml(c.recommended_action||'')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const notice = document.getElementById('truncated-notice');
+  if(hidden > 0){
+    notice.innerHTML=`<div class="truncated-notice"><strong>Showing top ${visible.length} of ${filtered.length} conflicts</strong> by severity. Contact <a href="mailto:hello@flikt.ai">hello@flikt.ai</a> to run Flikt.AI on your project and see all ${DATA.summary.total_conflicts} findings.</div>`;
+  } else {
+    notice.innerHTML='';
+  }
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+</script>
+
+<div style="text-align:center;padding:24px 16px 88px;color:var(--text-muted);font-size:11.5px;border-top:1px solid var(--border);margin-top:32px">
+  Flikt.AI &middot; &copy; 2026 &middot; Patents Pending
+</div>
+
+</body>
+</html>
