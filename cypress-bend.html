@@ -181,10 +181,13 @@ a:hover{color:#B97D0F}
 .stat-high .num{color:var(--high)}
 .stat-medium .num{color:var(--medium)}
 .stat-low .num{color:var(--low)}
-.stat-critical{border-top:3px solid var(--critical)}
-.stat-high{border-top:3px solid var(--high)}
-.stat-medium{border-top:3px solid var(--medium)}
-.stat-low{border-top:3px solid var(--low)}
+.stat-box .lbl::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+margin-right:5px;vertical-align:1px;background:transparent}
+.stat-critical .lbl::before{background:var(--critical)}
+.stat-high .lbl::before{background:var(--high)}
+.stat-medium .lbl::before{background:var(--medium)}
+.stat-low .lbl::before{background:var(--low)}
+.stat-total .lbl::before{display:none}
 .summary-row2{display:grid;grid-template-columns:3fr 2fr;gap:10px;margin-bottom:18px}
 .stat-cost{
   background:var(--card);border:1px solid var(--border);
@@ -250,16 +253,17 @@ a:hover{color:#B97D0F}
 
 .cc-tb-left{display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:64px}
 .sev-badge{
-  font-family:var(--mono);padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;
-  letter-spacing:.4px;text-align:center;text-transform:uppercase;border:1px solid transparent
+  font-family:var(--mono);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;
+  letter-spacing:.5px;text-align:center;text-transform:uppercase;color:#fff
 }
-.sev-Critical{background:var(--critical-tint);color:var(--critical);border-color:var(--critical-border)}
-.sev-High{background:var(--high-tint);color:var(--high);border-color:var(--high-border)}
-.sev-Medium{background:var(--medium-tint);color:var(--medium);border-color:var(--medium-border)}
-.sev-Low{background:var(--low-tint);color:var(--low);border-color:var(--low-border)}
+.sev-Critical{background:var(--critical)}
+.sev-High{background:var(--high)}
+.sev-Medium{background:var(--medium)}
+.sev-Low{background:var(--low)}
+:root[data-theme="dark"] .sev-badge{color:var(--navy)}
 .disc-pair-tag{
-  font-family:var(--mono);background:var(--navy);color:#fff;padding:2px 8px;border-radius:5px;
-  font-size:10px;font-weight:600;letter-spacing:.2px;text-align:center
+  font-family:var(--mono);color:var(--text-soft);
+  font-size:10px;font-weight:600;letter-spacing:.3px;text-align:center;white-space:nowrap
 }
 .cc-tb-main{flex:1;min-width:0}
 .cc-tb-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}
@@ -447,7 +451,7 @@ a:hover{color:#B97D0F}
 }
 .action-btn.disabled:hover{border-color:var(--border);background:var(--card)}
 .action-btn.disabled.dark-fill{
-  background:var(--navy);color:#fff;border-color:var(--navy);opacity:0.45
+  background:var(--card);color:var(--text-muted);border-color:var(--border);opacity:0.55
 }
 /* S336: the disabled export buttons explained themselves only via a `title`
    tooltip, which never fires on touch. On a phone they read as three dead
@@ -928,7 +932,9 @@ function sheetSvgFor(sheetName){
     L: 'sheets/demo_civil_01.svg', // L = Landscape (civil-ish)
     F: 'sheets/demo_elec_01.svg',  // F = Fire (electrical-ish)
   };
-  return map[first] || 'sheets/demo_arch_01.svg';
+  // ?v= busts the pre-S347 cached copies (civil + elec SVGs were invalid XML
+  // and are cached broken at the Cloudflare edge and in visitors' browsers).
+  return (map[first] || 'sheets/demo_arch_01.svg') + '?v=20260812';
 }
 
 // Clean sheet name for display: strip hash prefix and _pN suffix, truncate.
@@ -976,6 +982,14 @@ function selectSheet(idx){
   const empty = document.getElementById('viewer-empty');
   const canvas = document.getElementById('viewer-canvas');
   if(name){
+    // Fail closed: a placeholder that doesn't render must fall back to the
+    // empty state, never a broken-image glyph (S347 — invalid-XML SVG class).
+    img.onerror = function(){
+      img.style.display = 'none';
+      if(empty) empty.style.display = 'block';
+      const p = canvas.querySelector('.viewer-pin');
+      if(p) p.remove();
+    };
     img.src = sheetSvgFor(name);
     img.alt = cleanSheetLabel(name, 60);
     img.style.display = 'block';
