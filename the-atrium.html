@@ -147,15 +147,60 @@ a:hover{color:#B97D0F}
 .log-line .time{color:var(--amber);margin-right:8px;font-weight:600}
 .log-line.highlight{color:var(--text);font-weight:500}
 
-/* ============ Results view (portal report-view) ============ */
-.report-hero{
-  background:var(--card);border:1px solid var(--border);border-radius:14px;
-  padding:24px 28px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,0.04)
+/* ============ Results view (portal report-view clone, S347c) ============ */
+
+/* Project sub-nav strip (clones portal ProjectNav: flat, text tabs, amber underline) */
+.proj-strip{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:0 18px;margin-bottom:14px;overflow-x:auto;scrollbar-width:thin
 }
-.report-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
-.report-hero-title{flex:1;min-width:240px}
-.report-hero-title h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;color:var(--text);line-height:1.2}
-.report-hero-title .addr{color:var(--text-muted);font-size:14px;margin-top:6px}
+.proj-strip-name{
+  font-size:14px;font-weight:800;color:var(--text);letter-spacing:-0.01em;
+  padding:13px 0;white-space:nowrap;cursor:pointer
+}
+.proj-tabs{display:flex;gap:2px;align-items:stretch}
+.proj-tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--text-muted);
+  padding:13px 12px 11px;cursor:pointer;white-space:nowrap;transition:color .15s
+}
+.proj-tab:hover{color:var(--text)}
+.proj-tab.active{color:var(--text);border-bottom-color:var(--amber)}
+.proj-tab.locked{opacity:.4;cursor:default;pointer-events:none}
+
+/* Compact stat chips row (clones portal's count pills) */
+.chips-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px
+}
+.stat-chip{
+  display:inline-flex;align-items:baseline;gap:6px;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;font-size:13px;font-weight:800;color:var(--text)
+}
+.stat-chip .chip-lbl{
+  font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--text-muted)
+}
+.stat-chip.crit{color:var(--critical);border-color:var(--critical-border)}
+.stat-chip.high{color:var(--high);border-color:var(--high-border)}
+.stat-chip.med{color:var(--medium);border-color:var(--medium-border)}
+.stat-chip.low{color:var(--low);border-color:var(--low-border)}
+.chips-row .chip-spacer{flex:1}
+
+/* Search row (clones portal's search-every-page bar) */
+.search-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.search-input{
+  flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:9px 14px;font-family:inherit;font-size:13px;color:var(--text);outline:none
+}
+.search-input::placeholder{color:var(--text-soft)}
+.search-input:focus{border-color:var(--border-strong)}
+.disc-select{
+  font-family:inherit;font-size:12.5px;color:var(--text-muted);
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:9px 12px;white-space:nowrap
+}
 .action-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .action-btn{
   display:inline-flex;align-items:center;gap:6px;
@@ -228,33 +273,32 @@ margin-right:5px;vertical-align:1px;background:transparent}
 .filter-btn:hover{border-color:var(--border-strong);color:var(--text)}
 .filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 
-/* Two-column body */
-.report-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
-.findings-col{min-width:0}
-.viewer-col{min-width:0;position:sticky;top:88px}
+/* Two-column body — portal proportions: compact findings rail, dominant viewer */
+.report-body{display:grid;grid-template-columns:minmax(300px,1fr) 2.3fr;gap:16px;align-items:start}
+.findings-col{min-width:0;max-height:calc(100vh - 120px);overflow-y:auto;padding-right:4px;scrollbar-width:thin}
+.viewer-col{min-width:0;position:sticky;top:80px}
 
-/* Conflict cards — portal report-view style (S181 redesign to match live portal) */
+/* Conflict cards — severity-tinted like the live portal report view (S347c) */
 .conflict-card{
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  margin-bottom:14px;overflow:hidden;transition:border-color .15s, box-shadow .15s
+  border:1px solid var(--border);border-radius:10px;background:var(--card);
+  margin-bottom:10px;overflow:hidden;transition:border-color .15s, box-shadow .15s
 }
 .conflict-card:hover{border-color:var(--border-strong);box-shadow:0 4px 14px rgba(15,23,42,0.06)}
 .conflict-card.active{box-shadow:0 0 0 2px var(--amber);border-color:var(--amber)}
+.conflict-card[data-sev="Critical"]{background:var(--critical-tint);border-color:var(--critical-border)}
+.conflict-card[data-sev="High"]     {background:var(--high-tint);border-color:var(--high-border)}
+.conflict-card[data-sev="Medium"]   {background:var(--medium-tint);border-color:var(--medium-border)}
+.conflict-card[data-sev="Low"]      {background:var(--low-tint);border-color:var(--low-border)}
 
-/* Neutral title bar; severity carried by the card's left edge + badge (S347 restyle) */
 .cc-titlebar{
-  display:flex;align-items:flex-start;gap:10px;padding:14px 16px 12px 16px;
-  cursor:pointer;border-bottom:1px solid var(--border)
+  display:flex;align-items:flex-start;gap:10px;padding:12px 14px;
+  cursor:pointer
 }
-.conflict-card[data-sev="Critical"]{border-left:3px solid var(--critical)}
-.conflict-card[data-sev="High"]     {border-left:3px solid var(--high)}
-.conflict-card[data-sev="Medium"]   {border-left:3px solid var(--medium)}
-.conflict-card[data-sev="Low"]      {border-left:3px solid var(--low)}
 
-.cc-tb-left{display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:64px}
+.cc-tb-left{display:flex;flex-direction:column;gap:5px;flex-shrink:0;min-width:58px;align-items:stretch}
 .sev-badge{
-  font-family:var(--mono);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;
-  letter-spacing:.5px;text-align:center;text-transform:uppercase;color:#fff
+  padding:3px 9px;border-radius:12px;font-size:10.5px;font-weight:700;
+  letter-spacing:.2px;text-align:center;color:#fff
 }
 .sev-Critical{background:var(--critical)}
 .sev-High{background:var(--high)}
@@ -262,15 +306,21 @@ margin-right:5px;vertical-align:1px;background:transparent}
 .sev-Low{background:var(--low)}
 :root[data-theme="dark"] .sev-badge{color:var(--navy)}
 .disc-pair-tag{
-  font-family:var(--mono);color:var(--text-soft);
+  font-family:var(--mono);background:var(--card);border:1px solid var(--border);
+  color:var(--text-muted);border-radius:5px;padding:1px 6px;
   font-size:10px;font-weight:600;letter-spacing:.3px;text-align:center;white-space:nowrap
 }
 .cc-tb-main{flex:1;min-width:0}
 .cc-tb-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px}
 .cc-index{font-family:var(--mono);font-size:11px;color:var(--text-soft);font-weight:500;white-space:nowrap;flex-shrink:0}
 
-/* Title text neutral ink; severity lives in the badge + left edge (S347 restyle) */
-.cc-title{font-size:14.5px;font-weight:700;line-height:1.35;letter-spacing:-0.005em;color:var(--text)}
+/* Portal-style title: rank + F-id prefix, severity-colored title text */
+.cc-title{font-size:13.5px;font-weight:700;line-height:1.4;letter-spacing:-0.005em;color:var(--text)}
+.cc-title .cc-fid{font-weight:600;color:var(--text-muted)}
+.conflict-card[data-sev="Critical"] .cc-title .cc-tt{color:var(--critical)}
+.conflict-card[data-sev="High"]     .cc-title .cc-tt{color:var(--high)}
+.conflict-card[data-sev="Medium"]   .cc-title .cc-tt{color:var(--medium)}
+.conflict-card[data-sev="Low"]      .cc-title .cc-tt{color:var(--low)}
 
 .cc-chevron{color:var(--text-soft);font-size:12px;flex-shrink:0;transition:transform .2s;margin-top:6px}
 .conflict-card.collapsed .cc-chevron{transform:rotate(180deg)}
@@ -278,6 +328,7 @@ margin-right:5px;vertical-align:1px;background:transparent}
 /* Action buttons row (Good find / Bad find / Draft RFI) */
 .cc-actions{
   display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 16px;
+  background:var(--card);border-top:1px solid var(--border);
   border-bottom:1px solid var(--border)
 }
 .cc-action-btn{
@@ -292,8 +343,8 @@ margin-right:5px;vertical-align:1px;background:transparent}
 .cc-action-btn.bad svg{color:var(--critical)}
 .cc-action-btn.rfi svg{color:var(--navy)}
 
-/* Body section — always visible (collapsible via chevron) */
-.cc-body{padding:14px 16px 16px 16px}
+/* Body section — white panel inside the tinted card */
+.cc-body{padding:14px 16px 16px 16px;background:var(--card)}
 .conflict-card.collapsed .cc-body,
 .conflict-card.collapsed .cc-actions{display:none}
 
@@ -355,11 +406,11 @@ margin-right:5px;vertical-align:1px;background:transparent}
 .truncated-notice strong{color:#B97D0F}
 .truncated-notice a{color:var(--amber);font-weight:700}
 
-/* Sheet viewer (right pane) */
+/* Sheet viewer (right pane) — dominant, portal-proportioned */
 .sheet-viewer{
   background:var(--card);border:1px solid var(--border);border-radius:12px;
   box-shadow:0 1px 2px rgba(15,23,42,0.04);
-  display:flex;flex-direction:column;min-height:560px;overflow:hidden
+  display:flex;flex-direction:column;min-height:calc(100vh - 140px);overflow:hidden
 }
 
 /* Sheet tabs row (top of viewer) */
@@ -422,6 +473,9 @@ margin-right:5px;vertical-align:1px;background:transparent}
   box-shadow:0 4px 24px rgba(15,23,42,0.12);background:#fff;
   border:1px solid var(--border)
 }
+.viewer-canvas .sheet-img.real{cursor:zoom-in}
+.viewer-canvas.zoomed{overflow:auto;align-items:flex-start;justify-content:flex-start}
+.viewer-canvas.zoomed .sheet-img{max-width:none;max-height:none;width:200%;cursor:zoom-out}
 .viewer-canvas .empty-state{text-align:center;color:var(--text-muted);padding:32px}
 .viewer-canvas .empty-state h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
 .viewer-canvas .empty-state p{font-size:12.5px;max-width:280px;line-height:1.55;margin:0 auto}
@@ -526,7 +580,8 @@ margin-right:5px;vertical-align:1px;background:transparent}
 @media(max-width:960px){
   .report-body{grid-template-columns:1fr}
   .viewer-col{position:static}
-  .sheet-viewer{min-height:360px}
+  .sheet-viewer{min-height:420px}
+  .findings-col{max-height:none;overflow:visible;padding-right:0}
 }
 @media(max-width:768px){
   .header{flex-direction:column;gap:10px;padding:12px 16px}
@@ -610,13 +665,26 @@ margin-right:5px;vertical-align:1px;background:transparent}
 </div>
 
 <div id="results" class="view">
-  <!-- Report hero: title + address + action toolbar -->
-  <div class="report-hero">
-    <div class="report-hero-top">
-      <div class="report-hero-title">
-        <h1 id="rh-title"></h1>
-        <div class="addr" id="rh-addr"></div>
-      </div>
+  <!-- Project sub-nav strip (portal ProjectNav clone) -->
+  <div class="proj-strip">
+    <span class="proj-strip-name" id="ps-name" onclick="showView('dashboard')"></span>
+    <nav class="proj-tabs">
+      <button class="proj-tab" type="button" onclick="showView('dashboard')">Overview</button>
+      <button class="proj-tab active" type="button">Conflicts <span id="ps-count"></span></button>
+      <span class="proj-tab locked" title="Available in the full portal">RFIs</span>
+      <span class="proj-tab locked" title="Available in the full portal">Submittals</span>
+      <span class="proj-tab locked" title="Available in the full portal">Drawings</span>
+      <span class="proj-tab locked" title="Available in the full portal">Sheets</span>
+      <span class="proj-tab locked" title="Available in the full portal">Equipment</span>
+      <span class="proj-tab locked" title="Available in the full portal">Specs</span>
+      <span class="proj-tab locked" title="Available in the full portal">Revisions</span>
+    </nav>
+  </div>
+
+  <!-- Compact stat chips + action toolbar -->
+  <div class="chips-row">
+      <span id="stat-chips" style="display:contents"></span>
+      <span class="chip-spacer"></span>
       <div class="action-toolbar">
         <button class="action-btn" title="View summary stats">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -644,12 +712,14 @@ margin-right:5px;vertical-align:1px;background:transparent}
         </button>
         <p class="export-note">PDF, Excel and RFI export are available in the full portal.</p>
       </div>
-    </div>
   </div>
 
-  <!-- Summary stats row -->
-  <div class="summary-row" id="summary-row"></div>
-  <div class="summary-row2" id="summary-row2"></div>
+  <!-- Search row -->
+  <div class="search-row">
+    <input class="search-input" id="finding-search" type="search"
+           placeholder="Search findings..." oninput="searchConflicts(this.value)">
+    <span class="disc-select" id="disc-select-note"></span>
+  </div>
 
   <!-- Discipline-pair accordion (collapsed by default) -->
   <div class="disc-accordion" id="disc-accordion" onclick="this.classList.toggle('open')">
@@ -689,7 +759,7 @@ margin-right:5px;vertical-align:1px;background:transparent}
           </div>
           <img class="sheet-img" id="sheet-img" alt="" style="display:none"/>
         </div>
-        <div class="viewer-footnote">Sheet images are demo placeholders. Full PDF rendering with pan/zoom is available in the live customer portal.</div>
+        <div class="viewer-footnote" id="viewer-footnote">Sheet images are demo placeholders. Full PDF rendering with pan/zoom is available in the live customer portal.</div>
       </div>
     </div>
   </div>
@@ -781,13 +851,24 @@ function init(){
     const cnt = n > 0 ? `<span class="count">${n}</span>` : '';
     dl.innerHTML+=`<span class="disc-tag">${name}${cnt}</span>`;
   });
-  // Hero in results view
-  document.getElementById('rh-title').textContent = p.name_long || p.name;
-  document.getElementById('rh-addr').textContent = p.address;
+  // Project strip in results view
+  document.getElementById('ps-name').textContent = p.name;
+  document.getElementById('ps-count').textContent = '(' + s.total_conflicts + ')';
+  document.getElementById('disc-select-note').textContent =
+    'All pages (' + (p.total_sheets || 0) + ')';
   // Report mockup
   document.getElementById('rm-proj').textContent=p.name;
   document.getElementById('rm-count').textContent=s.total_conflicts;
   document.getElementById('rm-cost').textContent='$'+s.cost_low.toLocaleString()+' – $'+s.cost_high.toLocaleString();
+  // Real renders (S347c): honest footnote + click-to-zoom.
+  const hasReal = (DATA.conflicts||[]).some(c=>Array.isArray(c.sheet_images)&&c.sheet_images.some(Boolean));
+  if(hasReal){
+    document.getElementById('viewer-footnote').textContent =
+      'Cited sheets are real renders from the analyzed plan set (title blocks redacted). Click a sheet to zoom; full pan/zoom is available in the live customer portal.';
+  }
+  document.getElementById('sheet-img').addEventListener('click', function(){
+    if(this.classList.contains('real')) document.getElementById('viewer-canvas').classList.toggle('zoomed');
+  });
   updateNavLocks();
 }
 
@@ -870,15 +951,13 @@ function discAbbrev(name){
 
 function buildResults(){
   const s=DATA.summary;
-  document.getElementById('summary-row').innerHTML=`
-    <div class="stat-box stat-total"><div class="num">${s.total_conflicts}</div><div class="lbl">Total Conflicts</div></div>
-    <div class="stat-box stat-critical"><div class="num">${s.critical}</div><div class="lbl">Critical</div></div>
-    <div class="stat-box stat-high"><div class="num">${s.high}</div><div class="lbl">High</div></div>
-    <div class="stat-box stat-medium"><div class="num">${s.medium}</div><div class="lbl">Medium</div></div>
-    <div class="stat-box stat-low"><div class="num">${s.low}</div><div class="lbl">Low</div></div>`;
-  document.getElementById('summary-row2').innerHTML=`
-    <div class="stat-cost"><div class="lbl">Cost Exposure</div><div class="num">$${s.cost_low.toLocaleString()} – $${s.cost_high.toLocaleString()}</div></div>
-    <div class="stat-pairs"><div class="lbl">Discipline Pairs</div><div class="num">${s.discipline_pairs}</div></div>`;
+  document.getElementById('stat-chips').innerHTML=`
+    <span class="stat-chip">${s.total_conflicts} <span class="chip-lbl">Total</span></span>
+    <span class="stat-chip crit">${s.critical} <span class="chip-lbl">Critical</span></span>
+    <span class="stat-chip high">${s.high} <span class="chip-lbl">High</span></span>
+    <span class="stat-chip med">${s.medium} <span class="chip-lbl">Medium</span></span>
+    <span class="stat-chip low">${s.low} <span class="chip-lbl">Low</span></span>
+    <span class="stat-chip">$${s.cost_low.toLocaleString()}–$${s.cost_high.toLocaleString()} <span class="chip-lbl">Exposure</span></span>`;
 
   // Discipline-pair accordion (header + collapsed list)
   const allPairs = discPairCounts(DATA.conflicts);
@@ -904,11 +983,24 @@ function buildResults(){
 }
 
 let currentFilter='All';
+let currentSearch='';
 function filterConflicts(sev,btn){
   currentFilter=sev;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderConflicts(sev);
+}
+
+function searchConflicts(q){
+  currentSearch=(q||'').trim().toLowerCase();
+  renderConflicts(currentFilter);
+}
+
+// Portal-style display id: F### derived from the pipeline id (C010 -> F010).
+function displayId(c, fallbackIdx){
+  const m=String(c.id||'').match(/(\d+)/);
+  const n=m?parseInt(m[1],10):(fallbackIdx+1);
+  return 'F'+String(n).padStart(3,'0');
 }
 
 function scoreColor(v){return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}
@@ -954,6 +1046,7 @@ function parseSheets(sheets){
 }
 
 let currentSheets = [];
+let currentImages = [];
 let currentSheetIdx = 0;
 let currentPinIdx = 0;
 
@@ -990,7 +1083,10 @@ function selectSheet(idx){
       const p = canvas.querySelector('.viewer-pin');
       if(p) p.remove();
     };
-    img.src = sheetSvgFor(name);
+    // Real project render when available (S347c); placeholder SVG otherwise.
+    const real = currentImages[idx];
+    img.src = real || sheetSvgFor(name);
+    img.classList.toggle('real', !!real);
     img.alt = cleanSheetLabel(name, 60);
     img.style.display = 'block';
     if(empty) empty.style.display = 'none';
@@ -1013,7 +1109,9 @@ function dismissPinned(){
   document.getElementById('viewer-pinned').classList.remove('visible');
 }
 
-function selectConflict(idx, sheets, title){
+function selectConflict(idx){
+  const c = RENDERED[idx] || {};
+  const sheets = c.sheets, title = c.title;
   const card = document.querySelector(`.conflict-card[data-idx="${idx}"]`);
   if(!card) return;
   const wasOpen = !card.classList.contains('collapsed');
@@ -1041,6 +1139,7 @@ function selectConflict(idx, sheets, title){
 
   // Render the sheet tabs from this conflict's sheets array
   currentSheets = parseSheets(sheets);
+  currentImages = Array.isArray(c.sheet_images) ? c.sheet_images : [];
   currentPinIdx = idx;
   renderSheetTabs(currentSheets, 0);
   if(currentSheets.length){
@@ -1057,11 +1156,17 @@ function selectConflict(idx, sheets, title){
   pinned.classList.add('visible');
 }
 
+let RENDERED=[];
 function renderConflicts(severity){
   const sorted = sortedConflicts();
-  const filtered = severity==='All' ? sorted : sorted.filter(c=>c.severity===severity);
+  let filtered = severity==='All' ? sorted : sorted.filter(c=>c.severity===severity);
+  if(currentSearch){
+    filtered = filtered.filter(c=>
+      ((c.title||'')+' '+(c.description||'')+' '+(c.location||'')).toLowerCase().includes(currentSearch));
+  }
   const visible = filtered.slice(0, RENDER_CAP);
   const hidden = filtered.length - visible.length;
+  RENDERED = visible;
 
   const list=document.getElementById('conflict-list');
   list.innerHTML=visible.map((c, idx)=>{
@@ -1075,27 +1180,23 @@ function renderConflicts(severity){
       </div>`;
     }).join('');
 
-    const sheetsStr = Array.isArray(c.sheets)?c.sheets.join(', '):(c.sheets||'');
     const da = c.disc_a || '', db = c.disc_b || '';
     const pairTag = (da && db) ? `${discAbbrev(da)} ↔ ${discAbbrev(db)}` : '';
-    // FIX-S181: HTML-encode embedded quotes so JSON.stringify(...) values
-    // can't terminate the outer onclick="..." attribute prematurely.
-    const sheetsAttr = JSON.stringify(sheetsStr).replace(/"/g, '&quot;');
-    const titleAttr  = JSON.stringify(c.title || '').replace(/"/g, '&quot;');
     const costRange = `$${(c.cost_low||0).toLocaleString()} – $${(c.cost_high||0).toLocaleString()}`;
     const typeLabel = String(c.type||'').replace(/_/g,' ').toUpperCase();
     const location  = c.location || '';
+    const fid = displayId(c, idx);
+    const fidMeta = pairTag ? `(${c.severity}, ${pairTag})` : `(${c.severity})`;
 
     return `<div class="conflict-card collapsed" data-sev="${c.severity}" data-idx="${idx}">
-      <div class="cc-titlebar" onclick="selectConflict(${idx}, ${sheetsAttr}, ${titleAttr})">
+      <div class="cc-titlebar" onclick="selectConflict(${idx})">
         <div class="cc-tb-left">
           <span class="sev-badge sev-${c.severity}">${c.severity}</span>
           ${pairTag ? `<span class="disc-pair-tag">${pairTag}</span>` : ''}
         </div>
         <div class="cc-tb-main">
           <div class="cc-tb-top">
-            <div class="cc-title">${escapeHtml(c.title)}</div>
-            <div class="cc-index">#${idx+1}</div>
+            <div class="cc-title"><span class="cc-fid">${idx+1}. ${fid} ${escapeHtml(fidMeta)}:</span> <span class="cc-tt">${escapeHtml(c.title)}</span></div>
           </div>
         </div>
         <span class="cc-chevron">&#9650;</span>

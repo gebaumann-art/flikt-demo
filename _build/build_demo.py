@@ -17,6 +17,7 @@ Output goes into the parent demo-portal/ directory.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -60,6 +61,11 @@ PROJECTS = [
         "pdf_name": "FliktAI_Cypress_Bend_Report.pdf",
         "apply_gc_filter": False,
         "render_cap": 9999,
+        # S347c: Sunny Cove is cleared for public use (Greg 2026-08-04), so the
+        # viewer shows REAL page renders from the cached run — landscape
+        # drawing sheets only, title-block strip redacted, DEMO-watermarked.
+        # Greg-approved 2026-08-12 (portal-clone + redacted real sheets).
+        "real_sheets": True,
     },
     # ------------------------------------------------------------------
     # Eastside Lofts (source: Millenium Apartments S180) was RETIRED
@@ -128,6 +134,123 @@ PROJECTS = [
 ]
 
 REPORT_DATE = "August 12, 2026"
+
+# --- Real sheet renders (S347c) ----------------------------------------------
+#
+# For sources flagged real_sheets, cited sheet refs are matched to the run's
+# page_images/ renders. Only LANDSCAPE pages qualify (portrait pages in these
+# sets are document/binder pages, not drawings). Each used render gets the
+# title-block strip painted over (right edge carries project name, firm,
+# address), a diagonal DEMO watermark, and a downscale before being copied
+# into the published site. Output filenames derive from the ANONYMIZED sheet
+# label, never the source filename.
+
+REDACT_RIGHT_FRAC = 0.115   # title block strip width (fraction of page width)
+REDACT_LEFT_FRAC = 0.028    # left-margin rotated fine print carries the firm name
+SHEET_MAX_W = 1800
+SHEET_JPEG_Q = 72
+
+_CODE_RE = re.compile(r"^([A-Za-z]{1,3})[-_ ]?(\d[\d.]*)([A-Za-z]?)")
+
+
+def _sheet_code(s: str):
+    m = _CODE_RE.match(s.strip())
+    if not m:
+        return None
+    return (m.group(1).upper(), re.sub(r"\D", "", m.group(2)), m.group(3).upper())
+
+
+def _label_slug(label: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-") or "sheet"
+
+
+def _process_render(src: Path, dst: Path) -> None:
+    from PIL import Image, ImageDraw, ImageFont
+    with Image.open(src) as im:
+        im = im.convert("RGB")
+        w, h = im.size
+        draw = ImageDraw.Draw(im)
+        # Redact title-block strip (right edge) + left-margin fine print
+        # (verified S347c: the rotated copyright text names the architect and
+        # stays legible after downscale).
+        draw.rectangle([int(w * (1 - REDACT_RIGHT_FRAC)), 0, w, h], fill="white")
+        draw.rectangle([0, 0, int(w * REDACT_LEFT_FRAC), h], fill="white")
+        if w > SHEET_MAX_W:
+            im = im.resize((SHEET_MAX_W, int(h * SHEET_MAX_W / w)), Image.LANCZOS)
+        # Diagonal DEMO watermark.
+        overlay = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        od = ImageDraw.Draw(overlay)
+        try:
+            font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", int(im.width * 0.16))
+        except Exception:
+            font = ImageFont.load_default()
+        od.text((im.width * 0.5, im.height * 0.5), "DEMO", font=font,
+                fill=(15, 23, 42, 26), anchor="mm")
+        overlay = overlay.rotate(30, center=(im.width * 0.5, im.height * 0.5))
+        im = Image.alpha_composite(im.convert("RGBA"), overlay).convert("RGB")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        im.save(dst, "JPEG", quality=SHEET_JPEG_Q, optimize=True)
+
+
+def build_real_sheet_map(cfg: Dict, raw_conflicts: List[Dict]) -> Dict[str, str]:
+    """Return {anonymized_sheet_label: site-relative jpg path}.
+
+    Matching is strict on (discipline letters, digits): 'A-101' matches
+    'A101_p1.jpg' or 'A101C_-_...jpg', never 'A114...'. Unmatched or
+    portrait refs simply stay off the map (viewer falls back to placeholder).
+    """
+    from PIL import Image
+    source_key = cfg["source_key"]
+    img_dir = PIPELINE_RESULTS / cfg["source_dir"] / "page_images"
+    if not img_dir.is_dir():
+        print(f"  [real-sheets] no page_images dir for {cfg['slug']} — skipping")
+        return {}
+
+    img_by_code: Dict[tuple, str] = {}
+    for f in sorted(img_dir.iterdir()):
+        code = _sheet_code(f.name)
+        if code and f.suffix.lower() in (".jpg", ".jpeg", ".png"):
+            img_by_code.setdefault(code, f.name)
+
+    def match(ref: str):
+        code = _sheet_code(ref)
+        if not code:
+            return None
+        if code in img_by_code:
+            return img_by_code[code]
+        for k, fname in img_by_code.items():
+            if k[0] == code[0] and k[1] == code[1]:
+                return fname
+        return None
+
+    out_dir = DEMO_PORTAL / "sheets" / cfg["slug"]
+    label_map: Dict[str, str] = {}
+    processed = 0
+    for c in raw_conflicts:
+        for ref in (c.get("sheets") or []):
+            if not isinstance(ref, str):
+                continue
+            labels = anonymize_sheet_list([ref], source_key)
+            if not labels:
+                continue
+            label = labels[0]
+            if label in label_map:
+                continue
+            fname = match(ref)
+            if not fname:
+                continue
+            src = img_dir / fname
+            with Image.open(src) as im:
+                if im.width <= im.height:  # portrait = document page, skip
+                    continue
+            dst = out_dir / f"{_label_slug(label)}.jpg"
+            _process_render(src, dst)
+            label_map[label] = f"sheets/{cfg['slug']}/{dst.name}"
+            processed += 1
+    print(f"  [real-sheets] {cfg['slug']}: {processed} renders published "
+          f"(redacted right {int(REDACT_RIGHT_FRAC*100)}%, max {SHEET_MAX_W}px)")
+    return label_map
+
 
 # --- Discipline-pair + summary recomputation ---------------------------------
 
@@ -242,8 +365,27 @@ def process_project(cfg: Dict) -> Dict:
     conflicts, gate_report = apply_current_gates(conflicts, label=cfg["slug"])
     print_report(gate_report)
 
+    # Real sheet renders (S347c): map anonymized sheet labels to published
+    # redacted renders. Built from the raw (pre-gate) conflict list so the
+    # map is a superset; keyed by anonymized label so filenames can't leak.
+    sheet_img_map: Dict[str, str] = {}
+    if cfg.get("real_sheets"):
+        sheet_img_map = build_real_sheet_map(cfg, raw["conflicts"])
+
     # Anonymize every conflict
     anonymized = [anonymize_conflict(c, source_key) for c in conflicts]
+
+    # Attach per-conflict sheet_images aligned with the anonymized sheets
+    # list; order real-imaged sheets first so the viewer opens on a drawing.
+    if sheet_img_map:
+        for c in anonymized:
+            labels = c.get("sheets") or []
+            if not isinstance(labels, list):
+                continue
+            imaged = [l for l in labels if l in sheet_img_map]
+            bare = [l for l in labels if l not in sheet_img_map]
+            c["sheets"] = imaged + bare
+            c["sheet_images"] = [sheet_img_map.get(l) for l in c["sheets"]]
 
     # Anonymize project metadata from source + overlay handoff-defined metadata
     source_disciplines = raw.get("project", {}).get("disciplines", {}) or {}
