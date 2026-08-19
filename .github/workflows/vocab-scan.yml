@@ -33,15 +33,19 @@ jobs:
         with:
           python-version: '3.11'
 
+      # Both steps import vocab_gate DIRECTLY, never through build_demo.
+      # build_demo pulls in current_gates -> fp_filters, which lives in the
+      # pipeline checkout and does not exist on a runner; importing through it
+      # killed this job with ModuleNotFoundError before it scanned anything.
       - name: Gate self-test (does the scanner still catch known leaks?)
-        run: python3 _build/build_demo.py --selftest
+        run: python3 _build/vocab_gate.py
 
       - name: Scan committed HTML
         run: |
           python3 - <<'PY'
           import sys, pathlib
           sys.path.insert(0, "_build")
-          from build_demo import vocab_scan
+          from vocab_gate import vocab_scan
 
           failed = False
           for page in sorted(pathlib.Path(".").glob("*.html")):

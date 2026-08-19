@@ -45,6 +45,11 @@ from anonymization_rules import (  # noqa: E402
 from gc_filter import filter_and_annotate  # noqa: E402
 from page_template import PAGE_TEMPLATE  # noqa: E402
 from current_gates import apply_current_gates, print_report  # noqa: E402
+from vocab_gate import (  # noqa: E402
+    INTERNAL_CONFLICT_FIELDS,
+    selftest,
+    vocab_scan,
+)
 
 # --- Source configuration ----------------------------------------------------
 
@@ -721,74 +726,6 @@ def final_leak_scan(data: Dict) -> List[Tuple[str, List[str]]]:
     return leak_scan(blob, data["source_key"])
 
 
-# Internal vocabulary that must never reach a public page. Sourced from the
-# customer-secrecy doctrine's forbidden list. Scanned against the FINAL RENDERED
-# HTML, not the data blob — the 2026-08-19 "Conflicts by discipline pair" leak
-# lived in a hardcoded template string and in CSS/JS comments, so a data-only
-# scan (which is all leak_scan() does) could never have caught it. CSS and JS
-# comments inside PAGE_TEMPLATE ship to page source too; they are in scope here.
-FORBIDDEN_VOCAB = [
-    r"discipline[ _-]pairs?",
-    r"\d+[ -]point model",
-    r"fan-?out",
-    r"multi-?pass",
-    r"\bPass [0-4]\b",
-    r"\bconsensus\b",
-    r"MATCH_THRESHOLD",
-    r"VISION_CONFIDENCE\w*",
-    r"FAIL_FAST",
-    r"\bDEGRADED\b",
-    r"quality[ _-]gate",
-    r"submission_id",
-    r"pipeline_runner",
-    r"process_plans",
-    r"\bFargate\b",
-    r"\bCelery\b",
-    r"\balembic\b",
-    r"\bboto3\b",
-    r"app/services/",
-    # Internal repo/source paths. Added 2026-08-19 after a CSS comment naming
-    # the portal's tailwind config and lib path shipped to page source — the
-    # same publish-a-template-comment mistake, second time in one session.
-    r"customer-portal[\w-]*/",
-    r"tailwind\.config",
-    r"src/lib/",
-    r"flikt-demo/_build",
-    # Internal module names. These reach public HTML through the conflict
-    # `source` field (e.g. "spec_processor_api"), which is why they are here
-    # as well as in INTERNAL_CONFLICT_FIELDS — belt and braces, since the
-    # field strip is a denylist and a new field could carry them again.
-    r"spec_processor\w*",
-    r"text_extractor\w*",
-    r"vision_(?:pass|anemic)\w*",
-    r"consensus_runner",
-    r"coordination_detector",
-    r"clearance_validator",
-    r"ada_dimension_checker",
-    r"rcp_electrical_postpass",
-    r"geotech_report_parser",
-    r"legend_consistency",
-    r"panel_processor",
-    r"index_audit",
-    r"schedule_(?:parser|template_builder)",
-]
-
-
-def vocab_scan(html: str) -> List[Tuple[str, List[str]]]:
-    """Return (pattern, sample_hits) for any forbidden internal vocabulary.
-
-    Fails the build rather than warning. A public marketing surface that leaks
-    architecture is not a cosmetic defect, and a warning in a 60-line build log
-    is exactly how the last one survived three refreshes unnoticed.
-    """
-    hits = []
-    for pattern in FORBIDDEN_VOCAB:
-        matches = re.findall(pattern, html, flags=re.IGNORECASE)
-        if matches:
-            hits.append((pattern, sorted(set(matches))[:5]))
-    return hits
-
-
 # --- Main orchestration ------------------------------------------------------
 
 def main() -> int:
@@ -889,49 +826,6 @@ def main() -> int:
     print("=" * 70)
     print("BUILD COMPLETE")
     print("=" * 70)
-    return 0
-
-
-def selftest() -> int:
-    """Prove the vocabulary gate FIRES, not just that a clean build passes.
-
-    A gate is only worth its line count if you have watched it fail. Each case
-    below is a string that actually shipped to demo.flikt.ai before 2026-08-19.
-    """
-    must_catch = [
-        ("results header", "<span>Conflicts by discipline pair</span>"),
-        ("analysis log", "Comparing elements across 21 discipline pairs"),
-        ("css comment", "/* Discipline pair strip (collapsed) */"),
-        ("stage label", "Scoring severity (50-point model)..."),
-        ("embedded json", '"consensus": {"runs_detected": 5, "total_runs": 5}'),
-        ("module name", '"source": "spec_processor_api"'),
-    ]
-    must_pass = [
-        ("trade badge", '<span class="disc-pair-tag">A &harr; S</span>'),
-        ("finding title", "Plumbing Pipe Penetrations Through Fire-Rated Assembly"),
-        ("neutral log", "Comparing elements across every trade combination in the set"),
-    ]
-
-    failures = 0
-    for label, sample in must_catch:
-        if not vocab_scan(sample):
-            print(f"  FAIL (missed) {label}: {sample!r}", file=sys.stderr)
-            failures += 1
-        else:
-            print(f"  ok  caught   {label}")
-    for label, sample in must_pass:
-        hits = vocab_scan(sample)
-        if hits:
-            print(f"  FAIL (over-caught) {label}: {hits}", file=sys.stderr)
-            failures += 1
-        else:
-            print(f"  ok  allowed  {label}")
-
-    print()
-    if failures:
-        print(f"SELFTEST FAILED ({failures})", file=sys.stderr)
-        return 1
-    print("SELFTEST PASSED — gate catches every known leak, allows legit copy")
     return 0
 
 
