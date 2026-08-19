@@ -71,13 +71,68 @@ a:hover{color:#B97D0F}
 .nav{display:flex;gap:4px}
 .nav button{
   background:transparent;border:1px solid transparent;
-  color:rgba(255,255,255,0.65);padding:7px 14px;border-radius:6px;cursor:pointer;
-  font-family:inherit;font-size:13px;font-weight:600;transition:all .2s
+  color:var(--text-muted);padding:6px 13px;border-radius:6px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:600;transition:all .2s
 }
-.nav button:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav button:hover{color:var(--text);background:var(--bg)}
 .nav button.active{color:var(--navy);background:var(--amber)}
 .nav button.locked{opacity:0.35;cursor:not-allowed;pointer-events:none}
 .header-right{display:flex;align-items:center;gap:10px}
+
+/* Portal-parity chrome. The real portal's top bar carries a search field,
+   Projects / Customers / Settings, a New Project button, an EN|ES switch and
+   an avatar. None of it is wired here (this is a static page), but its absence
+   was the single biggest tell that the demo was a lookalike rather than the
+   product. Inert controls carry aria-disabled + a title explaining why. */
+.pnav{display:flex;align-items:center;gap:6px}
+.pnav-search{
+  display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:6px 10px;
+  color:rgba(255,255,255,0.6);font-size:12.5px;font-weight:500;cursor:default
+}
+.pnav-search svg{width:13px;height:13px;flex-shrink:0}
+.pnav-search kbd{
+  font-family:var(--mono);font-size:10px;background:rgba(255,255,255,0.12);
+  border-radius:4px;padding:1px 5px;color:rgba(255,255,255,0.75)
+}
+.pnav-link{
+  color:rgba(255,255,255,0.72);font-size:13px;font-weight:600;padding:7px 11px;
+  border-radius:6px;cursor:default;white-space:nowrap
+}
+.pnav-link:hover{background:rgba(255,255,255,0.06);color:#fff}
+.pnav-cta{
+  background:var(--amber);color:var(--navy);font-size:13px;font-weight:700;
+  padding:7px 14px;border-radius:7px;border:none;cursor:default;white-space:nowrap;
+  font-family:inherit
+}
+.pnav-lang{
+  display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+  color:rgba(255,255,255,0.55);padding-left:4px
+}
+.pnav-lang .on{color:#fff}
+.pnav-avatar{
+  width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.14);
+  border:1px solid rgba(255,255,255,0.22);display:flex;align-items:center;
+  justify-content:center;color:#fff;flex-shrink:0
+}
+.pnav-avatar svg{width:15px;height:15px}
+
+/* Demo view-switcher, moved out of the top bar so the top bar can mirror the
+   portal exactly. This strip has no portal equivalent and says so. */
+.demo-strip{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:7px 32px;display:flex;align-items:center;gap:10px;
+  position:sticky;top:59px;z-index:99
+}
+.demo-strip-label{
+  font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--text-soft);white-space:nowrap
+}
+@media (max-width:860px){
+  .pnav-search,.pnav-link,.pnav-lang{display:none}
+  .demo-strip{padding:7px 16px;overflow-x:auto;position:static}
+  .demo-strip-label{display:none}
+}
 .theme-toggle{
   background:transparent;border:1px solid rgba(255,255,255,0.18);border-radius:8px;
   width:32px;height:32px;display:flex;align-items:center;justify-content:center;
@@ -170,6 +225,37 @@ a:hover{color:#B97D0F}
 .proj-tab.locked{opacity:.4;cursor:default;pointer-events:none}
 
 /* Compact stat chips row (clones portal's count pills) */
+/* Findings-pane header — the portal puts paging arrows, a Filters control and
+   a View dropdown directly above the findings list. Inert here. */
+.pane-header{
+  display:flex;align-items:center;gap:14px;margin:0 0 10px 0;
+  padding-bottom:9px;border-bottom:1px solid var(--border)
+}
+.pane-pager{display:flex;align-items:center;gap:9px}
+.pager-arrow{
+  color:var(--text-soft);font-size:16px;line-height:1;cursor:default;
+  padding:0 3px;user-select:none
+}
+.pager-count{
+  font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text-muted)
+}
+.pane-ctl{
+  display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+  color:var(--text-muted);cursor:default;user-select:none
+}
+.pane-ctl svg{width:12px;height:12px}
+.pane-ctl .ctl-chev{font-size:10px;color:var(--text-soft)}
+
+/* Back-to-project line — the portal shows "<- Back to project #<short id>"
+   directly above the chip row. The id here is derived from the demo slug, not
+   a real project identifier. */
+.back-to-project{
+  display:flex;align-items:center;gap:9px;margin:0 0 10px 0;font-size:13px
+}
+.btp-link{color:var(--text-muted);font-weight:600;cursor:pointer}
+.btp-link:hover{color:var(--amber)}
+.btp-hash{font-family:var(--mono);font-size:12px;color:var(--text-soft)}
+
 .chips-row{
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px
 }
@@ -462,6 +548,58 @@ margin-right:5px;vertical-align:1px;background:transparent}
   display:flex;align-items:center;justify-content:center;
   padding:16px;position:relative;overflow:hidden;min-height:440px
 }
+
+/* Viewer chrome — zoom cluster, markup toolbar, FliktAssist launcher.
+   The portal has all three; their absence made the demo viewer read as a
+   screenshot rather than an application. All inert: pointer-events are off
+   so nothing invites a click that would do nothing. */
+.viewer-zoom{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:5px;pointer-events:none;z-index:4
+}
+.vz-btn{
+  width:27px;height:27px;border-radius:7px;background:var(--card);
+  border:1px solid var(--border);display:flex;align-items:center;
+  justify-content:center;color:var(--text-muted);
+  box-shadow:0 1px 3px rgba(10,25,41,0.10)
+}
+.vz-btn svg{width:13px;height:13px}
+
+.markup-bar{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:5px;padding:6px 9px;
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  box-shadow:0 2px 10px rgba(10,25,41,0.13);pointer-events:none;z-index:4;
+  max-width:calc(100% - 24px);flex-wrap:nowrap;overflow:hidden
+}
+.mk-tool{
+  width:24px;height:24px;border-radius:6px;display:flex;align-items:center;
+  justify-content:center;color:var(--text-muted);flex-shrink:0
+}
+.mk-tool.active{background:var(--bg);color:var(--text)}
+.mk-tool svg{width:13px;height:13px}
+.mk-sep{width:1px;height:16px;background:var(--border);flex-shrink:0}
+.mk-weight{
+  width:20px;height:24px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0
+}
+.mk-weight i{display:block;width:15px;background:var(--text-muted);border-radius:2px}
+.mk-swatch{
+  width:15px;height:15px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid var(--card);box-shadow:0 0 0 1px var(--border)
+}
+
+.assist-fab{
+  position:absolute;right:12px;bottom:12px;width:38px;height:38px;
+  border-radius:50%;background:var(--navy);display:flex;align-items:center;
+  justify-content:center;box-shadow:0 3px 12px rgba(10,25,41,0.30);
+  pointer-events:none;z-index:5
+}
+.assist-fab img{width:20px;height:20px;display:block}
+
+@media (max-width:760px){
+  .markup-bar,.viewer-zoom{display:none}
+}
 .viewer-canvas .sheet-img{
   max-width:100%;max-height:100%;width:auto;height:auto;
   box-shadow:0 4px 24px rgba(15,23,42,0.12);background:#fff;
@@ -559,6 +697,9 @@ margin-right:5px;vertical-align:1px;background:transparent}
   .cc-impact{grid-template-columns:1fr}
   .cc-meta{grid-template-columns:1fr}
   .nav{display:none}
+  /* .nav is the only content of .demo-strip; with it hidden the strip would
+     render as an empty bar. The bottom-docked .mobile-tabs replaces it. */
+  .demo-strip{display:none}
   .view{padding:16px}
   .mobile-tabs{display:block}
   body{padding-bottom:72px}
@@ -581,16 +722,34 @@ margin-right:5px;vertical-align:1px;background:transparent}
     </a>
   </div>
   <div class="header-right">
-    <div class="nav">
-      <button class="active" onclick="showView('dashboard')">Dashboard</button>
-      <button onclick="showView('progress')">Analysis</button>
-      <button onclick="showView('results')">Results</button>
-      <button onclick="showView('report')">Report</button>
+    <div class="pnav">
+      <span class="pnav-search" aria-disabled="true" title="Global search is available in the live portal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search <kbd>&#8984;K</kbd>
+      </span>
+      <span class="pnav-link" aria-disabled="true" title="Available in the live portal">Projects</span>
+      <span class="pnav-link" aria-disabled="true" title="Available in the live portal">Customers</span>
+      <span class="pnav-link" aria-disabled="true" title="Available in the live portal">Settings</span>
+      <button class="pnav-cta" type="button" aria-disabled="true" title="Available in the live portal">New Project</button>
+      <span class="pnav-lang"><span class="on">EN</span>&middot;<span>ES</span></span>
+      <span class="pnav-avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
     </div>
     <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" onclick="(function(){var r=document.documentElement;var n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('flikt-theme',n)}catch(e){}})()">
       <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
     </button>
+  </div>
+</div>
+
+<div class="demo-strip">
+  <span class="demo-strip-label">Demo walkthrough</span>
+  <div class="nav">
+    <button class="active" onclick="showView('dashboard')">Dashboard</button>
+    <button onclick="showView('progress')">Analysis</button>
+    <button onclick="showView('results')">Results</button>
+    <button onclick="showView('report')">Report</button>
   </div>
 </div>
 
@@ -639,12 +798,19 @@ margin-right:5px;vertical-align:1px;background:transparent}
       <button class="proj-tab active" type="button">Conflicts <span id="ps-count"></span></button>
       <span class="proj-tab locked" title="Available in the full portal">RFIs</span>
       <span class="proj-tab locked" title="Available in the full portal">Submittals</span>
+      <span class="proj-tab locked" title="Available in the full portal">Submittal review</span>
       <span class="proj-tab locked" title="Available in the full portal">Drawings</span>
       <span class="proj-tab locked" title="Available in the full portal">Sheets</span>
       <span class="proj-tab locked" title="Available in the full portal">Equipment</span>
       <span class="proj-tab locked" title="Available in the full portal">Specs</span>
       <span class="proj-tab locked" title="Available in the full portal">Revisions</span>
     </nav>
+  </div>
+
+  <!-- Back-to-project line (portal shows this above the chip row) -->
+  <div class="back-to-project">
+    <span class="btp-link" onclick="showView('dashboard')">&larr; Back to project</span>
+    <span class="btp-hash" id="btp-hash"></span>
   </div>
 
   <!-- Compact stat chips + action toolbar -->
@@ -658,11 +824,11 @@ margin-right:5px;vertical-align:1px;background:transparent}
         </button>
         <button class="action-btn" title="Classic list view">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          Classic
+          List view
         </button>
         <button class="action-btn" onclick="copyLink()" title="Copy shareable link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          Copy Link
+          Share
         </button>
         <button class="action-btn disabled dark-fill" type="button" disabled aria-disabled="true" title="Available in the full portal — contact hello@flikt.ai">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -683,8 +849,24 @@ margin-right:5px;vertical-align:1px;background:transparent}
   <!-- Search row -->
   <div class="search-row">
     <input class="search-input" id="finding-search" type="search"
-           placeholder="Search findings..." oninput="searchConflicts(this.value)">
+           placeholder="Search every page in the plan set" oninput="searchConflicts(this.value)">
     <span class="disc-select" id="disc-select-note"></span>
+  </div>
+
+  <!-- Findings-pane header: paging + filter controls (portal parity) -->
+  <div class="pane-header">
+    <div class="pane-pager">
+      <span class="pager-arrow" aria-disabled="true">&lsaquo;</span>
+      <span class="pager-count" id="pager-count">&mdash;</span>
+      <span class="pager-arrow" aria-disabled="true">&rsaquo;</span>
+    </div>
+    <span class="pane-ctl" aria-disabled="true" title="Advanced filters are available in the live portal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      Filters
+    </span>
+    <span class="pane-ctl" aria-disabled="true" title="View options are available in the live portal">
+      View <span class="ctl-chev">&#9662;</span>
+    </span>
   </div>
 
   <!-- Filters -->
@@ -713,6 +895,39 @@ margin-right:5px;vertical-align:1px;background:transparent}
             <p>Click any conflict on the left to load the relevant sheet. Sheet images shown are demo placeholders.</p>
           </div>
           <img class="sheet-img" id="sheet-img" alt="" style="display:none"/>
+
+          <!-- Viewer controls (portal parity, inert here) -->
+          <div class="viewer-zoom" aria-hidden="true">
+            <span class="vz-btn" title="Zoom in — available in the live portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <span class="vz-btn" title="Zoom out — available in the live portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <span class="vz-btn" title="Fit to window — available in the live portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span>
+            <span class="vz-btn" title="Rotate — available in the live portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="vz-btn" title="Hide markup — available in the live portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+          </div>
+
+          <!-- Markup toolbar (portal parity, inert here) -->
+          <div class="markup-bar" aria-hidden="true">
+            <span class="mk-tool active" title="Select — markup is available in the live portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51z"/></svg></span>
+            <span class="mk-tool" title="Rectangle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></span>
+            <span class="mk-tool" title="Draw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></span>
+            <span class="mk-tool" title="Text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg></span>
+            <span class="mk-tool" title="Erase"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16a2 2 0 0 1 0-3l9-9a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3l-7 7"/></svg></span>
+            <span class="mk-sep"></span>
+            <span class="mk-weight"><i style="height:1.5px"></i></span>
+            <span class="mk-weight"><i style="height:3px"></i></span>
+            <span class="mk-sep"></span>
+            <span class="mk-swatch" style="background:#e0362c"></span>
+            <span class="mk-swatch" style="background:#f08c1e"></span>
+            <span class="mk-swatch" style="background:#f5c518"></span>
+            <span class="mk-swatch" style="background:#2f9e44"></span>
+            <span class="mk-swatch" style="background:#1c7ed6"></span>
+            <span class="mk-swatch" style="background:#141b26"></span>
+          </div>
+
+          <!-- FliktAssist launcher (portal parity, inert here) -->
+          <span class="assist-fab" title="FliktAssist is available in the live portal" aria-hidden="true">
+            <img src="flikt-icon.svg" alt="">
+          </span>
         </div>
         <div class="viewer-footnote" id="viewer-footnote">Sheet images are demo placeholders. Full PDF rendering with pan/zoom is available in the live customer portal.</div>
       </div>
@@ -810,7 +1025,14 @@ function init(){
   document.getElementById('ps-name').textContent = p.name;
   document.getElementById('ps-count').textContent = '(' + s.total_conflicts + ')';
   document.getElementById('disc-select-note').textContent =
-    'All pages (' + (p.total_sheets || 0) + ')';
+    'Discipline: All pages (' + (p.total_sheets || 0) + ')';
+  // Back-to-project short id. Derived from the project name so it is stable
+  // across rebuilds and obviously synthetic — never a real project id.
+  let hsh = 0;
+  for(const ch of (p.name||'demo')) hsh = ((hsh<<5) - hsh + ch.charCodeAt(0)) | 0;
+  document.getElementById('btp-hash').textContent =
+    '#' + (hsh >>> 0).toString(16).padStart(8,'0').slice(0,8);
+  document.getElementById('pager-count').textContent = '1/' + s.total_conflicts;
   // Report mockup
   document.getElementById('rm-proj').textContent=p.name;
   document.getElementById('rm-count').textContent=s.total_conflicts;
