@@ -252,19 +252,17 @@ def build_real_sheet_map(cfg: Dict, raw_conflicts: List[Dict]) -> Dict[str, str]
     return label_map
 
 
-# --- Discipline-pair + summary recomputation ---------------------------------
+# --- Summary recomputation ---------------------------------------------------
+#
+# NOTE (2026-08-19): the discipline-pair COUNT was removed from the summary.
+# It reached two public surfaces — the analysis log and the embedded DATA JSON
+# in page source — and "discipline pair(s)" is forbidden internal vocabulary
+# per the customer-secrecy doctrine. Per-finding `disc_a`/`disc_b` stay: the
+# real portal shows the same "A ↔ S" badge on every finding card, so which two
+# trades collide is legitimately customer-facing. It is the AGGREGATE
+# comparison-matrix framing that reveals how the pipeline works.
 
 SEVERITY_ORDER = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3}
-
-
-def _count_discipline_pairs(conflicts: List[Dict]) -> int:
-    pairs = set()
-    for c in conflicts:
-        a = (c.get("disc_a") or "").strip()
-        b = (c.get("disc_b") or "").strip()
-        if a and b:
-            pairs.add(tuple(sorted([a, b])))
-    return len(pairs)
 
 
 def recompute_summary(conflicts: List[Dict]) -> Dict:
@@ -284,7 +282,6 @@ def recompute_summary(conflicts: List[Dict]) -> Dict:
         "low": sev_counts["Low"],
         "cost_low": cost_low,
         "cost_high": cost_high,
-        "discipline_pairs": _count_discipline_pairs(conflicts),
     }
 
 
@@ -324,23 +321,23 @@ def make_stages(project_name: str, total_sheets: int, disciplines: List[str], su
     if "Specifications" in disciplines:
         stages.append({"pct": 44, "text": "Parsing specification book...",
                        "log": "Specifications: cross-referencing CSI divisions against plans"})
-    stages.append({"pct": 52, "text": "Running cross-discipline conflict detection...",
-                   "log": f"Comparing elements across {summary['discipline_pairs']} discipline pairs"})
+    stages.append({"pct": 52, "text": "Cross-discipline coordination...",
+                   "log": "Comparing elements across every trade combination in the set"})
     stages.append({"pct": 60, "text": "Checking code compliance...",
                    "log": "\u26A0 Detecting building-code + accessibility issues"})
     stages.append({"pct": 68, "text": "Detecting spatial clashes...",
                    "log": "\u26A0 Scanning for geometric conflicts between disciplines"})
     stages.append({"pct": 75, "text": "Checking MEP coordination gaps...",
                    "log": "\u26A0 Identifying missing equipment circuits, routing conflicts"})
-    stages.append({"pct": 82, "text": "Scoring severity (50-point model)...",
-                   "log": (f"Scored {summary['total_conflicts']} conflicts: "
+    stages.append({"pct": 82, "text": "Prioritizing findings by severity...",
+                   "log": (f"{summary['total_conflicts']} findings prioritized: "
                            f"{summary['critical']} Critical, {summary['high']} High, "
                            f"{summary['medium']} Medium, {summary['low']} Low")})
     stages.append({"pct": 92, "text": "Estimating cost and schedule impacts...",
                    "log": f"Total cost exposure: ${summary['cost_low']:,} \u2013 ${summary['cost_high']:,}"})
     stages.append({"pct": 100, "text": "Analysis complete!",
-                   "log": (f"Report generated \u2014 {summary['total_conflicts']} conflicts "
-                           f"across {summary['discipline_pairs']} discipline pairs")})
+                   "log": (f"Report generated \u2014 {summary['total_conflicts']} findings "
+                           f"across {len(disciplines)} disciplines")})
     return stages
 
 
@@ -415,6 +412,36 @@ def process_project(cfg: Dict) -> Dict:
 
 # --- HTML generation ---------------------------------------------------------
 
+# Conflict fields that must never reach the embedded DATA JSON. The demo page
+# ships this blob verbatim in page source, so anything here is world-readable
+# even when nothing renders it. Found published 2026-08-19:
+#   consensus                 -> {"runs_detected": 5, "total_runs": 5, ...}
+#                                reveals the multi-run voting design outright
+#   scores                    -> the 5-axis severity model by name
+#                                (constructability/cost/safety/schedule/downstream)
+#   severity_downgrade_reason -> names internal gates ("S2 routine-coordination gate")
+#   source                    -> internal module names, e.g. "spec_processor_api"
+#   flags                     -> internal flag slugs, e.g. "structural_detail_missing"
+# Denylist rather than allowlist deliberately: an allowlist here would silently
+# drop any new field the template starts rendering. The vocab gate over the
+# rendered HTML is the backstop for anything this list misses.
+INTERNAL_CONFLICT_FIELDS = {
+    "consensus",
+    "scores",
+    "severity_downgrade_reason",
+    "source",
+    "flags",
+}
+
+
+def strip_internal_fields(conflicts: List[Dict]) -> List[Dict]:
+    """Drop internal-only fields before a conflict reaches a public page."""
+    return [
+        {k: v for k, v in c.items() if k not in INTERNAL_CONFLICT_FIELDS}
+        for c in conflicts
+    ]
+
+
 def build_page_html(data: Dict) -> str:
     cfg = data["cfg"]
     project = data["project"]
@@ -425,7 +452,7 @@ def build_page_html(data: Dict) -> str:
     data_json = json.dumps({
         "project": project,
         "summary": summary,
-        "conflicts": data["conflicts"],
+        "conflicts": strip_internal_fields(data["conflicts"]),
     }, ensure_ascii=False)
     stages_json = json.dumps(stages, ensure_ascii=False)
 
@@ -694,6 +721,67 @@ def final_leak_scan(data: Dict) -> List[Tuple[str, List[str]]]:
     return leak_scan(blob, data["source_key"])
 
 
+# Internal vocabulary that must never reach a public page. Sourced from the
+# customer-secrecy doctrine's forbidden list. Scanned against the FINAL RENDERED
+# HTML, not the data blob — the 2026-08-19 "Conflicts by discipline pair" leak
+# lived in a hardcoded template string and in CSS/JS comments, so a data-only
+# scan (which is all leak_scan() does) could never have caught it. CSS and JS
+# comments inside PAGE_TEMPLATE ship to page source too; they are in scope here.
+FORBIDDEN_VOCAB = [
+    r"discipline[ _-]pairs?",
+    r"\d+[ -]point model",
+    r"fan-?out",
+    r"multi-?pass",
+    r"\bPass [0-4]\b",
+    r"\bconsensus\b",
+    r"MATCH_THRESHOLD",
+    r"VISION_CONFIDENCE\w*",
+    r"FAIL_FAST",
+    r"\bDEGRADED\b",
+    r"quality[ _-]gate",
+    r"submission_id",
+    r"pipeline_runner",
+    r"process_plans",
+    r"\bFargate\b",
+    r"\bCelery\b",
+    r"\balembic\b",
+    r"\bboto3\b",
+    r"app/services/",
+    # Internal module names. These reach public HTML through the conflict
+    # `source` field (e.g. "spec_processor_api"), which is why they are here
+    # as well as in INTERNAL_CONFLICT_FIELDS — belt and braces, since the
+    # field strip is a denylist and a new field could carry them again.
+    r"spec_processor\w*",
+    r"text_extractor\w*",
+    r"vision_(?:pass|anemic)\w*",
+    r"consensus_runner",
+    r"coordination_detector",
+    r"clearance_validator",
+    r"ada_dimension_checker",
+    r"rcp_electrical_postpass",
+    r"geotech_report_parser",
+    r"legend_consistency",
+    r"panel_processor",
+    r"index_audit",
+    r"schedule_(?:parser|template_builder)",
+]
+
+
+def vocab_scan(html: str) -> List[Tuple[str, List[str]]]:
+    """Return (pattern, sample_hits) for any forbidden internal vocabulary.
+
+    Fails the build rather than warning. A public marketing surface that leaks
+    architecture is not a cosmetic defect, and a warning in a 60-line build log
+    is exactly how the last one survived three refreshes unnoticed.
+    """
+    hits = []
+    for pattern in FORBIDDEN_VOCAB:
+        matches = re.findall(pattern, html, flags=re.IGNORECASE)
+        if matches:
+            hits.append((pattern, sorted(set(matches))[:5]))
+    return hits
+
+
 # --- Main orchestration ------------------------------------------------------
 
 def main() -> int:
@@ -719,7 +807,7 @@ def main() -> int:
         print(
             f"  conflicts={s['total_conflicts']} "
             f"(C={s['critical']} H={s['high']} M={s['medium']} L={s['low']})  "
-            f"cost=${s['cost_low']:,}-${s['cost_high']:,}  pairs={s['discipline_pairs']}"
+            f"cost=${s['cost_low']:,}-${s['cost_high']:,}"
         )
         if data["gc_report"]:
             r = data["gc_report"]
@@ -747,18 +835,35 @@ def main() -> int:
 
     # --- Phase 2: write HTML pages ---
     print()
+    rendered: List[Tuple[Path, str]] = []
     for data in all_data:
         slug = data["cfg"]["slug"]
-        html = build_page_html(data)
-        out = DEMO_PORTAL / f"{slug}.html"
-        out.write_text(html, encoding="utf-8")
-        print(f"  wrote {out.name} ({len(html):,} bytes)")
+        rendered.append((DEMO_PORTAL / f"{slug}.html", build_page_html(data)))
+    rendered.append((DEMO_PORTAL / "index.html", build_landing_html(all_data)))
 
-    # --- Phase 3: write landing page ---
-    landing = build_landing_html(all_data)
-    landing_path = DEMO_PORTAL / "index.html"
-    landing_path.write_text(landing, encoding="utf-8")
-    print(f"  wrote index.html ({len(landing):,} bytes)")
+    # Vocabulary gate — runs BEFORE anything is written, so a leak cannot ship
+    # even if the operator ignores the console.
+    vocab_failed = False
+    for path, html in rendered:
+        vhits = vocab_scan(html)
+        if vhits:
+            vocab_failed = True
+            print(f"  VOCAB LEAK in {path.name}:", file=sys.stderr)
+            for pattern, samples in vhits:
+                print(f"    {pattern} -> {samples}", file=sys.stderr)
+    if vocab_failed:
+        print(
+            "\nBUILD FAILED: forbidden internal vocabulary in rendered HTML.\n"
+            "Nothing was written. Fix the strings (remember CSS/JS comments\n"
+            "inside PAGE_TEMPLATE are published too) and re-run.",
+            file=sys.stderr,
+        )
+        return 4
+
+    for path, html in rendered:
+        path.write_text(html, encoding="utf-8")
+        print(f"  wrote {path.name} ({len(html):,} bytes)")
+    print("  vocab-scan: clean")
 
     # --- Phase 4: PDF generation (DISABLED S181 — Greg removed PDF downloads
     # from demo. Function kept for easy revert; just re-enable this block).
@@ -780,5 +885,50 @@ def main() -> int:
     return 0
 
 
+def selftest() -> int:
+    """Prove the vocabulary gate FIRES, not just that a clean build passes.
+
+    A gate is only worth its line count if you have watched it fail. Each case
+    below is a string that actually shipped to demo.flikt.ai before 2026-08-19.
+    """
+    must_catch = [
+        ("results header", "<span>Conflicts by discipline pair</span>"),
+        ("analysis log", "Comparing elements across 21 discipline pairs"),
+        ("css comment", "/* Discipline pair strip (collapsed) */"),
+        ("stage label", "Scoring severity (50-point model)..."),
+        ("embedded json", '"consensus": {"runs_detected": 5, "total_runs": 5}'),
+        ("module name", '"source": "spec_processor_api"'),
+    ]
+    must_pass = [
+        ("trade badge", '<span class="disc-pair-tag">A &harr; S</span>'),
+        ("finding title", "Plumbing Pipe Penetrations Through Fire-Rated Assembly"),
+        ("neutral log", "Comparing elements across every trade combination in the set"),
+    ]
+
+    failures = 0
+    for label, sample in must_catch:
+        if not vocab_scan(sample):
+            print(f"  FAIL (missed) {label}: {sample!r}", file=sys.stderr)
+            failures += 1
+        else:
+            print(f"  ok  caught   {label}")
+    for label, sample in must_pass:
+        hits = vocab_scan(sample)
+        if hits:
+            print(f"  FAIL (over-caught) {label}: {hits}", file=sys.stderr)
+            failures += 1
+        else:
+            print(f"  ok  allowed  {label}")
+
+    print()
+    if failures:
+        print(f"SELFTEST FAILED ({failures})", file=sys.stderr)
+        return 1
+    print("SELFTEST PASSED — gate catches every known leak, allows legit copy")
+    return 0
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
     sys.exit(main())

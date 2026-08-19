@@ -9,6 +9,21 @@ Placeholders (Python str.format):
   {TITLE}, {DATA_JSON}, {STAGES_JSON}, {RENDER_CAP}, {PDF_FILENAME}, {REPORT_DATE}
 
 Literal CSS / JS braces are escaped as {{ }}.
+
+⛔ EVERYTHING BELOW LINE 14 IS PUBLISHED HTML — including CSS and JS comments.
+Never explain internals in a comment inside PAGE_TEMPLATE; it ships to page
+source. Put notes here in the module docstring instead.
+
+Removed 2026-08-19 — the "Conflicts by discipline pair" accordion (header,
+body, CSS block, and the discPairCounts() helper). Two independent reasons:
+  1. "discipline pair" is forbidden internal vocabulary on any public surface
+     (customer-secrecy doctrine). It was rendering in the results header and
+     in the analysis log on a fully public page.
+  2. The real portal DELETED the equivalent bar in FIX-UX-35 ("redundant with
+     Top trade pairs tile"), so keeping it here made the demo diverge from the
+     product it exists to mirror.
+Do not reinstate. Per-finding "A ↔ S" badges are fine and stay — the portal
+shows those too; it was the aggregate matrix framing that leaked.
 """
 
 PAGE_TEMPLATE = r"""<!DOCTYPE html>
@@ -260,7 +275,7 @@ margin-right:5px;vertical-align:1px;background:transparent}}
 .stat-pairs .num{{font-size:20px;font-weight:700;color:var(--amber)}}
 .stat-pairs .lbl{{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,0.7);font-weight:500;margin-bottom:4px}}
 
-/* Discipline pair strip (collapsed) */
+/* Trade-tag strip (collapsed) */
 .disc-pair-strip{{
   background:var(--card);border:1px solid var(--border);border-radius:10px;
   padding:12px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px
@@ -400,12 +415,6 @@ margin-right:5px;vertical-align:1px;background:transparent}}
 .cc-action strong{{color:#1E3A8A;font-weight:700}}
 
 /* Scores grid (kept, smaller, less prominent) */
-.scores-grid{{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}}
-.score-dim{{text-align:center}}
-.score-dim .dim-label{{font-family:var(--mono);font-size:9px;font-weight:500;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;letter-spacing:.4px}}
-.score-bar-bg{{height:6px;background:var(--border);border-radius:3px;overflow:hidden}}
-.score-bar-fill{{height:100%;border-radius:3px;transition:width .5s ease}}
-.score-dim .dim-val{{font-size:10.5px;font-weight:700;margin-top:2px}}
 
 /* Dark mode overrides */
 :root[data-theme="dark"] .cc-action{{background:#0F1F3A;border-color:#1E40AF;color:#BFDBFE}}
@@ -528,33 +537,6 @@ margin-right:5px;vertical-align:1px;background:transparent}}
   color:var(--text-soft)
 }}
 
-/* Discipline-pair accordion (matches real portal's "Conflicts by discipline pair" bar) */
-.disc-accordion{{
-  background:var(--card);border:1px solid var(--border);border-radius:10px;
-  margin:8px 0 18px 0;overflow:hidden
-}}
-.disc-acc-header{{
-  display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;
-  font-size:13px;color:var(--text);user-select:none
-}}
-.disc-acc-header:hover{{background:var(--bg)}}
-.disc-acc-header .acc-title{{font-weight:700;letter-spacing:-0.01em}}
-.disc-acc-header .acc-sep{{color:var(--text-soft)}}
-.disc-acc-header .acc-detail{{color:var(--text-muted);font-size:12.5px}}
-.disc-acc-header .acc-chev{{margin-left:auto;color:var(--text-soft);transition:transform .2s;font-size:14px}}
-.disc-accordion.open .acc-chev{{transform:rotate(180deg)}}
-.disc-acc-body{{
-  display:none;padding:0 16px 14px 16px;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px
-}}
-.disc-accordion.open .disc-acc-body{{display:grid}}
-.disc-acc-row{{
-  display:flex;justify-content:space-between;font-size:12px;
-  padding:5px 0;border-bottom:1px solid var(--border)
-}}
-.disc-acc-row .pair{{color:var(--text);font-weight:500}}
-.disc-acc-row .cnt{{color:var(--amber);font-weight:700}}
-
 /* ============ Report view ============ */
 .report-preview{{text-align:center;margin:32px 0}}
 .report-preview h2{{font-size:22px;font-weight:700;letter-spacing:-0.01em;margin-bottom:10px}}
@@ -602,7 +584,6 @@ margin-right:5px;vertical-align:1px;background:transparent}}
   .summary-row{{grid-template-columns:repeat(2,1fr)}}
   .summary-row2{{grid-template-columns:1fr}}
   .meta-grid{{grid-template-columns:1fr 1fr}}
-  .scores-grid{{grid-template-columns:repeat(3,1fr)}}
   .cc-impact{{grid-template-columns:1fr}}
   .cc-meta{{grid-template-columns:1fr}}
   .nav{{display:none}}
@@ -732,17 +713,6 @@ margin-right:5px;vertical-align:1px;background:transparent}}
     <input class="search-input" id="finding-search" type="search"
            placeholder="Search findings..." oninput="searchConflicts(this.value)">
     <span class="disc-select" id="disc-select-note"></span>
-  </div>
-
-  <!-- Discipline-pair accordion (collapsed by default) -->
-  <div class="disc-accordion" id="disc-accordion" onclick="this.classList.toggle('open')">
-    <div class="disc-acc-header">
-      <span class="acc-title">Conflicts by discipline pair</span>
-      <span class="acc-sep">&middot;</span>
-      <span class="acc-detail" id="disc-acc-detail">&mdash;</span>
-      <span class="acc-chev">&#9662;</span>
-    </div>
-    <div class="disc-acc-body" id="disc-acc-body" onclick="event.stopPropagation()"></div>
   </div>
 
   <!-- Filters -->
@@ -944,17 +914,6 @@ function sortedConflicts(){{
   }});
 }}
 
-function discPairCounts(conflicts){{
-  const counts = new Map();
-  conflicts.forEach(c=>{{
-    const a = (c.disc_a||'').trim(), b = (c.disc_b||'').trim();
-    if(!a || !b) return;
-    const key = [a,b].sort().join(' ↔ ');
-    counts.set(key, (counts.get(key)||0) + 1);
-  }});
-  return Array.from(counts.entries()).sort((x,y)=>y[1]-x[1]);
-}}
-
 function discAbbrev(name){{
   const map = {{Architectural:'A',Structural:'S',Mechanical:'M',Electrical:'E',Plumbing:'P',
     Civil:'C',Landscape:'L','Fire Protection':'F','Fire Alarm':'FA','Low Voltage':'LV',
@@ -971,21 +930,6 @@ function buildResults(){{
     <span class="stat-chip med">${{s.medium}} <span class="chip-lbl">Medium</span></span>
     <span class="stat-chip low">${{s.low}} <span class="chip-lbl">Low</span></span>
     <span class="stat-chip">$${{s.cost_low.toLocaleString()}}–$${{s.cost_high.toLocaleString()}} <span class="chip-lbl">Exposure</span></span>`;
-
-  // Discipline-pair accordion (header + collapsed list)
-  const allPairs = discPairCounts(DATA.conflicts);
-  const accDetail = document.getElementById('disc-acc-detail');
-  const accBody = document.getElementById('disc-acc-body');
-  if(allPairs.length){{
-    const [topKey, topVal] = allPairs[0];
-    accDetail.innerHTML = `${{allPairs.length}} pairs &middot; top: <strong>${{escapeHtml(topKey)}}</strong> (${{topVal}})`;
-    accBody.innerHTML = allPairs.map(([k,v])=>
-      `<div class="disc-acc-row"><span class="pair">${{escapeHtml(k)}}</span><span class="cnt">${{v}}</span></div>`
-    ).join('');
-  }} else {{
-    accDetail.textContent = 'No discipline pairs detected.';
-    accBody.innerHTML = '';
-  }}
 
   const severities=['All','Critical','High','Medium','Low'];
   document.getElementById('filters').innerHTML=severities.map(sv=>
@@ -1016,7 +960,6 @@ function displayId(c, fallbackIdx){{
   return 'F'+String(n).padStart(3,'0');
 }}
 
-function scoreColor(v){{return v>=8?'var(--critical)':v>=5?'var(--high)':'var(--low)'}}
 
 /* === Sheet viewer helpers === */
 
@@ -1183,16 +1126,6 @@ function renderConflicts(severity){{
 
   const list=document.getElementById('conflict-list');
   list.innerHTML=visible.map((c, idx)=>{{
-    const dims=['constructability','cost','safety','schedule','downstream'];
-    const scoresHTML=dims.map(d=>{{
-      const v=(c.scores||{{}})[d]||0;
-      return `<div class="score-dim">
-        <div class="dim-label">${{d.slice(0,6)}}</div>
-        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${{v*10}}%;background:${{scoreColor(v)}}"></div></div>
-        <div class="dim-val" style="color:${{scoreColor(v)}}">${{v}}/10</div>
-      </div>`;
-    }}).join('');
-
     const da = c.disc_a || '', db = c.disc_b || '';
     const pairTag = (da && db) ? `${{discAbbrev(da)}} ↔ ${{discAbbrev(db)}}` : '';
     const costRange = `$${{(c.cost_low||0).toLocaleString()}} – $${{(c.cost_high||0).toLocaleString()}}`;
@@ -1236,7 +1169,6 @@ function renderConflicts(severity){{
         <div class="cc-cost-inline">${{costRange}}</div>
         <div class="cc-section-label">Description</div>
         <div class="cc-desc">${{escapeHtml(c.description||'')}}</div>
-        <div class="scores-grid">${{scoresHTML}}</div>
         <div class="cc-impact">
           <div class="impact-box">
             <span class="ib-label">Cost Exposure</span>

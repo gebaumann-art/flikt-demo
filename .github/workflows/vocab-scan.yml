@@ -1,0 +1,58 @@
+name: vocab-scan
+
+# Guards the PUBLIC demo against internal-vocabulary leaks.
+#
+# Why this exists: on 2026-08-19 demo.flikt.ai was found publishing
+# "Conflicts by discipline pair", "Scoring severity (50-point model)", a
+# per-finding `consensus` object exposing the 5-run voting design, the named
+# severity-scoring axes, and internal module names like `spec_processor_api`.
+# The existing leak-scan only checked per-project IDENTITY patterns and only
+# scanned the data blob, so template strings and CSS/JS comments — which are
+# published verbatim in page source — were never inspected at all.
+#
+# Two jobs, because they fail for different reasons:
+#   selftest       — the gate's own patterns still catch known-bad strings
+#   committed-html — no forbidden vocabulary in the HTML actually on main
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  vocab:
+    name: internal-vocabulary
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Gate self-test (does the scanner still catch known leaks?)
+        run: python3 _build/build_demo.py --selftest
+
+      - name: Scan committed HTML
+        run: |
+          python3 - <<'PY'
+          import sys, pathlib
+          sys.path.insert(0, "_build")
+          from build_demo import vocab_scan
+
+          failed = False
+          for page in sorted(pathlib.Path(".").glob("*.html")):
+              hits = vocab_scan(page.read_text(encoding="utf-8"))
+              if hits:
+                  failed = True
+                  print(f"VOCAB LEAK in {page.name}:")
+                  for pattern, samples in hits:
+                      print(f"  {pattern} -> {samples}")
+          if failed:
+              print("\nForbidden internal vocabulary is live on the public demo.")
+              sys.exit(1)
+          print("committed HTML: clean")
+          PY
