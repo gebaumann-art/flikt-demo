@@ -265,9 +265,11 @@ a:hover{{color:var(--amber-hover)}}
   padding:0 18px;margin-bottom:14px;overflow-x:auto;scrollbar-width:thin
 }}
 .proj-strip-name{{
+  background:none;border:none;font-family:inherit;
   font-size:14px;font-weight:800;color:var(--text);letter-spacing:-0.01em;
   padding:13px 0;white-space:nowrap;cursor:pointer
 }}
+.proj-strip-name:focus-visible{{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}}
 .proj-tabs{{display:flex;gap:2px;align-items:stretch}}
 .proj-tab{{
   background:none;border:none;border-bottom:2px solid transparent;
@@ -287,9 +289,12 @@ a:hover{{color:var(--amber-hover)}}
 }}
 .pane-pager{{display:flex;align-items:center;gap:9px}}
 .pager-arrow{{
-  color:var(--text-soft);font-size:16px;line-height:1;cursor:default;
+  background:none;border:none;font-family:inherit;
+  color:var(--text-soft);font-size:16px;line-height:1;cursor:pointer;
   padding:0 3px;user-select:none
 }}
+.pager-arrow:hover{{color:var(--text)}}
+.pager-arrow:focus-visible{{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}}
 .pager-count{{
   font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text-muted)
 }}
@@ -303,11 +308,17 @@ a:hover{{color:var(--amber-hover)}}
 /* Back-to-project line — the portal shows "<- Back to project #<short id>"
    directly above the chip row. The id here is derived from the demo slug, not
    a real project identifier. */
+/* baseline, not centre: the label is Inter 13px and the id is mono 12px, so
+   centring them left the two sitting on different baselines. */
 .back-to-project{{
-  display:flex;align-items:center;gap:9px;margin:0 0 10px 0;font-size:13px
+  display:flex;align-items:baseline;gap:9px;margin:0 0 10px 0;font-size:13px
 }}
-.btp-link{{color:var(--text-muted);font-weight:600;cursor:pointer}}
+.btp-link{{
+  color:var(--text-muted);font-weight:600;cursor:pointer;font-size:13px;
+  background:none;border:none;padding:0;font-family:inherit
+}}
 .btp-link:hover{{color:var(--amber)}}
+.btp-link:focus-visible{{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}}
 .btp-hash{{font-family:var(--mono);font-size:12px;color:var(--text-soft)}}
 
 .chips-row{{
@@ -330,16 +341,22 @@ a:hover{{color:var(--amber-hover)}}
 
 /* Search row (clones portal's search-every-page bar) */
 .search-row{{display:flex;gap:10px;align-items:center;margin-bottom:12px}}
+/* Both controls take an explicit height. Without it the <input> computes
+   line-height:normal (35.5px box) while the <span> inherits body
+   line-height:1.5 (38.8px) — a 3.3px mismatch that centre-alignment then
+   splits, so neither the top nor the bottom edge lined up. */
 .search-input{{
-  flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:9px 14px;font-family:inherit;font-size:13px;color:var(--text);outline:none
+  flex:1;height:38px;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:0 14px;font-family:inherit;font-size:13px;
+  color:var(--text);outline:none
 }}
 .search-input::placeholder{{color:var(--text-soft)}}
 .search-input:focus{{border-color:var(--border-strong)}}
 .disc-select{{
+  height:38px;display:inline-flex;align-items:center;
   font-family:inherit;font-size:12.5px;color:var(--text-muted);
   background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:9px 12px;white-space:nowrap
+  padding:0 12px;white-space:nowrap
 }}
 .action-toolbar{{display:flex;flex-wrap:wrap;gap:8px;align-items:center}}
 .action-btn{{
@@ -853,7 +870,7 @@ margin-right:5px;vertical-align:1px;background:transparent}}
 <div id="results" class="view">
   <!-- Project sub-nav strip (portal ProjectNav clone) -->
   <div class="proj-strip">
-    <span class="proj-strip-name" id="ps-name" onclick="showView('dashboard')"></span>
+    <button class="proj-strip-name" type="button" id="ps-name" onclick="showView('dashboard')"></button>
     <nav class="proj-tabs">
       <button class="proj-tab" type="button" onclick="showView('dashboard')">Overview</button>
       <button class="proj-tab active" type="button">Conflicts <span id="ps-count"></span></button>
@@ -870,7 +887,7 @@ margin-right:5px;vertical-align:1px;background:transparent}}
 
   <!-- Back-to-project line (portal shows this above the chip row) -->
   <div class="back-to-project">
-    <span class="btp-link" onclick="showView('dashboard')">&larr; Back to project</span>
+    <button class="btp-link" type="button" onclick="showView('dashboard')">&larr; Back to project</button>
     <span class="btp-hash" id="btp-hash"></span>
   </div>
 
@@ -917,9 +934,9 @@ margin-right:5px;vertical-align:1px;background:transparent}}
   <!-- Findings-pane header: paging + filter controls (portal parity) -->
   <div class="pane-header">
     <div class="pane-pager">
-      <span class="pager-arrow" aria-disabled="true">&lsaquo;</span>
+      <button class="pager-arrow" type="button" onclick="stepConflict(-1)" aria-label="Previous finding">&lsaquo;</button>
       <span class="pager-count" id="pager-count">&mdash;</span>
-      <span class="pager-arrow" aria-disabled="true">&rsaquo;</span>
+      <button class="pager-arrow" type="button" onclick="stepConflict(1)" aria-label="Next finding">&rsaquo;</button>
     </div>
     <span class="pane-ctl" aria-disabled="true" title="Advanced filters are available in the live portal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
@@ -1320,6 +1337,34 @@ function dismissPinned(){{
   document.getElementById('viewer-pinned').classList.remove('visible');
 }}
 
+// Findings-pane pager. It used to be painted once as "1/<total>" and never
+// touched again, so it read "1/45" no matter which finding was open — a count
+// that was simply wrong. Position is within the CURRENTLY VISIBLE list, so it
+// stays honest under severity filters and search.
+function updatePager(pos){{
+  const el = document.getElementById('pager-count');
+  if(!el) return;
+  const total = RENDERED.length;
+  el.textContent = total ? `${{Math.min(Math.max(pos, 1), total)}}/${{total}}` : '0/0';
+}}
+
+function currentIndex(){{
+  const active = document.querySelector('.conflict-card.active');
+  return active ? parseInt(active.dataset.idx, 10) : -1;
+}}
+
+function stepConflict(delta){{
+  const total = RENDERED.length;
+  if(!total) return;
+  const cur = currentIndex();
+  let next = cur < 0 ? 0 : cur + delta;
+  if(next < 0 || next >= total) return;
+  // selectConflict toggles a card shut when it is already open, so close the
+  // current one explicitly before opening the neighbour.
+  if(cur >= 0 && cur !== next) selectConflict(cur);
+  selectConflict(next);
+}}
+
 function selectConflict(idx){{
   const c = RENDERED[idx] || {{}};
   const sheets = c.sheets, title = c.title;
@@ -1337,12 +1382,14 @@ function selectConflict(idx){{
   if(wasOpen){{
     // User clicked an already-open card: leave it closed, clear pinned pill.
     document.getElementById('viewer-pinned').classList.remove('visible');
+    updatePager(1);
     return;
   }}
 
   // Expand this card and mark active.
   card.classList.add('active');
   card.classList.remove('collapsed');
+  updatePager(idx + 1);
   // Smoothly scroll the right pane sheet viewer into view on small screens
   if(window.innerWidth < 960){{
     document.querySelector('.viewer-col').scrollIntoView({{behavior:'smooth', block:'start'}});
@@ -1448,6 +1495,8 @@ function renderConflicts(severity){{
   }} else {{
     notice.innerHTML='';
   }}
+  // Re-rendering clears any expanded card, so the pager resets with it.
+  updatePager(1);
 }}
 
 function escapeHtml(s){{
