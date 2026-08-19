@@ -747,6 +747,13 @@ FORBIDDEN_VOCAB = [
     r"\balembic\b",
     r"\bboto3\b",
     r"app/services/",
+    # Internal repo/source paths. Added 2026-08-19 after a CSS comment naming
+    # the portal's tailwind config and lib path shipped to page source — the
+    # same publish-a-template-comment mistake, second time in one session.
+    r"customer-portal[\w-]*/",
+    r"tailwind\.config",
+    r"src/lib/",
+    r"flikt-demo/_build",
     # Internal module names. These reach public HTML through the conflict
     # `source` field (e.g. "spec_processor_api"), which is why they are here
     # as well as in INTERNAL_CONFLICT_FIELDS — belt and braces, since the

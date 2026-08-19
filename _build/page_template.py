@@ -24,6 +24,23 @@ body, CSS block, and the discPairCounts() helper). Two independent reasons:
      product it exists to mirror.
 Do not reinstate. Per-finding "A ↔ S" badges are fine and stay — the portal
 shows those too; it was the aggregate matrix framing that leaked.
+
+Palette locked to the real portal 2026-08-19. Sources: the portal's Tailwind
+config (flikt-navy / flikt-amber scales) and its SEVERITY_COLORS map. Two
+mismatches this fixed, both obvious side by side:
+  - amber was #E8A020; the portal's primary is flikt-amber-500 #F59E0B
+  - neutrals were Tailwind SLATE (blue-tinted); the portal uses GRAY
+The portal also splits severity BADGE fill from severity TEXT colour
+(badge red-600 -> orange-500 -> yellow-500 -> green-300; text is the *-800
+ramp). The demo conflated them into one token, so its badges read darker
+than the portal's. Now separate: --critical vs --critical-badge, etc.
+
+Width: the portal's report view is `fixed inset-0 px-4` on large screens —
+edge to edge, not a centred column. #results drops the 1280px cap to match,
+and .report-body uses the portal's exact grid, minmax(340px,30%) 1fr gap-4.
+
+(This note lives here, not in a CSS comment, for the reason stated above —
+I wrote it into the stylesheet first and it published internal repo paths.)
 """
 
 PAGE_TEMPLATE = r"""<!DOCTYPE html>
@@ -50,24 +67,27 @@ document.documentElement.setAttribute('data-theme',s)}}catch(e){{}}}})();
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
 :root{{
-  --navy:#0a1929;--navy-2:#13243a;--amber:#E8A020;--amber-light:#F5C96B;
-  --critical:#B91C1C;--critical-tint:#FEF2F2;--critical-border:#FECACA;
-  --high:#C2410C;--high-tint:#FFF7ED;--high-border:#FED7AA;
-  --medium:#A16207;--medium-tint:#FEFCE8;--medium-border:#FDE68A;
-  --low:#15803D;--low-tint:#F0FDF4;--low-border:#BBF7D0;
-  --bg:#F5F7FA;--card:#FFFFFF;--text:#0F172A;--text-muted:#64748B;--text-soft:#94A3B8;
-  --border:#E2E8F0;--border-strong:#CBD5E1;
+  --navy:#0a1929;--navy-2:#102a43;--amber:#F59E0B;--amber-light:#FCD34D;
+  --amber-hover:#D97706;
+  /* severity TEXT = *-800, severity BADGE fill = portal's badge ramp
+     (red-600 -> orange-500 -> yellow-500 -> green-300) */
+  --critical:#991B1B;--critical-badge:#DC2626;--critical-tint:#FEF2F2;--critical-border:#FECACA;
+  --high:#9A3412;--high-badge:#F97316;--high-tint:#FFF7ED;--high-border:#FED7AA;
+  --medium:#854D0E;--medium-badge:#EAB308;--medium-tint:#FEFCE8;--medium-border:#FDE68A;
+  --low:#166534;--low-badge:#86EFAC;--low-tint:#F0FDF4;--low-border:#BBF7D0;
+  --bg:#F9FAFB;--card:#FFFFFF;--text:#111827;--text-muted:#6B7280;--text-soft:#9CA3AF;
+  --border:#E5E7EB;--border-strong:#D1D5DB;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
-  --canvas-stripe-a:#FAFCFF;--canvas-stripe-b:#F3F6FB
+  --canvas-stripe-a:#FAFAFB;--canvas-stripe-b:#F3F4F6
 }}
 :root[data-theme="dark"]{{
   --bg:#0F1723;--card:#1A2540;
   --text:#E8ECF1;--text-muted:#A0AEC0;--text-soft:#7C8B9F;
   --border:#2A3A55;--border-strong:#3A4A65;
-  --critical:#F87171;--critical-tint:#2A1616;--critical-border:#4A2222;
-  --high:#FB923C;--high-tint:#2A1F12;--high-border:#4A3318;
-  --medium:#FACC15;--medium-tint:#2A2512;--medium-border:#4A4018;
-  --low:#4ADE80;--low-tint:#122A1B;--low-border:#1E4A2E;
+  --critical:#F87171;--critical-badge:#DC2626;--critical-tint:#2A1616;--critical-border:#4A2222;
+  --high:#FB923C;--high-badge:#F97316;--high-tint:#2A1F12;--high-border:#4A3318;
+  --medium:#FACC15;--medium-badge:#EAB308;--medium-tint:#2A2512;--medium-border:#4A4018;
+  --low:#4ADE80;--low-badge:#86EFAC;--low-tint:#122A1B;--low-border:#1E4A2E;
   --canvas-stripe-a:#13243A;--canvas-stripe-b:#1A2540
 }}
 html,body{{height:100%}}
@@ -78,7 +98,7 @@ body{{
   overflow-x:hidden
 }}
 a{{color:var(--amber);text-decoration:none;transition:color .2s}}
-a:hover{{color:#B97D0F}}
+a:hover{{color:var(--amber-hover)}}
 
 /* ============ Header / Navbar ============ */
 .header{{
@@ -175,6 +195,12 @@ a:hover{{color:#B97D0F}}
 
 /* ============ View container ============ */
 .view{{display:none;padding:24px 32px 48px;max-width:1280px;margin:0 auto}}
+/* The portal's report view is `lg:fixed lg:inset-0 lg:px-4` — it fills the
+   window edge to edge rather than sitting in a centred column. The demo's
+   1280px cap made it read as a narrower, lesser copy on any wide screen.
+   Results view only: the dashboard and report views stay centred, which is
+   what the portal does with its own non-report pages. */
+#results{{max-width:none;margin:0;padding:16px 16px 32px}}
 .view.active{{display:block}}
 
 /* ============ Dashboard view ============ */
@@ -388,7 +414,8 @@ margin-right:5px;vertical-align:1px;background:transparent}}
 .filter-btn.active{{background:var(--navy);color:#fff;border-color:var(--navy)}}
 
 /* Two-column body — portal proportions: compact findings rail, dominant viewer */
-.report-body{{display:grid;grid-template-columns:minmax(300px,1fr) 2.3fr;gap:16px;align-items:start}}
+/* Portal grid, exactly: lg:grid-cols-[minmax(340px,30%)_minmax(0,1fr)] gap-4 */
+.report-body{{display:grid;grid-template-columns:minmax(340px,30%) minmax(0,1fr);gap:16px;align-items:start}}
 .findings-col{{min-width:0;max-height:calc(100vh - 120px);overflow-y:auto;padding-right:4px;scrollbar-width:thin}}
 .viewer-col{{min-width:0;position:sticky;top:80px}}
 
@@ -414,11 +441,17 @@ margin-right:5px;vertical-align:1px;background:transparent}}
   padding:3px 9px;border-radius:12px;font-size:10.5px;font-weight:700;
   letter-spacing:.2px;text-align:center;color:#fff
 }}
-.sev-Critical{{background:var(--critical)}}
-.sev-High{{background:var(--high)}}
-.sev-Medium{{background:var(--medium)}}
-.sev-Low{{background:var(--low)}}
-:root[data-theme="dark"] .sev-badge{{color:var(--navy)}}
+/* Badge fill uses the portal's badge ramp. yellow-500 and green-300 are too
+   light for white text (both fail AA), so those two take dark text — same
+   call the portal makes. */
+.sev-Critical{{background:var(--critical-badge);color:#fff}}
+.sev-High{{background:var(--high-badge);color:#fff}}
+.sev-Medium{{background:var(--medium-badge);color:#713F12}}
+.sev-Low{{background:var(--low-badge);color:#14532D}}
+:root[data-theme="dark"] .sev-Critical,
+:root[data-theme="dark"] .sev-High{{color:#fff}}
+:root[data-theme="dark"] .sev-Medium{{color:#713F12}}
+:root[data-theme="dark"] .sev-Low{{color:#14532D}}
 .disc-pair-tag{{
   font-family:var(--mono);background:var(--card);border:1px solid var(--border);
   color:var(--text-muted);border-radius:5px;padding:1px 6px;
@@ -511,7 +544,7 @@ margin-right:5px;vertical-align:1px;background:transparent}}
   border:1px solid rgba(232,160,32,0.25);border-radius:8px;text-align:center;
   font-size:12.5px;color:var(--text)
 }}
-.truncated-notice strong{{color:#B97D0F}}
+.truncated-notice strong{{color:var(--amber-hover)}}
 .truncated-notice a{{color:var(--amber);font-weight:700}}
 
 /* Sheet viewer (right pane) — dominant, portal-proportioned */
